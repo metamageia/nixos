@@ -14,8 +14,8 @@
       ./apps/syncthing.nix
       
       #./apps/hyprland.nix
-      ./apps/kde-plasma.nix      
-      #./apps/kde-plasma-wayland.nix
+      #./apps/kde-plasma.nix      
+      ./apps/kde-plasma-wayland.nix
 
       #inputs.home-manager.nixosModules.home-manager
 
