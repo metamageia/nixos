@@ -3,7 +3,7 @@
   description = "Metamageia's personal NixOS flake.";
   
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable"; #defines the git repo for nixpkgs. Choose latest stable
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11"; #defines the git repo for nixpkgs. Choose latest stable
 
     # Home Manager 
     home-manager.url = "github:nix-community/home-manager";

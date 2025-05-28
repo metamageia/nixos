@@ -18,7 +18,7 @@
     lmms
 
     # Plugins
-    distrho
+    #distrho
     bespokesynth
     rkrlv2
     mda_lv2
