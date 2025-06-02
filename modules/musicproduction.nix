@@ -18,12 +18,13 @@
     lmms
 
     # Plugins
-    #distrho
+    distrho-ports
     bespokesynth
     rkrlv2
     mda_lv2
     x42-plugins
-    x42-gmsynth
+    carla
+    soundfont-generaluser
     infamousPlugins
     talentedhack
     # gxplugins-lv2 #Guitar Plugins

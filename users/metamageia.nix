@@ -19,7 +19,7 @@
      git
      neofetch
      obsidian
-     #discord
+     discord
      qownnotes
      manuskript
      brave
