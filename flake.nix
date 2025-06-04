@@ -12,13 +12,9 @@
     # Stylix base-16 color & typography manager
     stylix.url = "github:danth/stylix";
 
-    # Anime game launcher pkgs
-    aagl.url = "github:ezKEa/aagl-gtk-on-nix";
-    aagl.inputs.nixpkgs.follows = "nixpkgs"; # Name of nixpkgs input you want to use
-
     };
     
-  outputs = { self, nixpkgs, aagl, stylix, home-manager, ... }@inputs:
+  outputs = { self, nixpkgs, stylix, home-manager, ... }@inputs:
     let #declare variables
       
       # Configure system
@@ -59,7 +55,6 @@
             hostName = "macbook";
             inherit inputs;
             inherit pkgs;
-            inherit aagl;
           };
         };
         
@@ -74,7 +69,6 @@
           specialArgs = {
             hostName = "gigabyte";
             inherit pkgs;
-            inherit aagl;
           };
         };
         
@@ -90,7 +84,6 @@
           specialArgs = {
             hostName = "dell";
             inherit pkgs;
-            inherit aagl;
           };
         };
 

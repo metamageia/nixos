@@ -1,9 +1,6 @@
 { config, pkgs, ... }:
 {
-  imports = [
-    #./apps/anime-game-launcher.nix    
-  ];
-
+ 
   environment.systemPackages = with pkgs; [
     lutris
     wine
