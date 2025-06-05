@@ -5,7 +5,6 @@
 
 imports = [
   ./apps/jellyfin.nix
-  ./apps/omnivore.nix
 ];
 
   environment.systemPackages = with pkgs; [
