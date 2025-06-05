@@ -1,4 +1,4 @@
-version: '3'
+name: omnivore
 x-postgres:
   &postgres-common
   image: "ankane/pgvector:v0.5.1"
