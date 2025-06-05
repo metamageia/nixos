@@ -5,6 +5,12 @@
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixos-24.11"; #defines the git repo for nixpkgs. Choose latest stable
 
+    # Nix User Repository (NUR)
+    nur = {
+      url = "github:nix-community/NUR";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # Home Manager 
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
