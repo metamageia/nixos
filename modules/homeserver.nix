@@ -5,10 +5,13 @@
 
 imports = [
   ./apps/jellyfin.nix
+  ./apps/omnivore.nix
 ];
 
-  environment.systemPackages = with pkgs; [
-    compose2nix
-  ];
+environment.systemPackages = with pkgs; [
+  compose2nix
+];
+
+
 
 }
