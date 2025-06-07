@@ -46,6 +46,7 @@
     home-manager
     brave
     rclone
+    jmtpfs
   ];
 
 fonts.packages = with pkgs; [
