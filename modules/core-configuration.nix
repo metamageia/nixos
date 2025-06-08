@@ -17,6 +17,8 @@
       ./apps/kde-plasma.nix      
       #./apps/kde-plasma-wayland.nix
 
+      ./apps/scribus.nix
+
       #inputs.home-manager.nixosModules.home-manager
 
     ];
@@ -47,6 +49,7 @@
     brave
     rclone
     jmtpfs
+    nix-tree
   ];
 
 fonts.packages = with pkgs; [
