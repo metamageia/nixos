@@ -17,8 +17,6 @@
       ./apps/kde-plasma.nix      
       #./apps/kde-plasma-wayland.nix
 
-      ./apps/scribus.nix
-
       #inputs.home-manager.nixosModules.home-manager
 
     ];
@@ -44,7 +42,6 @@
     unrar
     git
     bash
-    kitty
     home-manager
     brave
     rclone

@@ -2,22 +2,27 @@
 {
 
 services.xserver.displayManager.sddm.enable = true;
-services.xserver.enable = true; #Needed for xwayland
+services.displayManager.sddm.wayland.enable = true;
 
-programs.hyprland = {
+services.hyprland = {
   enable = true;
-  xwayland.enable = true;
 };
 
 environment.sessionVariables.NIXOS_OZONE_WL = "1"; #Fixes electron apps in wayland
 
+xdg.portal = {
+  enable = true;
+  extraPortals = [xdg-portal-gtk];
+};
+
 environment.systemPackages = with pkgs; [
   waybar
-  hyprpaper
-  rofi-wayland
   dunst
   libnotify
+  hyprpaper
   kitty
+  gtk3
+  rofi-wayland
 ];
 
 }
