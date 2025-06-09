@@ -10,7 +10,6 @@
     mindustry
     cataclysm-dda
     cockatrice
-
     dolphin-emu
   ];
 

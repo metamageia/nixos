@@ -19,15 +19,10 @@
      git
      neofetch
      obsidian
-     #discord
-     #qownnotes
      manuskript
-     #brave
      inkscape
      krita
      gimp
-     #openshot-qt
-     scribus
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage

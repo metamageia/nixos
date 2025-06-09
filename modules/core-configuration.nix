@@ -44,7 +44,6 @@
     git
     bash
     home-manager
-    #brave
     rclone
     jmtpfs
     nix-tree
