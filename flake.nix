@@ -20,7 +20,6 @@
 
     zen-browser.url = "github:MarceColl/zen-browser-flake";
 
-
     };
     
   outputs = { self, nixpkgs, stylix, home-manager, ... }@inputs:
@@ -64,6 +63,7 @@
             hostName = "macbook";
             inherit inputs;
             inherit pkgs;
+            inherit system;
           };
         };
         
@@ -107,7 +107,7 @@
             ./users/metamageia.nix
           ];
         };   
-      
+
       };
   
 

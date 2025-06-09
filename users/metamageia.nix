@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, inputs, system, ... }:
 
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -22,14 +22,12 @@
      #discord
      #qownnotes
      manuskript
-     brave
+     #brave
      inkscape
      krita
      gimp
      #openshot-qt
      scribus
-     inputs.zen-browser.packages."${system}".default
-
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage

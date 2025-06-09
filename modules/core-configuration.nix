@@ -1,5 +1,5 @@
 
-{ config, pkgs, hostName, inputs, ... }:
+{ config, pkgs, hostName, inputs, system, ... }:
 
 {
   imports =
@@ -44,10 +44,14 @@
     git
     bash
     home-manager
-    brave
+    #brave
     rclone
     jmtpfs
     nix-tree
+    alacritty
+    fuzzel
+    inputs.zen-browser.packages."${system}".generic
+
   ];
 
 fonts.packages = with pkgs; [
