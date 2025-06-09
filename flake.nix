@@ -51,13 +51,12 @@
             inputs.home-manager.nixosModules.home-manager
             ./system/macbook/macbook.nix
             ./modules/core-configuration.nix
-            #./system/bootloaders/grub.nix
             #inputs.stylix.nixosModules.stylix
             #./stylix.nix
-            ./modules/gaming.nix 
-            ./modules/musicproduction.nix
+            #./modules/gaming.nix 
+            #./modules/musicproduction.nix
             ./modules/development.nix
-            ./modules/homeserver.nix
+            #./modules/homeserver.nix
           ];
           specialArgs = {
             hostName = "macbook";

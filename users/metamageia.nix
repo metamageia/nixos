@@ -8,21 +8,10 @@
   home.enableNixpkgsReleaseCheck = false;
   home.stateVersion = "23.11"; # Please read the comment before changing.
 
-  imports = [
-    #../modules/personal-configuration.nix
-  ];
-
   # The home.packages option allows you to install Nix packages into your
   # environment.
   home.packages = with pkgs; [
-     librewolf
-     git
-     neofetch
      obsidian
-     manuskript
-     inkscape
-     krita
-     gimp
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage

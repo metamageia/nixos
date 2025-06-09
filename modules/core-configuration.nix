@@ -1,4 +1,3 @@
-
 { config, pkgs, hostName, inputs, system, ... }:
 
 {
@@ -50,13 +49,20 @@
     alacritty
     fuzzel
     inputs.zen-browser.packages."${system}".generic
-
   ];
+
 
 fonts.packages = with pkgs; [
   corefonts
   vistafonts
 ];
+
+nix.gc = {
+  automatic = true;
+  dates     = ["weekly"];
+  options   = "--delete-older-than 30d";
+};
+
 
   # This value determines the NixOS release from which the default
   # settings for stateful data, like file locations and database versions
