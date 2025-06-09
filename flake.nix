@@ -18,6 +18,9 @@
     # Stylix base-16 color & typography manager
     stylix.url = "github:danth/stylix";
 
+    zen-browser.url = "github:MarceColl/zen-browser-flake";
+
+
     };
     
   outputs = { self, nixpkgs, stylix, home-manager, ... }@inputs:

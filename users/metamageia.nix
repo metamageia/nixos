@@ -1,4 +1,4 @@
-{ config, pkgs, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   # Home Manager needs a bit of information about you and the paths it should
@@ -28,6 +28,8 @@
      gimp
      #openshot-qt
      scribus
+     inputs.zen-browser.packages."${system}".default
+
   ];
 
   # Home Manager is pretty good at managing dotfiles. The primary way to manage
