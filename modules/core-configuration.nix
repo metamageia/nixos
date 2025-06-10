@@ -42,7 +42,6 @@
     unrar
     git
     bash
-    home-manager
     rclone
     jmtpfs
     nix-tree

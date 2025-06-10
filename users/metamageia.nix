@@ -28,13 +28,7 @@
     #   org.gradle.daemon.idletimeout=3600000
     # '';
   };
-  programs.home-manager.enable = true;
-
-  services.home-manager.autoExpire = {
-    enable = true;
-    frequency = "weekly"; # optional
-    timestamp = "30d";    # optional
-  };
+ 
   # Home Manager can also manage your environment variables through
   # 'home.sessionVariables'. If you don't want to manage your shell through Home
   # Manager then you have to manually source 'hm-session-vars.sh' located at

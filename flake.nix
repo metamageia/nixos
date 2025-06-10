@@ -51,12 +51,21 @@
             inputs.home-manager.nixosModules.home-manager
             ./system/macbook/macbook.nix
             ./modules/core-configuration.nix
+            home-manager.nixosModules.home-manager
+            {
+              home-manager.useGlobalPkgs = true;
+              home-manager.useUserPackages = true;
+              home-manager.users.metamageia = ./users/metamageia.nix;
+
+              # Optionally, use home-manager.extraSpecialArgs to pass
+              # arguments to home.nix
+            }
             #inputs.stylix.nixosModules.stylix
             #./stylix.nix
             #./modules/gaming.nix 
-            #./modules/musicproduction.nix
+            ./modules/musicproduction.nix
             ./modules/development.nix
-            #./modules/homeserver.nix
+            ./modules/homeserver.nix
           ];
           specialArgs = {
             hostName = "macbook";

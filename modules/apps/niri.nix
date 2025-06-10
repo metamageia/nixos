@@ -3,13 +3,13 @@
   services.xserver.displayManager.sddm.enable = true;
   services.displayManager.sddm.wayland.enable = true;
   programs.niri.enable = true;
-
+  
   environment.systemPackages = with pkgs; [
     qt5.qtwayland
     brightnessctl
     waybar
     wev
-
+    kdePackages.dolphin
   ];
 
   environment.sessionVariables = {
