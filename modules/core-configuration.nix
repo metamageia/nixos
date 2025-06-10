@@ -17,8 +17,6 @@
       #./apps/kde-plasma-wayland.nix
       ./apps/niri.nix
 
-      #inputs.home-manager.nixosModules.home-manager
-
     ];
 
   # Enable CUPS to print documents.
