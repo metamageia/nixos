@@ -1,7 +1,10 @@
 { pkgs, config, ... }:
 {
-  services.xserver.displayManager.sddm.enable = true;
-  services.displayManager.sddm.wayland.enable = true;
+  services.displayManager.sddm = {
+    enable = true;
+    wayland.enable = true;
+  };
+  
   programs.niri.enable = true;
 
   environment.systemPackages = with pkgs; [

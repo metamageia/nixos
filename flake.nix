@@ -38,7 +38,11 @@
           allowUnfree = true;
         };
       };
-    
+
+      pkgModule = { nixpkgs, ... }: {
+        nixpkgs.pkgs = pkgs;
+      };
+
     in {
           
       # --- Host-specific Configurations --- #
@@ -48,6 +52,7 @@
         macbook = lib.nixosSystem {
           inherit system;
           modules = [ 
+            pkgModule
             inputs.home-manager.nixosModules.home-manager
             ./system/macbook/macbook.nix
             ./modules/core-configuration.nix
@@ -70,7 +75,7 @@
           specialArgs = {
             hostName = "macbook";
             inherit inputs;
-            inherit pkgs;
+            #inherit pkgs;
             inherit system;
           };
         };

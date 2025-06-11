@@ -17,7 +17,7 @@
   # Enable and configure Avahi for mDNS support
   services.avahi = {
     enable = true;                # Enable the Avahi service
-    nssmdns = true;               # Enable mDNS Name Service Switch support
+    nssmdns4 = true;               # Enable mDNS Name Service Switch support
     publish = {
       enable = true;              # Enable publishing via mDNS
       addresses = true;           # Publish IP addresses
