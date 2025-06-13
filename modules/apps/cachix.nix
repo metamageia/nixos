@@ -1,4 +1,3 @@
-# Cachix configuration
 {
   nix.settings = {
     substituters = [ "https://ezkea.cachix.org" ];

@@ -8,10 +8,10 @@
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
     stylix.url = "github:danth/stylix";
-    stylix.inputs.nixpkgs.follows = "nixpkgs";
+    #stylix.inputs.nixpkgs.follows = "nixpkgs";
 
     zen-browser.url = "github:MarceColl/zen-browser-flake";
-    zen-browser.inputs.nixpkgs.follows = "nixpkgs";
+    #zen-browser.inputs.nixpkgs.follows = "nixpkgs";
     };
     
   outputs = { self, nixpkgs, stylix, home-manager, ... }@inputs:
@@ -36,6 +36,11 @@
       nixosConfigurations = {
         macbook = lib.nixosSystem {
           inherit system;
+          specialArgs = {
+            hostName = "macbook";
+            inherit inputs;
+            inherit system;
+          };
           modules = [ 
             pkgModule
             ./system/macbook/macbook.nix
@@ -59,11 +64,6 @@
             #./stylix.nix
             #./modules/gaming.nix 
           ];
-          specialArgs = {
-            hostName = "macbook";
-            inherit inputs;
-            inherit system;
-          };
         };
         
         dell = lib.nixosSystem {
