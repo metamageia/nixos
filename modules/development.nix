@@ -5,6 +5,7 @@ environment.systemPackages = with pkgs; [
 
 vscode
 neovim
+jq
 ];
 
 programs.adb.enable = true;
