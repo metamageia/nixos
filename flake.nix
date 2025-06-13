@@ -52,6 +52,7 @@
               home-manager.useUserPackages = true;
               home-manager.users.metamageia = ./modules/users/metamageia.nix;
             }
+            ./system/cleanGtkBackups.nix
 
             # DE / WM
              ./modules/apps/niri.nix
