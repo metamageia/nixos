@@ -51,8 +51,9 @@
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.users.metamageia = ./modules/users/metamageia.nix;
+              home-manager.backupFileExtension = "backup";
+
             }
-            ./system/cleanGtkBackups.nix
 
             # DE / WM
              ./modules/apps/niri.nix
@@ -87,6 +88,8 @@
           inherit pkgs;
           modules = [
             ./modules/users/metamageia.nix
+            #./modules/apps/niri.nix
+
           ];
         };   
       };
