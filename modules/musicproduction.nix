@@ -1,15 +1,8 @@
 {config, pkgs, ...}:
 {
-
-  imports = [
-  ];
- # Set LV2 Directory
   environment.variables = {
-    # Put environment variables here
      LV2_PATH = "/run/current-system/sw/lib/lv2";
   };
-
-
 
   environment.systemPackages = with pkgs; [
     # Daw
@@ -27,9 +20,7 @@
     soundfont-generaluser
     infamousPlugins
     talentedhack
-    # gxplugins-lv2 #Guitar Plugins
-     lsp-plugins
-    
+    lsp-plugins
   ];
 
 }

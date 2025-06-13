@@ -1,34 +1,25 @@
 {config, pkgs, hostName, ... }:
 {
 
- networking.hostName = hostName; # Define your hostname.
-  # networking.wireless.enable = true;  # Enables wireless support via wpa_>
-
-  # Configure network proxy if necessary
-  # networking.proxy.default = "http://user:password@proxy:port/";
-  # networking.proxy.noProxy = "127.0.0.1,localhost,internal.domain";
-
-  # Enable networking
+  networking.hostName = hostName; 
   networking.networkmanager.enable = true;
   networking.wireless.iwd.enable = true;
   networking.networkmanager.wifi.backend = "iwd";
 
-
   # Enable and configure Avahi for mDNS support
   services.avahi = {
-    enable = true;                # Enable the Avahi service
-    nssmdns4 = true;               # Enable mDNS Name Service Switch support
+    enable = true;                
+    nssmdns4 = true;               
     publish = {
-      enable = true;              # Enable publishing via mDNS
-      addresses = true;           # Publish IP addresses
-      workstation = true;         # Publish workstation information
+      enable = true;             
+      addresses = true;           
+      workstation = true;         
     };
   };
 
-  # Optionally, enable systemd-resolved for DNS resolution
   services.resolved = {
-    enable = true;                # Enable systemd-resolved
-    fallbackDns = [ "8.8.8.8" ];  # Set fallback DNS servers
+    enable = true;                
+    fallbackDns = [ "8.8.8.8" ];  
   };
 }
 

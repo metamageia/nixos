@@ -1,8 +1,5 @@
 { config, pkgs, ... }:
 {
-
-  # Enable sound with pipewire.
-  #sound.enable = true;
   services.pulseaudio.enable = false;
   security.rtkit.enable = true;
   services.pipewire = {
@@ -11,6 +8,4 @@
     alsa.support32Bit = true;
     pulse.enable = true;
   };
-
-
 }

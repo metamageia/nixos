@@ -2,12 +2,12 @@
 {
 
 environment.systemPackages = with pkgs; [
-
-vscode
-neovim
-jq
+    vscode
+    neovim
+    jq
 ];
 
+# Android development
 programs.adb.enable = true;
 users.users.metamageia.extraGroups = ["adbusers"];
 

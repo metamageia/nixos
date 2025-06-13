@@ -3,7 +3,6 @@
 {
   imports =
     [ 
-
       ./networking.nix
       ./locale.nix
       ./audio.nix
@@ -11,12 +10,7 @@
       # Custom modules to import
       ./apps/cachix.nix
       ./apps/syncthing.nix
-      
-      #./apps/hyprland.nix
-      #./apps/kde-plasma.nix      
-      #./apps/kde-plasma-wayland.nix
-      ./apps/niri.nix
-
+  
     ];
 
   # Enable CUPS to print documents.
