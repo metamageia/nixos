@@ -55,12 +55,13 @@
 
             # DE / WM
              ./modules/apps/niri.nix
+            inputs.stylix.nixosModules.stylix
+            ./modules/apps/stylix.nix
 
             # Special Modules
             ./modules/musicproduction.nix
             ./modules/development.nix
             ./modules/homeserver.nix
-            #inputs.stylix.nixosModules.stylix
             #./stylix.nix
             #./modules/gaming.nix 
           ];
