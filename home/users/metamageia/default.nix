@@ -1,6 +1,6 @@
 { config, pkgs, inputs, ... }:
 {
- home-manager.users.metamageia = import ../../home/users/metamageia/home.nix;
+ home-manager.users.metamageia = import ./home.nix;
   users.users.metamageia = {
     isNormalUser = true;
     description = "Metamageia";
