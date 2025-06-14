@@ -21,6 +21,11 @@
     let 
       system = "x86_64-linux";
       lib = inputs.nixpkgs.lib;
+
+      pkgs = import inputs.nixpkgs {
+      inherit system;
+      config.allowUnfree = true;
+      };
       
     in {
           
@@ -28,10 +33,7 @@
       nixosConfigurations = {
         laptop = lib.nixosSystem {
           inherit system;
-          pkgs = import inputs.nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-          };
+          inherit pkgs;
           specialArgs = {
             hostName = "laptop";
             inherit inputs;
@@ -67,10 +69,7 @@
       # --- User-specific Configurations --- #
       homeConfigurations = {
         metamageia = home-manager.lib.homeManagerConfiguration {
-        pkgs = import inputs.nixpkgs {
-          inherit system;
-          config.allowUnfree = true;
-        };
+        inherit pkgs;
           modules = [
             ./home/users/metamageia/home.nix
           ];
