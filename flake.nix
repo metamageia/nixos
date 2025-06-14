@@ -20,42 +20,32 @@
   outputs = { self, nixpkgs, stylix, home-manager, ... }@inputs:
     let 
       system = "x86_64-linux";
-      lib = nixpkgs.lib;
+      lib = inputs.nixpkgs.lib;
       
-      pkgs = import nixpkgs {
-        inherit system;
-        config = {
-          allowUnfree = true;
-        };
-      };
-
-      pkgModule = { nixpkgs, ... }: {
-        nixpkgs.pkgs = pkgs;
-      };
-
     in {
           
       # --- Host-specific Configurations --- #
       nixosConfigurations = {
         laptop = lib.nixosSystem {
           inherit system;
+          pkgs = import inputs.nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
           specialArgs = {
             hostName = "laptop";
             inherit inputs;
             inherit system;
           };
           modules = [ 
-            pkgModule
             ./nixos/hosts/laptop/configuration.nix
             ./nixos/modules/core-configuration.nix
-            inputs.home-manager.nixosModules.home-manager
             home-manager.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
               home-manager.users.metamageia = ./home/users/metamageia/home.nix;
               home-manager.backupFileExtension = "backup";
-
             }
 
             # DE / WM
@@ -72,15 +62,17 @@
             #./nixos/modules/gaming.nix 
           ];
         };
-        
       };
 
       # --- User-specific Configurations --- #
       homeConfigurations = {
         metamageia = home-manager.lib.homeManagerConfiguration {
-          inherit pkgs;
+        pkgs = import inputs.nixpkgs {
+          inherit system;
+          config.allowUnfree = true;
+        };
           modules = [
-            ./home.modules/users/metamageia/home.nix
+            ./home/users/metamageia/home.nix
           ];
         };   
       };
