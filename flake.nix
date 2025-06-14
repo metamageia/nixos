@@ -59,12 +59,13 @@
              ./modules/apps/niri.nix
             inputs.stylix.nixosModules.stylix
             ./modules/apps/sddm.nix
+            ./modules/apps/stylix.nix
+
 
             # Special Modules
             ./modules/musicproduction.nix
             ./modules/development.nix
             ./modules/homeserver.nix
-            #./stylix.nix
             #./modules/gaming.nix 
           ];
         };
