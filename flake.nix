@@ -42,7 +42,10 @@
           modules = [ 
             ./nixos/hosts/laptop/configuration.nix
             ./nixos/modules/core-configuration.nix
-            ./home/users/users.nix
+            ./nixos/modules/apps/home-manager.nix
+
+            # Users
+            ./home/users/metamageia/default.nix
 
             # DE / WM
             inputs.niri-flake.nixosModules.niri
