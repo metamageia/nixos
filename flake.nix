@@ -46,14 +46,14 @@
           };
           modules = [ 
             pkgModule
-            ./system/macbook/macbook.nix
-            ./modules/core-configuration.nix
+            ./nixos/hosts/macbook/macbook.nix
+            ./nixos/modules/core-configuration.nix
             inputs.home-manager.nixosModules.home-manager
             home-manager.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
-              home-manager.users.metamageia = ./modules/users/metamageia.nix;
+              home-manager.users.metamageia = ./home/users/metamageia/metamageia.nix;
               home-manager.backupFileExtension = "backup";
 
             }
@@ -61,29 +61,18 @@
             # DE / WM
             inputs.niri-flake.nixosModules.niri
             inputs.stylix.nixosModules.stylix
-            ./modules/apps/sddm.nix
-            ./modules/apps/niri.nix
+            ./nixos/modules/apps/sddm.nix
+            ./nixos/modules/apps/niri.nix
 
 
             # Special Modules
-            ./modules/musicproduction.nix
-            ./modules/development.nix
-            ./modules/homeserver.nix
-            #./modules/gaming.nix 
+            ./nixos/modules/musicproduction.nix
+            ./nixos/modules/development.nix
+            ./nixos/modules/homeserver.nix
+            #./nixos/modules/gaming.nix 
           ];
         };
         
-        dell = lib.nixosSystem {
-          inherit system;
-          modules = [ 
-            ./system/dell/dell.nix
-            ./modules/core-configuration.nix
-          ];
-          specialArgs = {
-            hostName = "dell";
-            inherit pkgs;
-          };
-        };
       };
 
       # --- User-specific Configurations --- #
@@ -91,7 +80,7 @@
         metamageia = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
           modules = [
-            ./modules/users/metamageia.nix
+            ./home.modules/users/metamageia/metamageia.nix
           ];
         };   
       };
