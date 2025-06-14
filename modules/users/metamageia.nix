@@ -21,8 +21,10 @@
     # # You can also set the file content immediately.
     # ".gradle/gradle.properties".text = ''
     #   org.gradle.console=verbose
-    #   org.gradle.daemon.idletimeout=3600000
+    #   org.gradle.daemon.idletimeout
     # '';
+
+    ".config/niri/config.kdl".source = niri/config.kdl;
   };
  
   home.sessionVariables = {

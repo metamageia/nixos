@@ -7,6 +7,9 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
+    niri-flake.url = "github:sodiboo/niri-flake";
+    niri-flake.inputs.nixpkgs.follows = "nixpkgs";
+
     stylix.url = "github:danth/stylix";
     #stylix.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -56,10 +59,10 @@
             }
 
             # DE / WM
-             ./modules/apps/niri.nix
+            inputs.niri-flake.nixosModules.niri
             inputs.stylix.nixosModules.stylix
             ./modules/apps/sddm.nix
-            ./modules/apps/stylix.nix
+            ./modules/apps/niri.nix
 
 
             # Special Modules
@@ -89,8 +92,6 @@
           inherit pkgs;
           modules = [
             ./modules/users/metamageia.nix
-            ./modules/apps/niri.nix
-
           ];
         };   
       };
