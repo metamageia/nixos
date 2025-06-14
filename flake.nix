@@ -58,7 +58,7 @@
             # DE / WM
              ./modules/apps/niri.nix
             inputs.stylix.nixosModules.stylix
-            ./modules/apps/stylix.nix
+            ./modules/apps/sddm.nix
 
             # Special Modules
             ./modules/musicproduction.nix
@@ -88,7 +88,7 @@
           inherit pkgs;
           modules = [
             ./modules/users/metamageia.nix
-            #./modules/apps/niri.nix
+            ./modules/apps/niri.nix
 
           ];
         };   
