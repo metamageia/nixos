@@ -52,6 +52,7 @@
             inputs.stylix.nixosModules.stylix
             ./nixos/modules/apps/sddm.nix
             ./nixos/modules/apps/niri.nix
+            ./nixos/modules/apps/stylix.nix
 
 
             # Special Modules
