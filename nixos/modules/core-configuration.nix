@@ -16,17 +16,6 @@
     ];
 
   environment.systemPackages = with pkgs; [
-    wget
-    unzip
-    unrar
-    git
-    bash
-    rclone
-    jmtpfs
-    nix-tree
-    alacritty
-    fuzzel
-    inputs.zen-browser.packages."${system}".generic
   ];
 
   nix.gc = {

@@ -62,15 +62,5 @@
           ];
         };
       };
-
-      # --- User-specific Configurations --- #
-      homeConfigurations = {
-        metamageia = home-manager.lib.homeManagerConfiguration {
-        inherit pkgs;
-          modules = [
-            ./home/users/metamageia/home.nix
-          ];
-        };   
-      };
     };
 }

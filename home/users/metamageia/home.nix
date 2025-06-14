@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, system, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
   home.username = "metamageia";
@@ -9,6 +9,17 @@
   home.packages = with pkgs; [
      obsidian
      scribus
+         wget
+    unzip
+    unrar
+    git
+    bash
+    rclone
+    jmtpfs
+    nix-tree
+    alacritty
+    fuzzel
+    inputs.zen-browser.packages."${system}".generic
   ];
 
  
