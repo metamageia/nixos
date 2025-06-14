@@ -37,23 +37,23 @@
           
       # --- Host-specific Configurations --- #
       nixosConfigurations = {
-        macbook = lib.nixosSystem {
+        laptop = lib.nixosSystem {
           inherit system;
           specialArgs = {
-            hostName = "macbook";
+            hostName = "laptop";
             inherit inputs;
             inherit system;
           };
           modules = [ 
             pkgModule
-            ./nixos/hosts/macbook/macbook.nix
+            ./nixos/hosts/laptop/configuration.nix
             ./nixos/modules/core-configuration.nix
             inputs.home-manager.nixosModules.home-manager
             home-manager.nixosModules.home-manager
             {
               home-manager.useGlobalPkgs = true;
               home-manager.useUserPackages = true;
-              home-manager.users.metamageia = ./home/users/metamageia/metamageia.nix;
+              home-manager.users.metamageia = ./home/users/metamageia/home.nix;
               home-manager.backupFileExtension = "backup";
 
             }
@@ -80,7 +80,7 @@
         metamageia = home-manager.lib.homeManagerConfiguration {
           inherit pkgs;
           modules = [
-            ./home.modules/users/metamageia/metamageia.nix
+            ./home.modules/users/metamageia/home.nix
           ];
         };   
       };
