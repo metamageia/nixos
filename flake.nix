@@ -42,13 +42,7 @@
           modules = [ 
             ./nixos/hosts/laptop/configuration.nix
             ./nixos/modules/core-configuration.nix
-            home-manager.nixosModules.home-manager
-            {
-              home-manager.useGlobalPkgs = true;
-              home-manager.useUserPackages = true;
-              home-manager.users.metamageia = ./home/users/metamageia/home.nix;
-              home-manager.backupFileExtension = "backup";
-            }
+            ./home/users/users.nix
 
             # DE / WM
             inputs.niri-flake.nixosModules.niri
