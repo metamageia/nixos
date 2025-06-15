@@ -3,7 +3,7 @@
 {
 
 imports = [
-  ./niri/config/kdl.nix
+  ./niri/config.nix
 ];
 
   home.username = "metamageia";
