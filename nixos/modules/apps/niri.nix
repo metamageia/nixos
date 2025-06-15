@@ -9,6 +9,7 @@
     waybar
     wev
     kdePackages.dolphin
+    swaybg
   ];
 
   xdg.portal = {

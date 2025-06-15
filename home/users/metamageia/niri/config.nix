@@ -3,6 +3,8 @@
 
   programs.niri.settings.spawn-at-startup = [
     { command = [ "waybar" ]; }
+    { command = [ "swaybg" ]; }
+
   ];
 
   programs.niri.settings.binds = with config.lib.niri.actions; {
