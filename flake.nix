@@ -26,6 +26,8 @@
       inherit system;
       config.allowUnfree = true;
       };
+
+      wallpaper = ./home/themes/wallhaven-je8p1y.jpg;
       
     in {
           
@@ -38,6 +40,7 @@
             hostName = "laptop";
             inherit inputs;
             inherit system;
+            inherit wallpaper;
           };
           modules = [ 
             ./nixos/hosts/laptop/configuration.nix

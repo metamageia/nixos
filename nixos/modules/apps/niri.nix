@@ -6,10 +6,10 @@
   environment.systemPackages = with pkgs; [
     qt5.qtwayland
     brightnessctl
-    waybar
+    #waybar
     wev
     kdePackages.dolphin
-    swaybg
+    #swaybg
   ];
 
   xdg.portal = {

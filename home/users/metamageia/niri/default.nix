@@ -3,7 +3,7 @@
 
   programs.niri.settings.spawn-at-startup = [
     { command = [ "waybar" ]; }
-    { command = [ "swaybg" ]; }
+    { command = [ "wpaperd" ]; }
 
   ];
 
