@@ -27,7 +27,7 @@
       config.allowUnfree = true;
       };
 
-      wallpaper = ./home/themes/wallhaven-je8p1y.jpg;
+      wallpaper = ./home/themes/wallhaven-je8p8w.png;
       
     in {
           
@@ -53,7 +53,8 @@
             # DE / WM
             inputs.niri-flake.nixosModules.niri
             inputs.stylix.nixosModules.stylix
-            ./nixos/modules/apps/sddm.nix
+            #./nixos/modules/apps/sddm.nix
+            ./nixos/modules/apps/gdm.nix
             ./nixos/modules/apps/niri.nix
             ./nixos/modules/apps/stylix.nix
 

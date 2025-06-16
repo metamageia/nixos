@@ -2,9 +2,6 @@
 {      
 
   programs.niri.settings.spawn-at-startup = [
-    { command = [ "waybar" ]; }
-    { command = [ "wpaperd" ]; }
-
   ];
 
   programs.niri.settings.binds = with config.lib.niri.actions; {

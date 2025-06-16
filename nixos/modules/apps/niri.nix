@@ -6,7 +6,6 @@
   environment.systemPackages = with pkgs; [
     qt5.qtwayland
     brightnessctl
-    #waybar
     wev
     kdePackages.dolphin
   ];
