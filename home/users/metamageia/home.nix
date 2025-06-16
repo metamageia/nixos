@@ -1,10 +1,9 @@
-{ config, pkgs, inputs, wallpaper, ... }:
+{ config, pkgs, inputs, ... }:
 
 {
 
 imports = [
   ./niri/default.nix
-  ./waypaprd/default.nix
 ];
 
   home.username = "metamageia";

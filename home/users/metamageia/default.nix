@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, inputs, wallpaper, ... }:
 { 
   home-manager ={
     extraSpecialArgs = { inherit inputs; };
