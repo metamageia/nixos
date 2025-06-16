@@ -5,6 +5,8 @@
 imports = [
   ./niri/default.nix
   ./swww/default.nix
+  ./waybar/default.nix
+
 ];
 
   home.username = "metamageia";
@@ -26,7 +28,6 @@ imports = [
     alacritty
     fuzzel
     inputs.zen-browser.packages."${system}".generic
-    waybar
   ];
 
  

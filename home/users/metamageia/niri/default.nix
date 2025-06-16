@@ -23,7 +23,6 @@
 
     # Windows and Workspaces
     "Mod+Q".action = close-window;
-    "Mod+F".action  = maximize-column;
 
     "Mod+Left".action  = focus-column-left;
     "Mod+Down".action  = focus-window-down;
