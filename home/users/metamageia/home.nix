@@ -1,9 +1,10 @@
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, inputs, wallpaper, ... }:
 
 {
 
 imports = [
   ./niri/default.nix
+  ./swww/default.nix
 ];
 
   home.username = "metamageia";
@@ -25,9 +26,10 @@ imports = [
     alacritty
     fuzzel
     inputs.zen-browser.packages."${system}".generic
-    #wpaperd
     waybar
   ];
+
+ 
 
   home.file = {
   };

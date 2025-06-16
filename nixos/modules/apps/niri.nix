@@ -9,8 +9,8 @@
     #waybar
     wev
     kdePackages.dolphin
-    #swaybg
   ];
+
 
   xdg.portal = {
     enable = true;

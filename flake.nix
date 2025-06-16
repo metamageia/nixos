@@ -56,7 +56,6 @@
             ./nixos/modules/apps/sddm.nix
             ./nixos/modules/apps/niri.nix
             ./nixos/modules/apps/stylix.nix
-            ./nixos/modules/apps/wpaperd.nix
 
 
             # Special Modules

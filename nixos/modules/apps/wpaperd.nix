@@ -1,6 +1,6 @@
 { config, pkgs, inputs, wallpaper, ... }:
 {
-  services.wpaperd = {
+  wpaperd = {
     enable = true;
     settings = {
       default = {

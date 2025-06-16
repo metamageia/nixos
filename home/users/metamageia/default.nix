@@ -1,7 +1,7 @@
 { config, pkgs, inputs, wallpaper, ... }:
 { 
   home-manager ={
-    extraSpecialArgs = { inherit inputs; };
+    extraSpecialArgs = { inherit inputs; inherit wallpaper; };
     users = { metamageia = import ./home.nix; };
   };
 
