@@ -5,7 +5,7 @@
     wayland.enable = true;
     settings = {
       General = {
-        Background =  toString wallpaper;
+        Background = "wallpaper";
       };
     };
   };

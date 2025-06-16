@@ -53,8 +53,7 @@
             # DE / WM
             inputs.niri-flake.nixosModules.niri
             inputs.stylix.nixosModules.stylix
-            #./nixos/modules/apps/sddm.nix
-            ./nixos/modules/apps/gdm.nix
+            ./nixos/modules/apps/sddm.nix
             ./nixos/modules/apps/niri.nix
             ./nixos/modules/apps/stylix.nix
 
