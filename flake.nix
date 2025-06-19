@@ -65,6 +65,38 @@
             #./nixos/modules/gaming.nix 
           ];
         };
+        desktop = lib.nixosSystem {
+          inherit system;
+          inherit pkgs;  
+          specialArgs = {
+            hostName = "desktop";
+            inherit inputs;  
+            inherit system;
+            inherit wallpaper;
+          };
+          modules = [ 
+            ./nixos/hosts/desktop/configuration.nix
+            ./nixos/modules/core-configuration.nix
+            ./nixos/modules/apps/home-manager.nix
+
+            # Users
+            ./home/users/metamageia/default.nix
+
+            # DE / WM
+            inputs.niri-flake.nixosModules.niri
+            inputs.stylix.nixosModules.stylix
+            ./nixos/modules/apps/sddm.nix
+            ./nixos/modules/apps/niri.nix
+            ./nixos/modules/apps/stylix.nix
+
+
+            # Special Modules
+            #./nixos/modules/musicproduction.nix
+            ./nixos/modules/development.nix
+            #./nixos/modules/homeserver.nix
+            #./nixos/modules/gaming.nix 
+          ];
+        };  
       };
     };
 }
