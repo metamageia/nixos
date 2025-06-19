@@ -1,4 +1,4 @@
-{ pkgs, config, ... }:
+{ pkgs, config, inputs,... }:
 {
   
   programs.niri.enable = true;
@@ -8,6 +8,7 @@
     brightnessctl
     wev
     kdePackages.dolphin
+    inputs.zen-browser.packages."${system}".generic
   ];
 
 

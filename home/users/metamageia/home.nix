@@ -27,7 +27,7 @@ imports = [
     nix-tree
     alacritty
     fuzzel
-    inputs.zen-browser.packages."${system}".generic
+    librewolf
   ];
 
  

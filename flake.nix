@@ -11,10 +11,10 @@
     niri-flake.inputs.nixpkgs.follows = "nixpkgs";
 
     stylix.url = "github:danth/stylix";
-    #stylix.inputs.nixpkgs.follows = "nixpkgs";
+    stylix.inputs.nixpkgs.follows = "nixpkgs";
 
     zen-browser.url = "github:MarceColl/zen-browser-flake";
-    #zen-browser.inputs.nixpkgs.follows = "nixpkgs";
+    zen-browser.inputs.nixpkgs.follows = "nixpkgs";
     };
     
   outputs = { self, nixpkgs, stylix, home-manager, ... }@inputs:
@@ -88,7 +88,6 @@
             ./nixos/modules/apps/sddm.nix
             ./nixos/modules/apps/niri.nix
             ./nixos/modules/apps/stylix.nix
-
 
             # Special Modules
             #./nixos/modules/musicproduction.nix
