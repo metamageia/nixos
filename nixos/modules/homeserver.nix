@@ -7,5 +7,6 @@ imports = [
 
 environment.systemPackages = with pkgs; [
   compose2nix
+  calibre
 ];
 }
