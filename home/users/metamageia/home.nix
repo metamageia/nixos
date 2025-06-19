@@ -28,6 +28,7 @@ imports = [
     alacritty
     fuzzel
     librewolf
+    # inputs.zen-browser.packages."${system}".generic
   ];
 
  

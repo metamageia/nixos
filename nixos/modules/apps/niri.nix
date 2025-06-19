@@ -8,7 +8,6 @@
     brightnessctl
     wev
     kdePackages.dolphin
-    inputs.zen-browser.packages."${system}".generic
   ];
 
 
