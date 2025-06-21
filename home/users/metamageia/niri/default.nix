@@ -13,6 +13,7 @@
     # Hotkeys
     "Mod+D".action.spawn = "fuzzel";
     "Mod+T".action.spawn = "alacritty";
+    "Mod+P".action = screenshot;
 
     # Audio
     "XF86AudioRaiseVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
