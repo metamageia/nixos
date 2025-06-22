@@ -6,7 +6,14 @@
       default = {
         path = wallpaper;
         mode = "center";
-        # duration, sorting etc. ignored since path is a file
+      };
+      DP-1 = {
+        path = wallpaper;
+        mode = "center";
+      };
+      DP-1 = {
+        path = wallpaper;
+        mode = "center";
       };
     };
   };
