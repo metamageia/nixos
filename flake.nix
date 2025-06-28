@@ -92,7 +92,7 @@
             # Special Modules
             #./nixos/modules/musicproduction.nix
             ./nixos/modules/development.nix
-            ./nixos/modules/homeserver.nix
+            #./nixos/modules/homeserver.nix
             #./nixos/modules/gaming.nix 
           ];
         };  

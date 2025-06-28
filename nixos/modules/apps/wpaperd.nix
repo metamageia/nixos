@@ -11,7 +11,7 @@
         path = wallpaper;
         mode = "center";
       };
-      DP-1 = {
+      DP-2 = {
         path = wallpaper;
         mode = "center";
       };
