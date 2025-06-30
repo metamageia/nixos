@@ -3,9 +3,13 @@
 
 environment.systemPackages = with pkgs; [
     vscode
-    neovim
     jq
     awscli2
+
+    #direnv tools
+    direnv
+    nix-direnv
+    vscode-extensions.mkhl.direnv
 ];
 
 # Android development
