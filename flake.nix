@@ -77,6 +77,7 @@
           modules = [ 
             ./hosts/desktop/configuration.nix
             ./modules/core-configuration.nix
+            ./modules/desktop.nix
             
             # Users
             ./metamageia/default.nix
