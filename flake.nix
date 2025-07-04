@@ -43,9 +43,9 @@
             inherit wallpaper;
           };
           modules = [ 
-            ./nixos/hosts/laptop/configuration.nix
-            ./nixos/modules/core-configuration.nix
-            ./nixos/modules/apps/home-manager.nix
+            ./hosts/laptop/configuration.nix
+            ./modules/core-configuration.nix
+            ./modules/apps/home-manager.nix
 
             # Users
             ./home/users/metamageia/default.nix
@@ -53,16 +53,16 @@
             # DE / WM
             inputs.niri-flake.nixosModules.niri
             inputs.stylix.nixosModules.stylix
-            ./nixos/modules/apps/sddm.nix
-            ./nixos/modules/apps/niri.nix
-            ./nixos/modules/apps/stylix.nix
+            ./modules/apps/sddm.nix
+            ./modules/apps/niri.nix
+            ./modules/apps/stylix.nix
 
 
             # Special Modules
-            ./nixos/modules/musicproduction.nix
-            ./nixos/modules/development.nix
-            ./nixos/modules/homeserver.nix
-            #./nixos/modules/gaming.nix 
+            ./modules/musicproduction.nix
+            ./modules/development.nix
+            ./modules/homeserver.nix
+            #./modules/gaming.nix 
           ];
         };
         desktop = lib.nixosSystem {
@@ -75,25 +75,17 @@
             inherit wallpaper;
           };
           modules = [ 
-            ./nixos/hosts/desktop/configuration.nix
-            ./nixos/modules/core-configuration.nix
-            ./nixos/modules/apps/home-manager.nix
-
+            ./hosts/desktop/configuration.nix
+            ./modules/core-configuration.nix
+            
             # Users
-            ./home/users/metamageia/default.nix
-
-            # DE / WM
-            inputs.niri-flake.nixosModules.niri
-            inputs.stylix.nixosModules.stylix
-            ./nixos/modules/apps/sddm.nix
-            ./nixos/modules/apps/niri.nix
-            ./nixos/modules/apps/stylix.nix
+            ./metamageia/default.nix
 
             # Special Modules
-            #./nixos/modules/musicproduction.nix
-            ./nixos/modules/development.nix
-            #./nixos/modules/homeserver.nix
-            #./nixos/modules/gaming.nix 
+            #./modules/musicproduction.nix
+            ./modules/development.nix
+            #./modules/homeserver.nix
+            #./modules/gaming.nix 
           ];
         };  
       };
