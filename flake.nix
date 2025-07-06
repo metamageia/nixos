@@ -91,6 +91,26 @@
             #./modules/gaming.nix 
           ];
         };  
+        nixos-live = lib.nixosSystem {
+          inherit system;
+          inherit pkgs;  
+          specialArgs = {
+            hostName = "nixos-live";
+            inherit inputs;  
+            inherit system;
+          };
+          modules = [ 
+            ./modules/nixos-live.nix
+            ./modules/desktop.nix
+            ./modules/core-configuration.nix
+            
+            # Users
+            ./metamageia/default.nix
+            inputs.niri-flake.nixosModules.niri
+            ./modules/development.nix
+          ];
+        };  
+        packages.iso = self.nixosConfigurations.nixos-live.config.system.build.isoImage;
       };
     };
 }
