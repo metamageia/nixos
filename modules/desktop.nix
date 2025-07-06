@@ -3,15 +3,15 @@
 
 imports = [
     ./apps/home-manager.nix
+        # DE / WM
+    ./apps/sddm.nix
+    ./apps/niri.nix
+    #./apps/stylix.nix
+
 ];
 
 environment.systemPackages = with pkgs; [
-    # DE / WM
-    inputs.niri-flake.nixosModules.niri
-    inputs.stylix.nixosModules.stylix
-    ./apps/sddm.nix
-    ./apps/niri.nix
-    ./modules/apps/stylix.nix
+
 ];
 
 }

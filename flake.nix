@@ -81,10 +81,12 @@
             
             # Users
             ./metamageia/default.nix
+            inputs.niri-flake.nixosModules.niri
+            # inputs.stylix.nixosModules.stylix
 
             # Special Modules
             #./modules/musicproduction.nix
-            ./modules/development.nix
+             ./modules/development.nix
             #./modules/homeserver.nix
             #./modules/gaming.nix 
           ];

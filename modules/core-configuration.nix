@@ -18,10 +18,12 @@
   environment.systemPackages = with pkgs; [
   ];
 
+  nix.optimise.automatic = true;
+
   nix.gc = {
     automatic = true;
     dates     = ["weekly"];
-    options   = "--delete-older-than 30d";
+    options   = "--delete-older-than 14d";
   };
 
   system.stateVersion = "23.11"; # Do Not Change

@@ -7,14 +7,14 @@ environment.systemPackages = with pkgs; [
     awscli2
 
     #direnv tools
-    direnv
-    nix-direnv
-    vscode-extensions.mkhl.direnv
+    #direnv
+    #nix-direnv
+    #vscode-extensions.mkhl.direnv
 
     # K8S Testing
-    minikube
-    kubectl
-    kompose
+    #minikube
+    #kubectl
+    #kompose
 ];
 
 # Docker
@@ -24,9 +24,9 @@ users.users.metamageia = {
 };
 
 # Hook direnv
-programs.bash.interactiveShellInit = ''eval "$(direnv hook bash)"'';
+#programs.bash.interactiveShellInit = ''eval "$(direnv hook bash)"'';
 
 # Android development
-programs.adb.enable = true;
+#programs.adb.enable = true;
 
 }

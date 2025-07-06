@@ -4,8 +4,8 @@
 
 imports = [
   ./niri/default.nix
-  ./swww/default.nix
-  ./waybar/default.nix
+  #./swww/default.nix
+  #./waybar/default.nix
 
 ];
 
@@ -16,19 +16,20 @@ imports = [
 
   home.packages = with pkgs; [
     obsidian
-    scribus
+    #scribus
     wget
     unzip
     unrar
     git
     bash
-    rclone
-    jmtpfs
-    nix-tree
+    #rclone
+    #jmtpfs
+    #nix-tree
     alacritty
     fuzzel
-    librewolf
+    #librewolf
     inputs.zen-browser.packages."${system}".generic
+    slack
   ];
 
  
