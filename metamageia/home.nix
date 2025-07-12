@@ -6,7 +6,7 @@ imports = [
   ../modules/apps/niri/default.nix
   ../modules/apps/swww/default.nix
   ../modules/apps/waybar/default.nix
-  ../modules/apps/fuzzel/hm.nix
+  ../modules/fuzzel/hm.nix
 ];
 
   home.username = "metamageia";
