@@ -1,6 +1,10 @@
 { config, pkgs, inputs, ... }:
 {      
 
+  imports = [
+    inputs.niri-flake.nixosModules.niri
+  ];
+
   programs.niri.settings.spawn-at-startup = [
   ];
 

@@ -3,9 +3,9 @@
 {
 
 imports = [
-  ./niri/default.nix
-  #./swww/default.nix
-  #./waybar/default.nix
+  ../modules/apps/niri/default.nix
+  #../modules/apps/swww/default.nix
+  #../modules/apps/waybar/default.nix
 
 ];
 
@@ -28,7 +28,7 @@ imports = [
     alacritty
     fuzzel
     #librewolf
-    inputs.zen-browser.packages."${system}".generic
+    inputs.zen-browser.packages."${system}".default
     slack
   ];
 
