@@ -1,4 +1,4 @@
-{ config, pkgs, inputs, ... }:
+{ config, pkgs, lib, inputs, ... }:
 {
     programs.fuzzel.enable =true;
     stylix.targets.fuzzel.enable = true; 
@@ -8,7 +8,7 @@
 
     programs.fuzzel.settings = {
         main = {
-        font      = "DejaVu Sans:size=16";
+        font      =  lib.mkForce "DejaVu Sans:size=16";
         dpi-aware = "no";
         };
     };
