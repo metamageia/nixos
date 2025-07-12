@@ -1,12 +1,27 @@
 { config, pkgs, inputs, ... }:
 {      
-
-  imports = [
-    inputs.niri-flake.nixosModules.niri
-  ];
-
+  
   programs.niri.settings.spawn-at-startup = [
   ];
+
+ programs.niri = {
+    settings = {
+      "window-rules" = [
+        {
+          matches = [ {} ];
+          opacity = 0.95;
+          draw-border-with-background = false;
+          clip-to-geometry = true;
+          geometry-corner-radius = {
+            top-left     = 12.0;
+            top-right    = 12.0;
+            bottom-right = 12.0;
+            bottom-left  = 12.0;
+          };
+        }
+      ];
+    };
+  };
 
   programs.niri.settings.binds = with config.lib.niri.actions; {
 
@@ -15,6 +30,7 @@
     "Mod+Shift+Slash".action = show-hotkey-overlay;
 
     # Hotkeys
+    #"Mod+D".action.spawn = ["wofi" "--show" "drun"];
     "Mod+D".action.spawn = "fuzzel";
     "Mod+T".action.spawn = "alacritty";
     "Mod+P".action = screenshot;

@@ -4,9 +4,9 @@
 
 imports = [
   ../modules/apps/niri/default.nix
-  #../modules/apps/swww/default.nix
-  #../modules/apps/waybar/default.nix
-
+  ../modules/apps/swww/default.nix
+  ../modules/apps/waybar/default.nix
+  ../modules/apps/fuzzel/default.nix
 ];
 
   home.username = "metamageia";
@@ -26,13 +26,12 @@ imports = [
     #jmtpfs
     #nix-tree
     alacritty
-    fuzzel
     #librewolf
     inputs.zen-browser.packages."${system}".default
     slack
   ];
 
- 
+
 
   home.file = {
   };

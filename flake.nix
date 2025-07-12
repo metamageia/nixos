@@ -27,7 +27,7 @@
       config.allowUnfree = true;
       };
 
-      wallpaper = ./home/themes/wallhaven-je8p8w.png;
+      wallpaper = ./home/themes/wallhaven-k898gq.jpg;
       
     in {
           
@@ -81,8 +81,8 @@
             
             # Users
             ./metamageia/default.nix
-            
-            # inputs.stylix.nixosModules.stylix
+            inputs.niri-flake.nixosModules.niri
+             inputs.stylix.nixosModules.stylix
 
             # Special Modules
             #./modules/musicproduction.nix

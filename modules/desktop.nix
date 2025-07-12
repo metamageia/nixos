@@ -6,7 +6,7 @@ imports = [
         # DE / WM
     ./apps/sddm.nix
     ./apps/niri.nix
-    #./apps/stylix.nix
+    ./apps/stylix.nix
 
 ];
 
