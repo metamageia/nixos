@@ -10,7 +10,7 @@
       "window-rules" = [
         {
           matches = [ {} ];
-          opacity = 0.95;
+          opacity = 1.0;
           draw-border-with-background = false;
           clip-to-geometry = true;
           geometry-corner-radius = {

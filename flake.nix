@@ -27,7 +27,7 @@
       config.allowUnfree = true;
       };
 
-      wallpaper = ./home/themes/wallhaven-k898gq.jpg;
+      wallpaper = ./home/themes/el-dorgeshi-01.png;
       
     in {
           
