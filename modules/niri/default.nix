@@ -2,6 +2,7 @@
 {      
   
   programs.niri.settings.spawn-at-startup = [
+    #{ command = ["waybar"]; }
   ];
 
  programs.niri = {
@@ -30,7 +31,6 @@
     "Mod+Shift+Slash".action = show-hotkey-overlay;
 
     # Hotkeys
-    #"Mod+D".action.spawn = ["wofi" "--show" "drun"];
     "Mod+D".action.spawn = "fuzzel";
     "Mod+T".action.spawn = "alacritty";
     "Mod+P".action = screenshot;

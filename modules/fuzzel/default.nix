@@ -6,8 +6,6 @@
         fuzzel
     ];
 
-    stylix.targets.fuzzel.enable = true; 
-
     programs.fuzzel.settings = {
         main = {
         font      =  lib.mkForce "DejaVu Sans:size=16";
