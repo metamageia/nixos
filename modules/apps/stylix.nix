@@ -5,7 +5,7 @@
     enable = true;
     homeManagerIntegration.autoImport = true;
     image = wallpaper;
-    opacity.desktop = 0.5;
+    opacity.desktop = 0.0;
     fonts = {
       serif = {
       package = pkgs.font-awesome;
