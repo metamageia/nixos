@@ -3,10 +3,10 @@
 {
 
 imports = [
-  ../modules/apps/niri/default.nix
-  ../modules/apps/swww/default.nix
-  ../modules/apps/waybar/default.nix
-  ../modules/fuzzel/hm.nix
+  ../modules/niri/default.nix
+  ../modules/swww/default.nix
+  ../modules/waybar/default.nix
+  ../modules/fuzzel/default.nix
 ];
 
   home.username = "metamageia";

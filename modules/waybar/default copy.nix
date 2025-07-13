@@ -14,4 +14,7 @@ systemd.user.services.waybar = {
     WantedBy = [ "default.target" ];
   };
 };
+
+
+
 }
