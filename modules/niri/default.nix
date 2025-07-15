@@ -7,10 +7,10 @@
 
  programs.niri = {
     settings = {
-      "window-rules" = [
+      window-rules = [
+        # Geometry Rules
         {
           matches = [ {} ];
-          opacity = 0.95;
           draw-border-with-background = false;
           clip-to-geometry = true;
           geometry-corner-radius = {
@@ -19,6 +19,12 @@
             bottom-right = 12.0;
             bottom-left  = 12.0;
           };
+        }
+        # Opacity Rules
+        {
+          matches = [ {} ];
+          excludes = [ {app-id = "zen";} ];
+          opacity = 0.95;
         }
       ];
     };
@@ -32,6 +38,7 @@
 
     # Hotkeys
     "Mod+D".action.spawn = "fuzzel";
+    "Mod+S".action.spawn = ["exec" "~/.dotfiles/modules/niri/fuzzel-search"];
     "Mod+T".action.spawn = "alacritty";
     "Mod+P".action = screenshot;
 

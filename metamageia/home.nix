@@ -31,6 +31,7 @@ imports = [
     slack
   ];
 
+  stylix.targets.vscode.enable = true; 
 
 
   home.file = {

@@ -5,7 +5,7 @@
     enable = true;
     homeManagerIntegration.autoImport = true;
     image = wallpaper;
-    opacity.desktop = 0.0;
+    opacity.desktop = 0.25;
     fonts = {
       serif = {
       package = pkgs.font-awesome;
@@ -14,7 +14,7 @@
 
       sansSerif = {
         package = pkgs.font-awesome;
-        name = "iosefont-awesomevka";
+        name = "font-awesome";
       };
 
       monospace = {

@@ -27,7 +27,7 @@
       config.allowUnfree = true;
       };
 
-      wallpaper = ./home/themes/el-dorgeshi-01.png;
+      wallpaper = ./wallpapers/el-dorgeshi-01.png;
       
     in {
           
@@ -85,7 +85,7 @@
              inputs.stylix.nixosModules.stylix
 
             # Special Modules
-            #./modules/musicproduction.nix
+            ./modules/musicproduction.nix
              ./modules/development.nix
             #./modules/homeserver.nix
             #./modules/gaming.nix 

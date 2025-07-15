@@ -6,6 +6,8 @@ environment.systemPackages = with pkgs; [
     jq
     awscli2
 
+    code-cursor
+
     #direnv tools
     #direnv
     #nix-direnv
@@ -16,6 +18,7 @@ environment.systemPackages = with pkgs; [
     #kubectl
     #kompose
 ];
+
 
 # Docker
 virtualisation.docker.enable = true;
