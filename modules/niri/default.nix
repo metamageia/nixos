@@ -38,7 +38,7 @@
 
     # Hotkeys
     "Mod+D".action.spawn = "fuzzel";
-    "Mod+S".action.spawn = ["exec" "~/.dotfiles/modules/niri/fuzzel-search"];
+    "Mod+S".action.spawn = ["exec" "~/.dotfiles/modules/niri/fuzzel-search.sh"];
     "Mod+T".action.spawn = "alacritty";
     "Mod+P".action = screenshot;
 
