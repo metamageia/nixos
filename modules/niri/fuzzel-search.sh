@@ -1,11 +1,7 @@
 #!/usr/bin/env bash
 
 query=$(
-  fuzzel \
-    -d \            # dmenu/Dmenu-compatible
-    -l 0 \          # single line
-    --placeholder "Search:" \
-    --no-fork       # don’t detach, so we can read its stdout
+  fuzzel -d --prompt-only="󰍉 Search: "
 )
 
 if [ -n "$query" ]; then
