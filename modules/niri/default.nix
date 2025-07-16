@@ -30,6 +30,8 @@
     };
   };
 
+  stylix.targets.niri.enable = true;
+
   programs.niri.settings.binds = with config.lib.niri.actions; {
 
     # Niri
@@ -38,7 +40,7 @@
 
     # Hotkeys
     "Mod+D".action.spawn = "fuzzel";
-    "Mod+S".action.spawn = ["~/.dotfiles/modules/niri/fuzzel-search.sh"];
+    "Mod+S".action.spawn = ["~/.dotfiles/modules/fuzzel/fuzzel-search.sh"];
     "Mod+T".action.spawn = "alacritty";
     "Mod+P".action = screenshot;
 
