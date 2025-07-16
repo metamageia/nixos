@@ -13,10 +13,6 @@ environment.systemPackages = with pkgs; [
     #nix-direnv
     #vscode-extensions.mkhl.direnv
 
-    # K8S Testing
-    #minikube
-    #kubectl
-    #kompose
 ];
 
 

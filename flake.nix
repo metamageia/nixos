@@ -87,7 +87,7 @@
             # Special Modules
             ./modules/musicproduction.nix
              ./modules/development.nix
-            #./modules/homeserver.nix
+            ./modules/homeserver.nix
             #./modules/gaming.nix 
           ];
         };  

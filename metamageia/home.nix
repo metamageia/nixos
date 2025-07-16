@@ -33,7 +33,6 @@ imports = [
 
   stylix.targets.vscode.enable = true; 
 
-
   home.file = {
   };
  
