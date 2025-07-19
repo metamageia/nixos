@@ -5,6 +5,7 @@ imports = [
 ];
 
 environment.systemPackages = with pkgs; [
+    k3s
     kubectl
     kompose
     kubernetes-helm

@@ -3,7 +3,7 @@
 
 imports = [
   ./k3s/default.nix
-  ./default/default.nix
+  ./rclone/default.nix
 ];
 
 environment.systemPackages = with pkgs; [
