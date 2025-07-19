@@ -5,14 +5,14 @@ imports = [
 ];
 
 environment.systemPackages = with pkgs; [
-   # K8S Testing
-    #minikube
     kubectl
     kompose
+    kubernetes-helm
 ];
 
   networking.firewall.allowedTCPPorts = [
     6443 
+    8443 
   ];
 
   services.k3s = {
