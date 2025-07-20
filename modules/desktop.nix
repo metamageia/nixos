@@ -2,11 +2,11 @@
 {
 
 imports = [
-    ./apps/home-manager.nix
+    ./home-manager/default.nix
         # DE / WM
-    ./apps/sddm.nix
-    ./apps/niri.nix
-    ./apps/stylix.nix
+    ./sddm/default.nix
+    ./niri/default.nix
+    ./stylix/default.nix
 
 ];
 

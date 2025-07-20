@@ -10,8 +10,8 @@
       ./printing.nix
 
       # Custom modules to import
-      ./apps/cachix.nix
-      ./apps/syncthing.nix
+      ./cachix/default.nix
+      ./syncthing/default.nix
   
     ];
 

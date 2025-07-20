@@ -9,7 +9,7 @@
     after = [ "network-online.target" ];
     serviceConfig = {
       Type = "simple";
-      ExecStart = "${pkgs.rclone}/bin/rclone mount gdrive:/Server_Media/ /root/media --daemon";
+      ExecStart = "${pkgs.rclone}/bin/rclone mount gdrive:/Server_Media/ /mnt/media --daemon";
       ExecStop  = "${pkgs.fuse3}/bin/fusermount3 -u /mnt/media";
       Restart   = "on-failure";
     };

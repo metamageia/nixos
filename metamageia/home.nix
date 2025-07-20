@@ -3,7 +3,7 @@
 {
 
 imports = [
-  ../modules/niri/default.nix
+  ../modules/niri/home.nix
   ../modules/swww/default.nix
   ../modules/waybar/default.nix
   ../modules/fuzzel/default.nix

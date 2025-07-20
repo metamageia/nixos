@@ -45,7 +45,7 @@
           modules = [ 
             ./hosts/laptop/configuration.nix
             ./modules/core-configuration.nix
-            ./modules/apps/home-manager.nix
+            ./modules/home-manager/default.nix
 
             # Users
             ./home/users/metamageia/default.nix
@@ -53,9 +53,9 @@
             # DE / WM
             inputs.niri-flake.nixosModules.niri
             inputs.stylix.nixosModules.stylix
-            ./modules/apps/sddm.nix
-            ./modules/apps/niri.nix
-            ./modules/apps/stylix.nix
+            ./modules/sddm/default.nix
+            ./modules/niri/default.nix
+            ./modules/stylix/default.nix
 
 
             # Special Modules
