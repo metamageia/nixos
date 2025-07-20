@@ -16,6 +16,12 @@
     ];
 
   environment.systemPackages = with pkgs; [
+    wget
+    unzip
+    unrar
+    git
+    bash
+    alacritty
   ];
 
   nix.optimise.automatic = true;

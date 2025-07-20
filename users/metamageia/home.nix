@@ -3,10 +3,10 @@
 {
 
 imports = [
-  ../modules/niri/home.nix
-  ../modules/swww/default.nix
-  ../modules/waybar/default.nix
-  ../modules/fuzzel/default.nix
+  ../../modules/niri/home.nix
+  ../../modules/swww/default.nix
+  ../../modules/waybar/default.nix
+  ../../modules/fuzzel/default.nix
 ];
 
   home.username = "metamageia";
@@ -16,19 +16,7 @@ imports = [
 
   home.packages = with pkgs; [
     obsidian
-    #scribus
-    wget
-    unzip
-    unrar
-    git
-    bash
-    #rclone
-    #jmtpfs
-    #nix-tree
-    alacritty
-    #librewolf
     inputs.zen-browser.packages."${system}".default
-    slack
   ];
 
   stylix.targets.vscode.enable = true; 
@@ -37,7 +25,6 @@ imports = [
   };
  
   home.sessionVariables = {
-    # EDITOR = "emacs";
   };
 
   programs.home-manager.enable = true;

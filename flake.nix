@@ -27,7 +27,7 @@
       config.allowUnfree = true;
       };
 
-      wallpaper = ./wallpapers/el-dorgeshi-01.png;
+      wallpaper = ./wallpapers/el-roving-clans-01.jpg;
       
     in {
           
@@ -48,7 +48,7 @@
             ./modules/home-manager/default.nix
 
             # Users
-            ./home/users/metamageia/default.nix
+            ./users/metamageia/default.nix
 
             # DE / WM
             inputs.niri-flake.nixosModules.niri
@@ -80,7 +80,7 @@
             ./modules/desktop.nix
             
             # Users
-            ./metamageia/default.nix
+            ./users/metamageia/default.nix
             inputs.niri-flake.nixosModules.niri
             inputs.stylix.nixosModules.stylix
 
