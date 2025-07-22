@@ -15,9 +15,12 @@
 
     zen-browser.url = "github:0xc000022070/zen-browser-flake";
     zen-browser.inputs.nixpkgs.follows = "nixpkgs";
+
+    homelab.url = "github:metamageia/homelab";
+    homelab.inputs.nixpkgs.follows = "nixpkgs";
     };
     
-  outputs = { self, nixpkgs, stylix, home-manager, ... }@inputs:
+  outputs = { self, nixpkgs, stylix, home-manager, homelab, ... }@inputs:
     let 
       system = "x86_64-linux";
       lib = inputs.nixpkgs.lib;
@@ -87,7 +90,7 @@
             # Special Modules
             ./modules/musicproduction.nix
             ./modules/development.nix
-            ./modules/homeserver.nix
+            inputs.homelab.nixosModules.homelab-node
             #./modules/gaming.nix 
           ];
         };  
