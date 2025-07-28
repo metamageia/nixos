@@ -51,24 +51,20 @@
           modules = [ 
             ./hosts/laptop/configuration.nix
             ./modules/core-configuration.nix
-            ./modules/home-manager/default.nix
+            ./modules/desktop.nix
 
+              
             # Users
             ./users/metamageia/default.nix
-
-            # DE / WM
             inputs.niri-flake.nixosModules.niri
             inputs.stylix.nixosModules.stylix
-            ./modules/sddm/default.nix
-            ./modules/niri/default.nix
-            ./modules/stylix/default.nix
-
 
             # Special Modules
-            ./modules/musicproduction.nix
+            #./modules/musicproduction.nix
             ./modules/development.nix
-            ./modules/homeserver.nix
+            #inputs.homelab.nixosModules.homelab-node
             #./modules/gaming.nix 
+
           ];
         };
         desktop = lib.nixosSystem {
