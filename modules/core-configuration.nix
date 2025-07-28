@@ -12,6 +12,7 @@
       # Custom modules to import
       ./cachix/default.nix
       ./syncthing/default.nix
+      ./sops/default.nix
   
     ];
 

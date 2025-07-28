@@ -10,6 +10,9 @@
     niri-flake.url = "github:sodiboo/niri-flake";
     niri-flake.inputs.nixpkgs.follows = "nixpkgs";
 
+    sops-nix.url = "github:Mic92/sops-nix";
+    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+
     stylix.url = "github:danth/stylix";
     stylix.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -20,7 +23,7 @@
     homelab.inputs.nixpkgs.follows = "nixpkgs";
     };
     
-  outputs = { self, nixpkgs, stylix, home-manager, homelab, ... }@inputs:
+  outputs = { self, nixpkgs, stylix, home-manager, sops-nix, homelab, ... }@inputs:
     let 
       system = "x86_64-linux";
       lib = inputs.nixpkgs.lib;
