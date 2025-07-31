@@ -1,6 +1,8 @@
-{ pkgs, wallpaper, ... }:
 {
-
+  pkgs,
+  wallpaper,
+  ...
+}: {
   stylix = {
     enable = true;
     homeManagerIntegration.autoImport = true;
@@ -8,8 +10,8 @@
     opacity.desktop = 0.25;
     fonts = {
       serif = {
-      package = pkgs.font-awesome;
-      name = "font-awesome";
+        package = pkgs.font-awesome;
+        name = "font-awesome";
       };
 
       sansSerif = {

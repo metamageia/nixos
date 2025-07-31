@@ -1,8 +1,11 @@
-{ pkgs, config, wallpaper, ... }:
 {
- services.displayManager.sddm = {
+  pkgs,
+  config,
+  wallpaper,
+  ...
+}: {
+  services.displayManager.sddm = {
     enable = true;
     wayland.enable = true;
   };
-
 }

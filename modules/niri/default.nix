@@ -1,6 +1,9 @@
-{ pkgs, config, inputs,... }:
 {
-  
+  pkgs,
+  config,
+  inputs,
+  ...
+}: {
   programs.niri.enable = true;
 
   environment.systemPackages = with pkgs; [
@@ -10,7 +13,6 @@
     kdePackages.dolphin
   ];
 
-
   xdg.portal = {
     enable = true;
     extraPortals = with pkgs; [
@@ -18,7 +20,7 @@
       xdg-desktop-portal-gtk
     ];
     config.common = {
-      default = [ "wlr" ];
+      default = ["wlr"];
     };
   };
 

@@ -1,19 +1,20 @@
-{config, pkgs, inputs, ... }:
 {
-
-imports = [
+  config,
+  pkgs,
+  inputs,
+  ...
+}: {
+  imports = [
     ./home-manager
-        # DE / WM
+    # DE / WM
     ./sddm
     ./niri
     ./stylix
+  ];
 
-];
-
-environment.systemPackages = with pkgs; [
+  environment.systemPackages = with pkgs; [
     iosevka
     font-awesome
     material-design-icons
-];
-
+  ];
 }

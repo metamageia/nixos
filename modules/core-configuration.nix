@@ -1,18 +1,22 @@
-{ config, pkgs, hostName, inputs, system, ... }:
-
 {
-  imports =
-    [ 
-      ./networking.nix
-      ./locale.nix
-      ./audio.nix
-      ./fonts.nix
-      ./printing.nix
+  config,
+  pkgs,
+  hostName,
+  inputs,
+  system,
+  ...
+}: {
+  imports = [
+    ./networking.nix
+    ./locale.nix
+    ./audio.nix
+    ./fonts.nix
+    ./printing.nix
 
-      # Custom modules to import
-      ./cachix
-      ./syncthing
-    ];
+    # Custom modules to import
+    ./cachix
+    ./syncthing
+  ];
 
   environment.systemPackages = with pkgs; [
     wget
@@ -27,11 +31,10 @@
 
   nix.gc = {
     automatic = true;
-    dates     = ["weekly"];
-    options   = "--delete-older-than 14d";
+    dates = ["weekly"];
+    options = "--delete-older-than 14d";
   };
 
   system.stateVersion = "23.11"; # Do Not Change
-  nix.settings.experimental-features = [ "nix-command" "flakes" ]; 
-
+  nix.settings.experimental-features = ["nix-command" "flakes"];
 }

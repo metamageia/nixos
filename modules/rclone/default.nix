@@ -1,17 +1,15 @@
-{ pkgs, ... }:
-
-{
-  environment.systemPackages = with pkgs; [ rclone fuse ];
+{pkgs, ...}: {
+  environment.systemPackages = with pkgs; [rclone fuse];
 
   systemd.services."mount-rclone" = {
     description = "Mount Google Drive via rclone";
-    wants = [ "network-online.target" ];
-    after = [ "network-online.target" ];
+    wants = ["network-online.target"];
+    after = ["network-online.target"];
     serviceConfig = {
       Type = "simple";
       ExecStart = "${pkgs.rclone}/bin/rclone mount gdrive:/Server_Media/ /mnt/media --daemon";
-      ExecStop  = "${pkgs.fuse3}/bin/fusermount3 -u /mnt/media";
-      Restart   = "on-failure";
+      ExecStop = "${pkgs.fuse3}/bin/fusermount3 -u /mnt/media";
+      Restart = "on-failure";
     };
   };
 }

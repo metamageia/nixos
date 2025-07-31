@@ -1,7 +1,11 @@
-{ config, pkgs, inputs, ... }:
 {
-fonts.packages = with pkgs; [
-  corefonts
-  vistafonts
-];    
+  config,
+  pkgs,
+  inputs,
+  ...
+}: {
+  fonts.packages = with pkgs; [
+    corefonts
+    vistafonts
+  ];
 }

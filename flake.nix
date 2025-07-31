@@ -1,8 +1,8 @@
 {
   description = "Metamageia's personal NixOS flake.";
-  
+
   inputs = {
-    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable"; 
+    nixpkgs.url = "github:NixOS/nixpkgs/nixos-unstable";
 
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
@@ -18,48 +18,57 @@
 
     homelab.url = "github:metamageia/homelab";
     homelab.inputs.nixpkgs.follows = "nixpkgs";
-    };
-    
-  outputs = { self, nixpkgs, stylix, home-manager, homelab, ... }@inputs:
-    let 
-      system = "x86_64-linux";
-      lib = inputs.nixpkgs.lib;
 
-      pkgs = import inputs.nixpkgs {
+    alejandra.url = "github:kamadorueda/alejandra/4.0.0";
+    alejandra.inputs.nixpkgs.follows = "nixpkgs";
+  };
+
+  outputs = {
+    self,
+    nixpkgs,
+    stylix,
+    home-manager,
+    homelab,
+    alejandra,
+    ...
+  } @ inputs: let
+    system = "x86_64-linux";
+    lib = inputs.nixpkgs.lib;
+
+    pkgs = import inputs.nixpkgs {
       inherit system;
       config.allowUnfree = true;
-      };
+    };
 
-      wallpaper = ./wallpapers/el-roving-clans-01.jpg;
-      
-    in {
-      nixosConfigurations = {
-        laptop = lib.nixosSystem {
+    wallpaper = ./wallpapers/el-roving-clans-01.jpg;
+  in {
+    nixosConfigurations = {
+      laptop = lib.nixosSystem {
+        inherit system;
+        inherit pkgs;
+        specialArgs = {
+          hostName = "laptop";
+          inherit inputs;
           inherit system;
-          inherit pkgs;
-          specialArgs = {
-            hostName = "laptop";
-            inherit inputs;
-            inherit system;
-            inherit wallpaper;
-          };
-          modules = [ 
-            ./hosts/laptop/configuration.nix
-          ];
+          inherit wallpaper;
         };
-        desktop = lib.nixosSystem {
+        modules = [
+          ./hosts/laptop/configuration.nix
+        ];
+      };
+      desktop = lib.nixosSystem {
+        inherit system;
+        inherit pkgs;
+        specialArgs = {
+          hostName = "desktop";
+          inherit inputs;
           inherit system;
-          inherit pkgs;  
-          specialArgs = {
-            hostName = "desktop";
-            inherit inputs;  
-            inherit system;
-            inherit wallpaper;
-          };
-          modules = [ 
-            ./hosts/desktop/configuration.nix
-          ];
-        };  
+          inherit wallpaper;
+        };
+        modules = [
+          ./hosts/desktop/configuration.nix
+        ];
       };
     };
+  };
 }

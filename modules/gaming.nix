@@ -1,6 +1,8 @@
-{ config, pkgs, ... }:
 {
- 
+  config,
+  pkgs,
+  ...
+}: {
   environment.systemPackages = with pkgs; [
     lutris
     wine
@@ -15,14 +17,6 @@
 
   programs.steam = {
     enable = true;
-    localNetworkGameTransfers.openFirewall = true; 
+    localNetworkGameTransfers.openFirewall = true;
   };
 }
-
-
-
-
-
-
-
-
