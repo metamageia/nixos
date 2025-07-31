@@ -4,9 +4,9 @@
 environment.systemPackages = with pkgs; [
     vscode
     jq
-    awscli2
+    #awscli2
 
-    code-cursor
+    #code-cursor
 
     #direnv tools
     #direnv
