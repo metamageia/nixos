@@ -5,5 +5,4 @@
     wayland.enable = true;
   };
 
-  stylix.targets.sddm.enable = true; 
 }
