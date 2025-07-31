@@ -55,7 +55,7 @@
 
               
             # Users
-            ./users/metamageia/default.nix
+            ./users/metamageia
             inputs.niri-flake.nixosModules.niri
             inputs.stylix.nixosModules.stylix
 
@@ -82,7 +82,7 @@
             ./modules/desktop.nix
             
             # Users
-            ./users/metamageia/default.nix
+            ./users/metamageia
             inputs.niri-flake.nixosModules.niri
             inputs.stylix.nixosModules.stylix
 

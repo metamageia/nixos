@@ -10,8 +10,8 @@
       ./printing.nix
 
       # Custom modules to import
-      ./cachix/default.nix
-      ./syncthing/default.nix
+      ./cachix
+      ./syncthing
     ];
 
   environment.systemPackages = with pkgs; [
