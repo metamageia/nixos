@@ -16,6 +16,7 @@
     # Custom modules to import
     ./cachix
     ./syncthing
+    ./cloudflare
   ];
 
   environment.systemPackages = with pkgs; [
