@@ -15,6 +15,10 @@ imports = [
   home.enableNixpkgsReleaseCheck = false;
   home.stateVersion = "23.11"; 
 
+  home.packages = with pkgs; [
+    obsidian
+  ];
+
   stylix.targets.vscode.enable = true; 
 
   home.file = {
