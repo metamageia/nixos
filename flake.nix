@@ -10,9 +10,6 @@
     niri-flake.url = "github:sodiboo/niri-flake";
     niri-flake.inputs.nixpkgs.follows = "nixpkgs";
 
-    sops-nix.url = "github:Mic92/sops-nix";
-    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
-
     stylix.url = "github:danth/stylix";
     stylix.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -23,7 +20,7 @@
     homelab.inputs.nixpkgs.follows = "nixpkgs";
     };
     
-  outputs = { self, nixpkgs, stylix, home-manager, sops-nix, homelab, ... }@inputs:
+  outputs = { self, nixpkgs, stylix, home-manager, homelab, ... }@inputs:
     let 
       system = "x86_64-linux";
       lib = inputs.nixpkgs.lib;
@@ -36,8 +33,6 @@
       wallpaper = ./wallpapers/el-roving-clans-01.jpg;
       
     in {
-          
-      # --- Host-specific Configurations --- #
       nixosConfigurations = {
         laptop = lib.nixosSystem {
           inherit system;
@@ -50,21 +45,6 @@
           };
           modules = [ 
             ./hosts/laptop/configuration.nix
-            ./modules/core-configuration.nix
-            ./modules/desktop.nix
-
-              
-            # Users
-            ./users/metamageia
-            inputs.niri-flake.nixosModules.niri
-            inputs.stylix.nixosModules.stylix
-
-            # Special Modules
-            #./modules/musicproduction.nix
-            ./modules/development.nix
-            #inputs.homelab.nixosModules.homelab-node
-            #./modules/gaming.nix 
-
           ];
         };
         desktop = lib.nixosSystem {
@@ -78,19 +58,6 @@
           };
           modules = [ 
             ./hosts/desktop/configuration.nix
-            ./modules/core-configuration.nix
-            ./modules/desktop.nix
-            
-            # Users
-            ./users/metamageia
-            inputs.niri-flake.nixosModules.niri
-            inputs.stylix.nixosModules.stylix
-
-            # Special Modules
-            ./modules/musicproduction.nix
-            ./modules/development.nix
-            inputs.homelab.nixosModules.homelab-node
-            #./modules/gaming.nix 
           ];
         };  
       };
