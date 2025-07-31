@@ -15,6 +15,7 @@
 
     # Custom modules to import
     ./cachix
+    ./sops
     ./syncthing
     ./cloudflare
   ];
