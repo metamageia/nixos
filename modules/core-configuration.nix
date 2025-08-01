@@ -17,7 +17,8 @@
     ./cachix
     ./sops
     ./syncthing
-    ./cloudflare
+    #./cloudflare
+    #./attic
   ];
 
   environment.systemPackages = with pkgs; [

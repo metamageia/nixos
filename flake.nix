@@ -26,7 +26,7 @@
     alejandra.inputs.nixpkgs.follows = "nixpkgs";
 
     attic.url = "github:zhaofengli/attic";
-    attic.inuts.nixpkgs.follows = "nixpkgs";
+    attic.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
