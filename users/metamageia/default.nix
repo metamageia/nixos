@@ -13,10 +13,17 @@
     users = {metamageia = import ./home.nix;};
   };
 
+  sops.secrets = {
+    "passwords/metamageia" = {
+      neededForUsers = true;
+    };
+  };
+
   users.users.metamageia = {
     isNormalUser = true;
     description = "Metamageia";
     extraGroups = ["networkmanager" "wheel"];
+    hashedPasswordFile = config.sops.secrets."passwords/metamageia".path;
     packages = with pkgs; [
     ];
   };

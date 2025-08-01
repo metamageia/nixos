@@ -10,6 +10,9 @@
     niri-flake.url = "github:sodiboo/niri-flake";
     niri-flake.inputs.nixpkgs.follows = "nixpkgs";
 
+    sops-nix.url = "github:Mic92/sops-nix";
+    sops-nix.inputs.nixpkgs.follows = "nixpkgs";
+
     stylix.url = "github:danth/stylix";
     stylix.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -29,6 +32,7 @@
     stylix,
     home-manager,
     homelab,
+    sops-nix,
     alejandra,
     ...
   } @ inputs: let
