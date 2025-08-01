@@ -10,7 +10,7 @@
 
   sops.secrets = {
     "ATTIC_SERVER_TOKEN_RS256_SECRET_BASE64" = {
-      sopsFile = ../../secrets/secrets.env;
+      sopsFile = ../../secrets/personal.secrets.env;
       format = "dotenv";
     };
   };

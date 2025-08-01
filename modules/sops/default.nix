@@ -11,9 +11,5 @@
   environment.systemPackages = with pkgs; [
     sops
   ];
-
-  sops.defaultSopsFile = ../../secrets/secrets.yaml;
-  sops.defaultSopsFormat = "yaml";
-
   sops.age.keyFile = "/etc/sops/age/keys.txt";
 }
