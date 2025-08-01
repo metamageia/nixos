@@ -9,3 +9,8 @@ creation_rules:
     - age:
       - *metamageia
       - *desktop
+  - path_regex: "secrets/secrets\\.env$"
+    key_groups:
+    - age:
+      - *metamageia
+      - *desktop

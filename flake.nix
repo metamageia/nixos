@@ -24,6 +24,9 @@
 
     alejandra.url = "github:kamadorueda/alejandra/4.0.0";
     alejandra.inputs.nixpkgs.follows = "nixpkgs";
+
+    attic.url = "github:zhaofengli/attic";
+    attic.inuts.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
@@ -34,6 +37,7 @@
     homelab,
     sops-nix,
     alejandra,
+    attic,
     ...
   } @ inputs: let
     system = "x86_64-linux";
