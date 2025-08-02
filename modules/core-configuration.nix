@@ -15,6 +15,7 @@
 
     # Custom modules to import
     ./cachix
+    ./alacrity
     ./sops
     ./syncthing
     #./cloudflare
@@ -27,7 +28,6 @@
     unrar
     git
     bash
-    alacritty
   ];
 
   nix.optimise.automatic = true;

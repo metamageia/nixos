@@ -10,5 +10,4 @@
   homelab = {
     sopsFile = ../../secrets/personal.secrets.yaml;
   };
-
 }
