@@ -4,11 +4,11 @@
   ...
 }: {
   imports = [
-    inputs.homelab.nixosModules.homelab-node
+    inputs.homelab.nixosModules.homelab
   ];
 
-  homelab-node = {
-    homelabSopsFile = "../../secrets/homelab.secrets.yaml";
+  homelab = {
+    sopsFile = ../../secrets/personal.secrets.yaml;
   };
 
 }
