@@ -4,12 +4,12 @@ keys:
   - hosts:
     - &desktop age12c8eltd9jyt3c7r2uydesfp07sur6qnpts9cwvfdygaxsdcmq3rs6pznm2
 creation_rules:
-  - path_regex: "secrets/secrets\\.yaml$"
+  - path_regex: "secrets/personal.secrets\\.yaml$"
     key_groups:
     - age:
       - *metamageia
       - *desktop
-  - path_regex: "secrets/secrets\\.env$"
+  - path_regex: "secrets/personal.secrets\\.env$"
     key_groups:
     - age:
       - *metamageia

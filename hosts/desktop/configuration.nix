@@ -19,8 +19,8 @@
     # Special Modules
     ../../modules/musicproduction.nix
     ../../modules/development.nix
-    inputs.homelab.nixosModules.homelab-node
     #../../modules/gaming.nix
+    ../../modules/homelab
   ];
 
   environment.systemPackages = with pkgs; [
