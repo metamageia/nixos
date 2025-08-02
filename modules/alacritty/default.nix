@@ -2,5 +2,5 @@
   home.packages = with pkgs; [
     alacritty
   ];
-  programs.alacritty.enable = true;
+  stylix.targets.alacritty.enable = true;
 }

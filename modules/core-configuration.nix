@@ -15,7 +15,6 @@
 
     # Custom modules to import
     ./cachix
-    ./alacritty
     ./sops
     ./syncthing
     #./cloudflare

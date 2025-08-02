@@ -7,7 +7,7 @@
   imports = [
     ./home-manager
     # DE / WM
-    ./sddm
+    ./lightdm
     ./niri
     ./stylix
   ];

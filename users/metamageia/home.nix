@@ -6,6 +6,7 @@
   ...
 }: {
   imports = [
+    ../../modules/alacritty
     ../../modules/niri/home.nix
     ../../modules/swww
     ../../modules/waybar
