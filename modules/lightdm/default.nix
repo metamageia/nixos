@@ -2,9 +2,13 @@
   environment.systemPackages = with pkgs; [
     lightdm
   ];
-  services.displayManager.lightdm = {
+  services.xserver = {
     enable = true;
-    wayland.enable = true;
+    displayManager = {
+      lightdm.enable = true;
+      lightdm.greeters.gtk.enable = true;
+    };
   };
+
   stylix.targets.lightdm.enable = true;
 }
