@@ -11,6 +11,8 @@
     brightnessctl
     wev
     kdePackages.dolphin
+    xwayland
+    xwayland-satellite
   ];
 
   xdg.portal = {
@@ -23,6 +25,8 @@
       default = ["wlr"];
     };
   };
+
+  programs.xwayland.enable = true;
 
   environment.sessionVariables = {
     NIXOS_OZONE_WL = "1";

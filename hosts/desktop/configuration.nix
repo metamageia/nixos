@@ -19,7 +19,7 @@
     # Special Modules
     ../../modules/musicproduction.nix
     ../../modules/development.nix
-    #../../modules/gaming.nix
+    ../../modules/gaming.nix
     ../../modules/homelab
   ];
 
