@@ -17,7 +17,7 @@
     # Special Modules
     ../../modules/musicproduction.nix
     ../../modules/development.nix
-    inputs.homelab.nixosModules.homelab-node
+    #inputs.homelab.nixosModules.homelab-node
     #../../modules/gaming.nix
   ];
 
