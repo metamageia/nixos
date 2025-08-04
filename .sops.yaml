@@ -3,6 +3,7 @@ keys:
     - &metamageia age18xnfe59qwzamuk4j0gctp2vj6mu8ypmpq5s05hdqzthxhu0vpscs40aw7u
   - hosts:
     - &desktop age12c8eltd9jyt3c7r2uydesfp07sur6qnpts9cwvfdygaxsdcmq3rs6pznm2
+    - &homelab-node age12frq2xnlklh7ms6ak35pa5gwr266zzllzy80tpqm5622fw3gkg5s5ldkt5
 creation_rules:
   - path_regex: "secrets/personal.secrets\\.yaml$"
     key_groups:
@@ -14,3 +15,9 @@ creation_rules:
     - age:
       - *metamageia
       - *desktop
+  - path_regex: "secrets/homelab.secrets\\.yaml$"
+    key_groups:
+    - age:
+      - *metamageia
+      - *desktop
+      - *homelab-node

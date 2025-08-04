@@ -8,6 +8,14 @@
   ];
 
   homelab = {
-    sopsFile = ../../secrets/personal.secrets.yaml;
+    sopsFile = ../../secrets/homelab.secrets.yaml;
+    clusterSecret = config.sops.secrets.clusterSecret.path;
+  };
+
+  sops.secrets = {
+    "clusterSecret" = {
+      sopsFile = config.homelab.clusterSecret;
+      format = "yaml";
+    };
   };
 }

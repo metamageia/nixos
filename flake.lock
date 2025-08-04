@@ -123,11 +123,11 @@
         ]
       },
       "locked": {
-        "lastModified": 1750618812,
-        "narHash": "sha256-YFqycYoK3MhwbY24mNrZ+gZWHat3JAXERa1YQh6UXbs=",
+        "lastModified": 1752773405,
+        "narHash": "sha256-n1VwT8Onpclsqc53hE/PWwgIFu5ciU6PFVLr6coQIeE=",
         "owner": "nlewo",
         "repo": "comin",
-        "rev": "e64786f95c9ec196accb33f90b0d654683dab7b0",
+        "rev": "4bd2defaa9fcf80c1e5eb3cf4bc57bf8ebe37fb3",
         "type": "github"
       },
       "original": {
@@ -364,11 +364,11 @@
         "sops-nix": "sops-nix"
       },
       "locked": {
-        "lastModified": 1754120447,
-        "narHash": "sha256-nr7p2rDAIMAeGRvy/bVzTlfC4zNDafOzmaKDDvC0pZ0=",
+        "lastModified": 1754164435,
+        "narHash": "sha256-rpvf/mD9QE1Zn4ZszPfmAam/Yche/o/m85LrdD4YsEw=",
         "owner": "metamageia",
         "repo": "homelab",
-        "rev": "74ed3ec38b536fbc6ce4df28cc97c13000c98f1e",
+        "rev": "d2079b568b11f7437c833db346fc5f8728c3047e",
         "type": "github"
       },
       "original": {
