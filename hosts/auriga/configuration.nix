@@ -25,7 +25,7 @@
   ];
 
   environment.systemPackages = with pkgs; [
-    inputs.alejandra.defaultPackage.${system}
+    # inputs.alejandra.defaultPackage.${system}
     k3s
   ];
 
