@@ -31,6 +31,17 @@
     options = ["fmask=0077" "dmask=0077"];
   };
 
+  fileSystems."/mnt/vault" = {
+    device = "/dev/disk/by-uuid/31c201e9-e4db-4366-bac3-8a453b1289c4";
+    fsType = "ext4";
+    options = [ "defaults" "noatime" "acl" ];
+  };
+
+  system.activationScripts.vaultPerms.text = ''
+    chown metamageia:metamageia /mnt/vault
+    chmod 755 /mnt/vault
+  '';
+
   swapDevices = [];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
