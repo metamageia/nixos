@@ -48,4 +48,13 @@
       "--write-kubeconfig-mode '0644'"
     ];
   };
+   networking.firewall.allowedTCPPorts = [
+    6443 
+     2379 
+     2380 
+  ];
+  networking.firewall.allowedUDPPorts = [
+     8472 
+  ];
+
 }
