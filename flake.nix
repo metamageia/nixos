@@ -51,43 +51,43 @@
     wallpaper = ./wallpapers/el-roving-clans-01.jpg;
   in {
     nixosConfigurations = {
-      laptop = lib.nixosSystem {
+      argosy = lib.nixosSystem {
         inherit system;
         inherit pkgs;
         specialArgs = {
-          hostName = "laptop";
+          hostName = "argosy";
           inherit inputs;
           inherit system;
           inherit wallpaper;
         };
         modules = [
-          ./hosts/laptop/configuration.nix
+          ./hosts/argosy/configuration.nix
         ];
       };
-      desktop = lib.nixosSystem {
+      auriga = lib.nixosSystem {
         inherit system;
         inherit pkgs;
         specialArgs = {
-          hostName = "desktop";
+          hostName = "auriga";
           inherit inputs;
           inherit system;
           inherit wallpaper;
         };
         modules = [
-          ./hosts/desktop/configuration.nix
+          ./hosts/auriga/configuration.nix
         ];
       };
-      nexus = lib.nixosSystem {
+      saiadha = lib.nixosSystem {
         inherit system;
         inherit pkgs;
         specialArgs = {
-          hostName = "nexus";
+          hostName = "saiadha";
           inherit inputs;
           inherit system;
           inherit wallpaper;
         };
         modules = [
-          ./hosts/nexus/configuration.nix
+          ./hosts/saiadha/configuration.nix
         ];
       };
     };
