@@ -38,6 +38,6 @@
     enable = true;
     role = "agent";
     tokenFile = config.sops.secrets.clusterSecret.path;
-    serverAddr = "http://192.168.12.234:6443";
+    serverAddr = "https://192.168.12.234:6443";
   };
 }
