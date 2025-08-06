@@ -34,7 +34,7 @@
   fileSystems."/mnt/vault" = {
     device = "/dev/disk/by-uuid/31c201e9-e4db-4366-bac3-8a453b1289c4";
     fsType = "ext4";
-    options = [ "noatime" ];
+    options = ["noatime"];
   };
 
   system.activationScripts.vaultPerms.text = ''
