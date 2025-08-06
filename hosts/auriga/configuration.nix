@@ -26,6 +26,7 @@
 
   environment.systemPackages = with pkgs; [
     inputs.alejandra.defaultPackage.${system}
+    k3s
   ];
 
     sops.secrets = {
