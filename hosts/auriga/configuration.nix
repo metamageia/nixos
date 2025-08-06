@@ -40,4 +40,12 @@
     tokenFile = config.sops.secrets.clusterSecret.path;
     serverAddr = "https://192.168.12.234:6443";
   };
+  networking.firewall.allowedTCPPorts = [
+    6443 
+     2379 
+     2380 
+  ];
+  networking.firewall.allowedUDPPorts = [
+     8472 
+  ];
 }
