@@ -21,7 +21,7 @@
     ../../modules/musicproduction.nix
     ../../modules/development.nix
     ../../modules/gaming.nix
-    #../../modules/homelab
+    ../../modules/homelab
   ];
 
   environment.systemPackages = with pkgs; [
@@ -30,30 +30,5 @@
     kubectl
     kompose
     kubernetes-helm
-  ];
-
-  environment.variables.KUBECONFIG = "/etc/rancher/k3s/k3s.yaml";
-
-  sops.secrets = {
-    "clusterSecret" = {
-      sopsFile = ../../secrets/homelab.secrets.yaml;
-    };
-  };
-  services.k3s = {
-    enable = true;
-    role = "server";
-    clusterInit = true;
-    tokenFile = config.sops.secrets.clusterSecret.path;
-    extraFlags = [
-      "--write-kubeconfig-mode '0644'"
-    ];
-  };
-  networking.firewall.allowedTCPPorts = [
-    6443
-    2379
-    2380
-  ];
-  networking.firewall.allowedUDPPorts = [
-    8472
   ];
 }

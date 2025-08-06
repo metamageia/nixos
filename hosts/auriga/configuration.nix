@@ -21,31 +21,11 @@
     #../../modules/musicproduction.nix
     #../../modules/development.nix
     #../../modules/gaming.nix
-    #../../modules/homelab
+    ../../modules/homelab
   ];
 
   environment.systemPackages = with pkgs; [
     # inputs.alejandra.defaultPackage.${system}
     k3s
-  ];
-
-  sops.secrets = {
-    "clusterSecret" = {
-      sopsFile = ../../secrets/homelab.secrets.yaml;
-    };
-  };
-  services.k3s = {
-    enable = true;
-    role = "agent";
-    tokenFile = config.sops.secrets.clusterSecret.path;
-    serverAddr = "https://saiadha.local:6443";
-  };
-  networking.firewall.allowedTCPPorts = [
-    6443
-    2379
-    2380
-  ];
-  networking.firewall.allowedUDPPorts = [
-    8472
   ];
 }

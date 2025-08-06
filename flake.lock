@@ -364,11 +364,11 @@
         "sops-nix": "sops-nix"
       },
       "locked": {
-        "lastModified": 1754468022,
-        "narHash": "sha256-ixyCwnJAH0JzrRooVF4ivmTQeNJwk10EG4L0PQeyYY0=",
+        "lastModified": 1754514205,
+        "narHash": "sha256-C95lpwv4ngBS9OOlyLrZAW1hxuLdowFKOVZPzfbdrs8=",
         "owner": "metamageia",
         "repo": "homelab",
-        "rev": "569aa5b623b81b21f6ee64b65482029f41ca38cb",
+        "rev": "729e7d456897ad098099fa89e71d494a9766cab5",
         "type": "github"
       },
       "original": {
