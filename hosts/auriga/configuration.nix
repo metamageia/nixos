@@ -10,18 +10,18 @@
     ../../modules/grub
 
     ../../modules/core-configuration.nix
-    ../../modules/desktop.nix
+    #../../modules/desktop.nix
 
     # Users
     ../../users/metamageia
-    inputs.niri-flake.nixosModules.niri
-    inputs.stylix.nixosModules.stylix
+    #inputs.niri-flake.nixosModules.niri
+    #inputs.stylix.nixosModules.stylix
 
     # Special Modules
-    ../../modules/musicproduction.nix
-    ../../modules/development.nix
-    ../../modules/gaming.nix
-    ../../modules/homelab
+    #../../modules/musicproduction.nix
+    #../../modules/development.nix
+    #../../modules/gaming.nix
+    #../../modules/homelab
   ];
 
   environment.systemPackages = with pkgs; [
