@@ -77,6 +77,19 @@
           ./hosts/desktop/configuration.nix
         ];
       };
+      nexus = lib.nixosSystem {
+        inherit system;
+        inherit pkgs;
+        specialArgs = {
+          hostName = "nexus";
+          inherit inputs;
+          inherit system;
+          inherit wallpaper;
+        };
+        modules = [
+          ./hosts/nexus/configuration.nix
+        ];
+      };
     };
   };
 }

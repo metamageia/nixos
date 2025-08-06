@@ -17,7 +17,6 @@
     "passwords/metamageia" = {
       neededForUsers = true;
       sopsFile = ../../secrets/personal.secrets.yaml;
-      format = "yaml";
     };
   };
 
