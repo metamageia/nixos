@@ -25,7 +25,7 @@
   ];
 
   environment.systemPackages = with pkgs; [
-    #inputs.alejandra.defaultPackage.${system}
+    inputs.alejandra.defaultPackage.${system}
     k3s
     kubectl
     kompose
@@ -48,13 +48,12 @@
       "--write-kubeconfig-mode '0644'"
     ];
   };
-   networking.firewall.allowedTCPPorts = [
-    6443 
-     2379 
-     2380 
+  networking.firewall.allowedTCPPorts = [
+    6443
+    2379
+    2380
   ];
   networking.firewall.allowedUDPPorts = [
-     8472 
+    8472
   ];
-
 }

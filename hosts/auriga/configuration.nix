@@ -29,7 +29,7 @@
     k3s
   ];
 
-    sops.secrets = {
+  sops.secrets = {
     "clusterSecret" = {
       sopsFile = ../../secrets/homelab.secrets.yaml;
     };
@@ -38,14 +38,14 @@
     enable = true;
     role = "agent";
     tokenFile = config.sops.secrets.clusterSecret.path;
-    serverAddr = "https://192.168.12.234:6443";
+    serverAddr = "https://saiadha.local:6443";
   };
   networking.firewall.allowedTCPPorts = [
-    6443 
-     2379 
-     2380 
+    6443
+    2379
+    2380
   ];
   networking.firewall.allowedUDPPorts = [
-     8472 
+    8472
   ];
 }

@@ -22,8 +22,8 @@
     homelab.url = "github:metamageia/homelab";
     homelab.inputs.nixpkgs.follows = "nixpkgs";
 
-    #alejandra.url = "github:kamadorueda/alejandra/4.0.0";
-    #alejandra.inputs.nixpkgs.follows = "nixpkgs";
+    alejandra.url = "github:kamadorueda/alejandra/4.0.0";
+    alejandra.inputs.nixpkgs.follows = "nixpkgs";
 
     attic.url = "github:zhaofengli/attic";
     attic.inputs.nixpkgs.follows = "nixpkgs";
@@ -36,7 +36,7 @@
     home-manager,
     homelab,
     sops-nix,
-    #alejandra,
+    alejandra,
     attic,
     ...
   } @ inputs: let
