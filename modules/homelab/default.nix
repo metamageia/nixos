@@ -57,7 +57,7 @@ homelab = {
         {
           host = "any";
           port = "any";
-          proto = "icmp";
+          proto = "any";
         }
       ];
       outbound = [
