@@ -20,13 +20,13 @@ homelab = {
   };
 
   sops.secrets = {
-    "nebula/saiadha.key" = {
+    "nebula/${hostName}.key" = {
       sopsFile = ../../secrets/homelab.secrets.yaml;
       owner = "root";
       group = "nebula-mesh";
       mode = "0640";
     };
-    "nebula/saiadha.crt" = {
+    "nebula/${hostName}.crt" = {
       sopsFile = ../../secrets/homelab.secrets.yaml;
       owner = "root";
       group = "nebula-mesh";
@@ -43,8 +43,8 @@ homelab = {
   services.nebula.networks.mesh = {
     enable = true;
     isLighthouse = false;
-    cert = config.sops.secrets."nebula/saiadha.crt".path;
-    key = config.sops.secrets."nebula/saiadha.key".path;
+    cert = config.sops.secrets."nebula/${hostName}.crt".path;
+    key = config.sops.secrets."nebula/${hostName}.key".path;
     ca = config.sops.secrets."nebula/ca.crt".path; #08-09-2026
     staticHostMap = {
       "192.168.100.1" = [
