@@ -8,12 +8,27 @@
     inputs.homelab.nixosModules.homelab
   ];
 
-  environment.systemPackages = with pkgs; [k3s];
+  environment.systemPackages = with pkgs; [k3s qbittorrent nebula];
   environment.variables.KUBECONFIG = "/etc/rancher/k3s/k3s.yaml";
 
-  sops.secrets = {
-    "clusterSecret" = {
-      sopsFile = ../../secrets/homelab.secrets.yaml;
+    sops.secrets = {
+    "nebula/saiadha.key" = {
+      sopsFile = "../../secrets/homelab.secrets.yaml";
+      owner = "root";
+      group = "nebula-mesh";
+      mode = "0640";
+    };
+    "nebula/saiadha.crt" = {
+      sopsFile = "../../secrets/homelab.secrets.yaml";
+      owner = "root";
+      group = "nebula-mesh";
+      mode = "0644";
+    };
+    "nebula/ca.crt" = {
+      sopsFile = "../../secrets/homelab.secrets.yaml";
+      owner = "root";
+      group = "nebula-mesh";
+      mode = "0644";
     };
   };
   homelab = {
@@ -21,6 +36,19 @@
     tokenFile = config.sops.secrets.clusterSecret.path;
     clusterAddr = "https://auriga.gagelara.com:6443";
     sopsFile = ../../secrets/homelab.secrets.yaml;
+  };
+  services.nebula.networks.mesh = {
+    enable = true;
+    isLighthouse = false;
+    cert = config.sops.secrets."nebula/saiadha.crt".path; 
+    key = config.sops.secrets."nebula/saiadha.key".path;
+    ca = config.sops.secrets."nebula/ca.crt".path; #08-09-2026
+    staticHostMap = {
+      "192.168.100.1" = [
+        "134.199.241.26:4242"
+      ];
+    };
+    lighthouses = ["192.168 .100 .1"];
   };
   networking.firewall.allowedTCPPorts = [
     6443

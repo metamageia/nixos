@@ -11,7 +11,7 @@
   home.packages = with pkgs; [
     fuzzel
     jq
-    wl-clipboard 
+    wl-clipboard
     xdg-utils
     coreutils
   ];
