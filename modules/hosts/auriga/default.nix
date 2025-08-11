@@ -11,6 +11,6 @@
     ../../nvidia
 
     # Users
-    ../users/metamageia
+    ../../users/metamageia
   ];
 }
