@@ -9,8 +9,8 @@
     ./hardware-configuration.nix
     #.modules/grub
 
-    ../core-configuration.nix
-    ../desktop.nix
+    ../../core-configuration.nix
+    ../../desktop.nix
 
     # Users
     ../../users/metamageia
@@ -18,10 +18,10 @@
     inputs.stylix.nixosModules.stylix
 
     # Special Modules
-    ../musicproduction.nix
-    ../development.nix
-    ../gaming.nix
-    ../homelab
+    ../../musicproduction.nix
+    ../../development.nix
+    ../../gaming.nix
+    ../../homelab
   ];
 
   environment.systemPackages = with pkgs; [

@@ -13,7 +13,7 @@
     ../desktop.nix
 
     # Users
-    ../../users/metamageia
+    ../users/metamageia
     inputs.niri-flake.nixosModules.niri
     inputs.stylix.nixosModules.stylix
 

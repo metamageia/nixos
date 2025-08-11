@@ -64,7 +64,7 @@
           inherit sopsFile;
         };
         modules = [
-          ./modules/host-argosy
+          ./modules/hosts/argosy
         ];
       };
       auriga = lib.nixosSystem {
@@ -79,7 +79,7 @@
           inherit sopsFile;
         };
         modules = [
-          ./modules/host-auriga
+          ./modules/hosts/auriga
         ];
       };
       saiadha = lib.nixosSystem {
@@ -94,7 +94,7 @@
           inherit sopsFile;
         };
         modules = [
-          ./modules/host-saiadha
+          ./modules/hosts/saiadha
         ];
       };
       nixosConfigurations.droplet = nixpkgs.lib.nixosSystem {
@@ -109,7 +109,7 @@
         };
         modules = [
           "${nixpkgs}/nixos/modules/virtualisation/digital-ocean-image.nix"
-          ./modules/host-droplet
+          ./modules/hosts/droplet
         ];
       };
     };
