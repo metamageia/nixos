@@ -17,6 +17,7 @@
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
   imports = [
+     "${nixpkgs}/nixos/modules/virtualisation/digital-ocean-image.nix"
     #./cachix
     #./comin
     #./sops

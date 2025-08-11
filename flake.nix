@@ -65,6 +65,9 @@
         };
         modules = [
           ./modules/hosts/argosy
+          ./modules/common.nix
+          ./modules/desktop.nix
+          ./modules/homelab.nix
         ];
       };
       auriga = lib.nixosSystem {
@@ -80,6 +83,9 @@
         };
         modules = [
           ./modules/hosts/auriga
+          ./modules/common.nix
+          ./modules/desktop.nix
+          ./modules/homelab.nix
         ];
       };
       saiadha = lib.nixosSystem {
@@ -95,6 +101,9 @@
         };
         modules = [
           ./modules/hosts/saiadha
+          ./modules/common.nix
+          ./modules/desktop.nix
+          ./modules/homelab.nix
         ];
       };
       nixosConfigurations.droplet = nixpkgs.lib.nixosSystem {
@@ -108,8 +117,9 @@
           nebulaIP = "192.168.100.1";
         };
         modules = [
-          "${nixpkgs}/nixos/modules/virtualisation/digital-ocean-image.nix"
           ./modules/hosts/droplet
+          ./modules/common.nix
+          ./modules/homelab.nix
         ];
       };
     };

@@ -6,6 +6,7 @@
   sopsFile,
   ...
 }: {
+  imports = [../../home-manager];
   home-manager = {
     extraSpecialArgs = {
       inherit inputs;
