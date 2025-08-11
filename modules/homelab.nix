@@ -7,7 +7,6 @@
 }: {
   imports = [
     ./k3s
-    
   ];
   environment.systemPackages = with pkgs; [];
 }
