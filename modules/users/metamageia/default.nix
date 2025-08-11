@@ -3,6 +3,7 @@
   pkgs,
   inputs,
   wallpaper,
+  sopsFile,
   ...
 }: {
   home-manager = {
@@ -16,7 +17,7 @@
   sops.secrets = {
     "passwords/metamageia" = {
       neededForUsers = true;
-      sopsFile = ../../secrets/personal.secrets.yaml;
+      sopsFile = sopsFile;
     };
   };
 

@@ -6,12 +6,12 @@
   ...
 }: {
   imports = [
-    ../../modules/alacritty
-    ../../modules/niri/home.nix
-    ../../modules/swww
-    ../../modules/waybar
-    ../../modules/fuzzel
-    ../../modules/zen
+    ../../alacritty
+    ../../niri/home.nix
+    ../../swww
+    ../../waybar
+    ../../fuzzel
+    ../../zen
   ];
 
   home.username = "metamageia";

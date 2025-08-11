@@ -4,7 +4,7 @@
   hostName,
   ...
 }: {
-services.avahi = {
+  services.avahi = {
     enable = true;
     nssmdns4 = true;
     publish = {
