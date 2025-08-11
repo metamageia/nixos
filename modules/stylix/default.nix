@@ -1,8 +1,10 @@
 {
   pkgs,
   wallpaper,
+  inputs,
   ...
 }: {
+  imports = [inputs.stylix.nixosModules.stylix];
   stylix = {
     enable = true;
     homeManagerIntegration.autoImport = true;

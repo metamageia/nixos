@@ -10,6 +10,10 @@
     ./sddm
     ./niri
     ./stylix
+
+    ./musicproduction.nix
+    ./development.nix
+    ./gaming.nix
   ];
 
   environment.systemPackages = with pkgs; [

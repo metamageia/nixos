@@ -7,21 +7,13 @@
 }: {
   imports = [
     ./hardware-configuration.nix
-    #.modules/grub
-
     ../../core-configuration.nix
     ../../desktop.nix
+    ../../homelab.nix
 
     # Users
     ../../users/metamageia
-    inputs.niri-flake.nixosModules.niri
-    inputs.stylix.nixosModules.stylix
-
-    # Special Modules
-    ../../musicproduction.nix
-    ../../development.nix
-    ../../gaming.nix
-    ../../homelab
+    
   ];
 
   environment.systemPackages = with pkgs; [
