@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: linkding-deployment
+  namespace: linkding
+spec:
+  replicas: 1
+  template:
+    spec:
+      initContainers:
+      - name: migrate
+        image: sissbruecker/linkding:1.41.0-plus-alpine
+        envFrom:
+        - configMapRef:
+            name: linkding-map
+        command: ["/bin/sh"]
+        args:
+          - -c
+          - >-
+              python manage.py migrate &&
+              python manage.py createsuperuser --username=$USERNAME --email=$EMAIL --noinput
+        volumeMounts:
+        - name: linkding-data
+          mountPath: /etc/linkding/data
+      containers:
+      - name: linkding
+        image: sissbruecker/linkding:1.41.0-plus-alpine
+        ports:
+        - containerPort: 9090
+        volumeMounts:
+        - name: linkding-data
+          mountPath: /etc/linkding/data
+      volumes:
+      - name: linkding-data
+        persistentVolumeClaim:
+          claimName: linkding-data-pvc
+      
