@@ -107,6 +107,7 @@
           nebulaIP = "192.168.100.1";
         };
         modules = [
+          "${nixpkgs}/nixos/modules/virtualisation/digital-ocean-image.nix"
           ./modules/hosts/beacon
           ./modules/common.nix
         ];

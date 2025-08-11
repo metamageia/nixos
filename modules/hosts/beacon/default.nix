@@ -2,7 +2,6 @@
   config,
   system,
   pkgs,
-  nixpkgs,
   hostName,
   sopsFile,
   ...
@@ -18,7 +17,6 @@
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
   imports = [
-    "${nixpkgs}/nixos/modules/virtualisation/digital-ocean-image.nix"
     ../../comin
     ../../k3s/initServer.nix
     ../../nebula/lighthouse.nix
