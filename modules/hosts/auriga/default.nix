@@ -7,7 +7,7 @@
 }: {
   imports = [
     ./hardware-configuration.nix
-    ../grub
+    ../../grub
     ../../nvidia
 
     # Users
