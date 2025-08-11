@@ -7,7 +7,7 @@
 }: {
   imports = [
     ./k3s
-    ./nebula
+    
   ];
-  environment.systemPackages = with pkgs; [qbittorrent];
+  environment.systemPackages = with pkgs; [];
 }

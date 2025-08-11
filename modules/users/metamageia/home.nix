@@ -22,6 +22,7 @@
   home.packages = with pkgs; [
     obsidian
     vscode
+    qbittorrent
   ];
 
   stylix.targets.vscode.enable = true;

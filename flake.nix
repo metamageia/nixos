@@ -21,7 +21,6 @@
 
     alejandra.url = "github:kamadorueda/alejandra/4.0.0";
     alejandra.inputs.nixpkgs.follows = "nixpkgs";
-
   };
 
   outputs = {
@@ -44,7 +43,6 @@
     repoUrl = "https://github.com/metamageia/nixos-personal.git";
     sopsFile = ./secrets/homelab.secrets.yaml;
     wallpaper = ./wallpapers/el-roving-clans-01.jpg;
-
   in {
     nixosConfigurations = {
       argosy = lib.nixosSystem {
