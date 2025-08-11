@@ -13,12 +13,8 @@
 
     # Users
     ../../users/metamageia
-    
   ];
 
   environment.systemPackages = with pkgs; [
-    
   ];
-
-  
 }

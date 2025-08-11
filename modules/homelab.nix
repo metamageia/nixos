@@ -2,13 +2,12 @@
   inputs,
   config,
   pkgs,
+  system,
   ...
 }: {
   imports = [
-    #inputs.homelab.nixosModules.homelab
-    ../k3s
-    ../nebula
+    ./k3s
+    ./nebula
   ];
-
   environment.systemPackages = with pkgs; [qbittorrent];
 }

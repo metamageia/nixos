@@ -7,19 +7,16 @@
   ...
 }: {
   imports = [
-    ./networking.nix
-    ./locale.nix
-    ./audio.nix
-    ./fonts.nix
-    ./printing.nix
+    ./networking
+    ./locale
+    ./audio
+    ./fonts
+    ./printing
 
     # Custom modules to import
     ./cachix
     ./sops
-    ./syncthing
-    #./cloudflare
-    #./attic
-    inputs.alejandra.defaultPackage.${system}
+    ./syncthing 
   ];
 
   environment.systemPackages = with pkgs; [
@@ -28,6 +25,7 @@
     unrar
     git
     bash
+    inputs.alejandra.defaultPackage.${system}
   ];
 
   nix.optimise.automatic = true;

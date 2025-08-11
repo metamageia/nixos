@@ -21,6 +21,7 @@
 
   home.packages = with pkgs; [
     obsidian
+    vscode
   ];
 
   stylix.targets.vscode.enable = true;

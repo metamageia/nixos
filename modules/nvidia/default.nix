@@ -5,7 +5,7 @@
   config,
   ...
 }: {
-hardware.graphics = {
+  hardware.graphics = {
     enable = true;
   };
 
@@ -19,5 +19,4 @@ hardware.graphics = {
     nvidiaSettings = true;
     package = config.boot.kernelPackages.nvidiaPackages.stable;
   };
-
 }

@@ -5,8 +5,8 @@
   ...
 }: {
   imports = [
-    ./avahi
-    ./openssh
+    ../avahi
+    ../openssh
   ];
 
   networking = {
