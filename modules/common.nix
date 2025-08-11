@@ -16,7 +16,6 @@
     # Custom modules to import
     ./cachix
     ./sops
-    
   ];
 
   environment.systemPackages = with pkgs; [

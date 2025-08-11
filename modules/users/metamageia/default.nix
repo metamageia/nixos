@@ -6,7 +6,10 @@
   sopsFile,
   ...
 }: {
-  imports = [../../home-manager];
+  imports = [
+    ../../home-manager
+    ../../syncthing
+  ];
   home-manager = {
     extraSpecialArgs = {
       inherit inputs;
