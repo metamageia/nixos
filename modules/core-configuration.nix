@@ -19,6 +19,7 @@
     ./syncthing
     #./cloudflare
     #./attic
+    inputs.alejandra.defaultPackage.${system}
   ];
 
   environment.systemPackages = with pkgs; [
