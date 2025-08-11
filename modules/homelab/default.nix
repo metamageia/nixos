@@ -6,18 +6,12 @@
   ...
 }: {
   imports = [
-    inputs.homelab.nixosModules.homelab
+    #inputs.homelab.nixosModules.homelab
+    ../k3s
   ];
 
   environment.systemPackages = with pkgs; [k3s qbittorrent nebula];
   environment.variables.KUBECONFIG = "/etc/rancher/k3s/k3s.yaml";
-
-homelab = {
-    role = "agent";
-    tokenFile = config.sops.secrets.clusterSecret.path;
-    clusterAddr = "https://auriga.gagelara.com:6443";
-    sopsFile = ../../secrets/homelab.secrets.yaml;
-  };
 
   sops.secrets = {
     "nebula/${hostName}.key" = {
@@ -39,7 +33,7 @@ homelab = {
       mode = "0644";
     };
   };
-  
+
   services.nebula.networks.mesh = {
     enable = true;
     isLighthouse = false;
