@@ -7,6 +7,7 @@
 }: {
   imports = [
     ./hardware-configuration.nix
+    ../../nvidia
 
     # Users
     ../../users/metamageia

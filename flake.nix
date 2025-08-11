@@ -19,14 +19,9 @@
     zen-browser.url = "github:0xc000022070/zen-browser-flake";
     zen-browser.inputs.nixpkgs.follows = "nixpkgs";
 
-    homelab.url = "github:metamageia/homelab";
-    homelab.inputs.nixpkgs.follows = "nixpkgs";
-
     alejandra.url = "github:kamadorueda/alejandra/4.0.0";
     alejandra.inputs.nixpkgs.follows = "nixpkgs";
 
-    attic.url = "github:zhaofengli/attic";
-    attic.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
@@ -34,10 +29,8 @@
     nixpkgs,
     stylix,
     home-manager,
-    homelab,
     sops-nix,
     alejandra,
-    attic,
     ...
   } @ inputs: let
     system = "x86_64-linux";
@@ -49,8 +42,8 @@
     };
 
     sopsFile = ./secrets/homelab.secrets.yaml;
-
     wallpaper = ./wallpapers/el-roving-clans-01.jpg;
+
   in {
     nixosConfigurations = {
       argosy = lib.nixosSystem {
@@ -106,7 +99,7 @@
           ./modules/homelab.nix
         ];
       };
-      nixosConfigurations.droplet = nixpkgs.lib.nixosSystem {
+      droplet = nixpkgs.lib.nixosSystem {
         inherit system;
         inherit pkgs;
         specialArgs = {

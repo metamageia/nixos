@@ -5,7 +5,6 @@
   ...
 }: {
   imports = [
-    # DE / WM
     ./sddm
     ./niri
     ./stylix

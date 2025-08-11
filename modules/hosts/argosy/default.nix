@@ -6,19 +6,9 @@
 }: {
   imports = [
     ./hardware-configuration.nix
-    ../core-configuration.nix
-    ../desktop.nix
 
     # Users
     ../users/metamageia
-    inputs.niri-flake.nixosModules.niri
-    inputs.stylix.nixosModules.stylix
-
-    # Special Modules
-    ../modules/musicproduction.nix
-    ../development.nix
-    #inputs.homelab.nixosModules.homelab-node
-    #../modules/gaming.nix
   ];
 
   hardware.bluetooth.enable = true; # enables support for Bluetooth
