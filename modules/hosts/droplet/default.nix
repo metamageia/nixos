@@ -18,6 +18,7 @@
 
   imports = [
     "${nixpkgs}/nixos/modules/virtualisation/digital-ocean-image.nix"
+    ../../comin
     #./cachix
     #./comin
     #./sops

@@ -41,6 +41,7 @@
       config.allowUnfree = true;
     };
 
+    repoUrl = "https://github.com/metamageia/nixos-personal.git";
     sopsFile = ./secrets/homelab.secrets.yaml;
     wallpaper = ./wallpapers/el-roving-clans-01.jpg;
 
@@ -107,6 +108,7 @@
           inherit inputs;
           inherit system;
           inherit sopsFile;
+          inherit repoUrl;
           nebulaIP = "192.168.100.1";
         };
         modules = [
