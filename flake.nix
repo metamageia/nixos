@@ -107,7 +107,7 @@
           nebulaIP = "192.168.100.1";
         };
         modules = [
-          ./modules/hosts/droplet
+          ./modules/hosts/beacon
           ./modules/common.nix
         ];
       };
