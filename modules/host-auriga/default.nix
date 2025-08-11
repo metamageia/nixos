@@ -7,10 +7,10 @@
 }: {
   imports = [
     ./hardware-configuration.nix
-    ../../modules/grub
+    ../grub
 
-    ../../modules/core-configuration.nix
-    ../../modules/desktop.nix
+    ../core-configuration.nix
+    ../desktop.nix
 
     # Users
     ../../users/metamageia
@@ -18,10 +18,10 @@
     inputs.stylix.nixosModules.stylix
 
     # Special Modules
-    #../../modules/musicproduction.nix
-    #../../modules/development.nix
-    #../../modules/gaming.nix
-    ../../modules/homelab
+    #../musicproduction.nix
+    #../development.nix
+    #../gaming.nix
+    ../homelab
   ];
 
   environment.systemPackages = with pkgs; [

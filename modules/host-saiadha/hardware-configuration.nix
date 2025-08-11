@@ -37,11 +37,6 @@
     options = ["noatime"];
   };
 
-  system.activationScripts.vaultPerms.text = ''
-    chown metamageia:metamageia /mnt/vault
-    chmod 755 /mnt/vault
-  '';
-
   swapDevices = [];
 
   # Enables DHCP on each ethernet and wireless interface. In case of scripted networking
