@@ -2,8 +2,6 @@
   inputs,
   config,
   pkgs,
-  hostName,
-  sopsFile,
   ...
 }: {
   imports = [

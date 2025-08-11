@@ -72,6 +72,7 @@
         inherit pkgs;
         specialArgs = {
           hostName = "auriga";
+          nebulaIP = "192.168.100.3";
           inherit inputs;
           inherit system;
           inherit wallpaper;
@@ -86,6 +87,7 @@
         inherit pkgs;
         specialArgs = {
           hostName = "saiadha";
+          nebulaIP = "192.168.100.2";
           inherit inputs;
           inherit system;
           inherit wallpaper;

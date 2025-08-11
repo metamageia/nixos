@@ -2,6 +2,7 @@
   config,
   pkgs,
   hostName,
+  sopsFile,
   ...
 }: {
   environment.systemPackages = with pkgs; [nebula];
