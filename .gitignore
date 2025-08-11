@@ -9,3 +9,4 @@ crash.log
 /result
 secret.yaml
 .sketch
+secrets/sops

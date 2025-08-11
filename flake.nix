@@ -98,11 +98,11 @@
           ./modules/homelab.nix
         ];
       };
-      droplet = nixpkgs.lib.nixosSystem {
+      beacon = nixpkgs.lib.nixosSystem {
         inherit system;
         inherit pkgs;
         specialArgs = {
-          hostName = "droplet";
+          hostName = "beacon";
           inherit inputs;
           inherit system;
           inherit sopsFile;

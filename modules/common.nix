@@ -17,7 +17,6 @@
     ./cachix
     ./sops
     ./syncthing
-    ./nebula
   ];
 
   environment.systemPackages = with pkgs; [

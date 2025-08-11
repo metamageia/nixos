@@ -30,16 +30,9 @@
 
   services.nebula.networks.mesh = {
     enable = true;
-    isLighthouse = false;
     cert = config.sops.secrets."nebula/${hostName}.crt".path;
     key = config.sops.secrets."nebula/${hostName}.key".path;
     ca = config.sops.secrets."nebula/ca.crt".path; #08-09-2026
-    staticHostMap = {
-      "192.168.100.1" = [
-        "134.199.241.26:4242"
-      ];
-    };
-    lighthouses = ["192.168.100.1"];
     firewall = {
       inbound = [
         {
