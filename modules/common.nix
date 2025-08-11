@@ -25,7 +25,6 @@
     unrar
     git
     bash
-    inputs.alejandra.defaultPackage.${system}
   ];
 
   nix.optimise.automatic = true;

@@ -11,4 +11,7 @@
     ./musicproduction
     ./gaming
   ];
+  environment.systemPackages = with pkgs; [
+    inputs.alejandra.defaultPackage.${system}
+  ];
 }
