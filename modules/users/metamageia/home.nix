@@ -12,6 +12,7 @@
     ../../waybar
     ../../fuzzel
     ../../zen
+    ../../syncthing
   ];
 
   home.username = "metamageia";

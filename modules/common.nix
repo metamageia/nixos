@@ -16,7 +16,7 @@
     # Custom modules to import
     ./cachix
     ./sops
-    ./syncthing
+    
   ];
 
   environment.systemPackages = with pkgs; [
