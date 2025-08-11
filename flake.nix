@@ -59,7 +59,6 @@
           ./modules/hosts/argosy
           ./modules/common.nix
           ./modules/desktop.nix
-          ./modules/homelab.nix
         ];
       };
       auriga = lib.nixosSystem {
@@ -77,7 +76,6 @@
           ./modules/hosts/auriga
           ./modules/common.nix
           ./modules/desktop.nix
-          ./modules/homelab.nix
         ];
       };
       saiadha = lib.nixosSystem {
@@ -95,7 +93,6 @@
           ./modules/hosts/saiadha
           ./modules/common.nix
           ./modules/desktop.nix
-          ./modules/homelab.nix
         ];
       };
       beacon = nixpkgs.lib.nixosSystem {
@@ -112,7 +109,6 @@
         modules = [
           ./modules/hosts/droplet
           ./modules/common.nix
-          ./modules/homelab.nix
         ];
       };
     };

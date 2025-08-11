@@ -10,7 +10,7 @@
     ../../grub
     ../../nvidia
     ../../k3s/agent.nix
-    ../../k3s/node.nix
+    ../../nebula/node.nix
 
     # Users
     ../../users/metamageia
