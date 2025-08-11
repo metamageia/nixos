@@ -11,6 +11,8 @@
     ../users/metamageia
   ];
 
+  system.stateVersion = "23.11"; # Do Not Change
+
   hardware.bluetooth.enable = true; # enables support for Bluetooth
   hardware.bluetooth.powerOnBoot = true; # powers up the default Bluetooth controller on boot
 

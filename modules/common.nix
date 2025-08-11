@@ -36,6 +36,5 @@
     options = "--delete-older-than 14d";
   };
 
-  system.stateVersion = "23.11"; # Do Not Change
   nix.settings.experimental-features = ["nix-command" "flakes"];
 }
