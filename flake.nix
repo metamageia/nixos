@@ -94,9 +94,24 @@
           inherit sopsFile;
         };
         modules = [
-          ./hosts/saiadha/configuration.nix
+          ./modules/saiadha
         ];
       };
+      nixosConfigurations.droplet = nixpkgs.lib.nixosSystem {
+      inherit system;
+        inherit pkgs;
+      specialArgs = {
+        hostName = "droplet";
+        inherit inputs;
+        inherit system;
+        inherit sopsFile;
+        nebulaIP = "192.168.100.1";
+      };
+      modules = [
+        "${nixpkgs}/nixos/modules/virtualisation/digital-ocean-image.nix"
+        ./hosts/droplet/configuration.nix
+      ];
+    };
     };
     devShells.${system}.default = pkgs.mkShell {
       inherit system;
