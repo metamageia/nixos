@@ -2,6 +2,7 @@
   config,
   system,
   pkgs,
+  nixpkgs,
   hostName,
   sopsFile,
   ...
