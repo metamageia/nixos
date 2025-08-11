@@ -10,6 +10,9 @@
     niri-flake.url = "github:sodiboo/niri-flake";
     niri-flake.inputs.nixpkgs.follows = "nixpkgs";
 
+    comin.url = "github:nlewo/comin";
+    comin.inputs.nixpkgs.follows = "nixpkgs";
+
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -27,6 +30,7 @@
     self,
     nixpkgs,
     stylix,
+    comin,
     home-manager,
     sops-nix,
     alejandra,
