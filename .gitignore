@@ -1,0 +1,14 @@
+.env
+.terraform/
+*.tfstate
+*.tfstate.backup
+crash.log
+*.tfplan
+*.tfvars
+.ssh/*
+/result
+.secrets/
+*/secrets/
+rclone.conf
+secret.yaml
+.sketch
