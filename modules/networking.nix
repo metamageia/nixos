@@ -36,4 +36,16 @@
     enable = true;
     fallbackDns = ["8.8.8.8"];
   };
+
+  networking.firewall.allowedTCPPorts = [
+    6443
+    2379
+    2380
+    80
+    443
+  ];
+  networking.firewall.allowedUDPPorts = [
+    8472
+    4242
+  ];
 }

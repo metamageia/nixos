@@ -48,6 +48,8 @@
       config.allowUnfree = true;
     };
 
+    sopsFile = ./secrets/homelab.secrets.yaml;
+
     wallpaper = ./wallpapers/el-roving-clans-01.jpg;
   in {
     nixosConfigurations = {
@@ -59,6 +61,7 @@
           inherit inputs;
           inherit system;
           inherit wallpaper;
+          inherit sopsFile;
         };
         modules = [
           ./hosts/argosy/configuration.nix
@@ -72,6 +75,7 @@
           inherit inputs;
           inherit system;
           inherit wallpaper;
+          inherit sopsFile;
         };
         modules = [
           ./hosts/auriga/configuration.nix
@@ -85,6 +89,7 @@
           inherit inputs;
           inherit system;
           inherit wallpaper;
+          inherit sopsFile;
         };
         modules = [
           ./hosts/saiadha/configuration.nix

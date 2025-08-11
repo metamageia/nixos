@@ -1,7 +1,7 @@
 {
   config,
   pkgs,
-  lib,
+  sopsFile,
   ...
 }: {
   imports = [
@@ -17,25 +17,13 @@
 
   sops.secrets = {
     "clusterSecret" = {
-      sopsFile = config.homelab.sopsFile;
+      sopsFile = sopsFile;
     };
   };
 
   services.k3s = {
     role = "agent";
     tokenFile = config.sops.secrets.clusterSecret.path;
-    clusterAddr = "https://192.168.100.1:6443";
-    sopsFile = ../../secrets/homelab.secrets.yaml;
+    serverAddr = "https://192.168.100.1:6443";
   };
-  networking.firewall.allowedTCPPorts = [
-    6443
-    2379
-    2380
-    80
-    443
-  ];
-  networking.firewall.allowedUDPPorts = [
-    8472
-    4242
-  ];
 }
