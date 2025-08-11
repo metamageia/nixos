@@ -7,8 +7,5 @@ crash.log
 *.tfvars
 .ssh/*
 /result
-.secrets/
-*/secrets/
-rclone.conf
 secret.yaml
 .sketch
