@@ -122,9 +122,7 @@
       buildInputs = [pkgs.terraform pkgs.doctl pkgs.kustomize pkgs.openssl pkgs.age];
       shellHook = ''
         echo "Welcome to the Homeserver development environment!"
-        set -a
-        source ./secrets/.env
-        set +a
+        
       '';
     };
   };

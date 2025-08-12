@@ -14,6 +14,16 @@
     ../../zen
   ];
 
+  programs = {
+    direnv = {
+      enable = true;
+      enableBashIntegration = true; 
+      nix-direnv.enable = true;
+    };
+
+    bash.enable = true; 
+  };
+
   home.username = "metamageia";
   home.homeDirectory = "/home/metamageia";
   home.enableNixpkgsReleaseCheck = false;

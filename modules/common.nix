@@ -23,10 +23,9 @@
     unzip
     unrar
     git
-    bash
-    direnv
-    nix-direnv
   ];
+
+ 
 
   nix.optimise.automatic = true;
 
