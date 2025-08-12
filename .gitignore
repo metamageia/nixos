@@ -1,4 +1,6 @@
 .env
+.direnv
+
 .terraform/
 *.tfstate
 *.tfstate.backup
