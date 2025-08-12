@@ -17,12 +17,12 @@
   programs = {
     direnv = {
       enable = true;
-      enableBashIntegration = true; 
+      enableBashIntegration = true;
       nix-direnv.enable = true;
       silent = true;
     };
 
-    bash.enable = true; 
+    bash.enable = true;
   };
 
   home.username = "metamageia";

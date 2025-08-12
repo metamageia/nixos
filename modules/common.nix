@@ -25,8 +25,6 @@
     git
   ];
 
- 
-
   nix.optimise.automatic = true;
 
   nix.gc = {
