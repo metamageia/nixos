@@ -21,7 +21,6 @@
 
   services.k3s = {
     enable = true;
-    tokenFile = config.sops.secrets.clusterSecret.path;
     extraFlags = ["--node-ip=${nebulaIP}"];
   };
 

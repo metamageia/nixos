@@ -1,4 +1,4 @@
-resource "digitalocean_droplet" "homelab-control" {
+resource "digitalocean_droplet" "beacon" {
   name     = "homelab-node"
   image    = "191915724"
   region   = "nyc3"
