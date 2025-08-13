@@ -2,8 +2,8 @@ name: Build NixOS Image for Digital Ocean
 
 on:
   push:
-    branches: 
-      - main
+    tags:
+      - '*'
   workflow_dispatch:
 
 permissions:
@@ -23,5 +23,15 @@ jobs:
 
     - name: Check Flake
       run: nix build .#packages.x86_64-linux.do
+
+    - name: Upload image to release
+      uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: ./result/*.gz
+        asset_name: nixos.x86_64-linux.do
+        tag: ${{ github.ref }}
+        overwrite: true
+        body: "Updated custom NixOS image for Digital Ocean"
 
       
