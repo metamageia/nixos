@@ -12,6 +12,6 @@
   services.jellyfin = {
     enable = true;
     openFirewall = true;
+    user = "metamageia";
   };
-  user="metamageia"
 }
