@@ -37,6 +37,7 @@
     home-manager,
     sops-nix,
     alejandra,
+    nixos-generators,
     ...
   } @ inputs: let
     system = "x86_64-linux";
@@ -133,6 +134,23 @@
 
         echo "Welcome to the Homeserver development environment!"
       '';
+    };
+
+    packages.x86_64-linux = {
+      do = nixos-generators.nixosGenerate {
+        system = "x86_64-linux";
+        specialArgs = {
+          hostName = "beacon";
+          inherit inputs;
+          inherit system;
+          inherit sopsFile;
+          inherit repoUrl;
+        };
+        modules = [
+          ./modules/hosts/digitalocean
+        ];
+        format = "do";
+      };
     };
   };
 }
