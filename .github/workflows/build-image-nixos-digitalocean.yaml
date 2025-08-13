@@ -2,8 +2,7 @@ name: Build NixOS Image for Digital Ocean
 
 on:
   push:
-    tags:
-      - '*'
+
   workflow_dispatch:
 
 permissions:
