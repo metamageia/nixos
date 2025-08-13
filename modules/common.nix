@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  hostName,
   inputs,
   system,
   ...
@@ -9,9 +8,6 @@
   imports = [
     ./networking
     ./locale
-    ./audio
-    ./fonts
-    ./printing
 
     # Custom modules to import
     ./cachix
@@ -21,7 +17,6 @@
   environment.systemPackages = with pkgs; [
     wget
     unzip
-    unrar
     git
   ];
 
@@ -34,4 +29,5 @@
   };
 
   nix.settings.experimental-features = ["nix-command" "flakes"];
+  system.stateVersion = "23.11"; # Do Not Change
 }

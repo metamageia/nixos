@@ -8,7 +8,7 @@
     ./hardware-configuration.nix
 
     # Users
-    ../users/metamageia
+    ../../users/metamageia
   ];
 
   system.stateVersion = "23.11"; # Do Not Change
