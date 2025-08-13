@@ -1,16 +1,12 @@
 resource "digitalocean_droplet" "beacon" {
   name     = "homelab-node"
-  image    = "191915724"
+  image    = digitalocean_custom_image.nixos.id
   region   = "nyc3"
   size     = "s-1vcpu-2gb"
   ssh_keys = [data.digitalocean_ssh_key.terraform.id]
-
-  connection {
-    host        = self.ipv4_address
-    type        = "ssh"
-    user        = "root"
-    private_key = var.pvt_key
-    timeout     = "2m"
-  }
 }
 
+data "digitalocean_ssh_key" "terraform" {
+  name = "terraform"
+  public_key = file("~/.ssh/id_ed25519.pub")
+}
