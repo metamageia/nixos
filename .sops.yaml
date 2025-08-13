@@ -3,7 +3,7 @@ keys:
     - &metamageia age18xnfe59qwzamuk4j0gctp2vj6mu8ypmpq5s05hdqzthxhu0vpscs40aw7u
   - hosts:
     - &auriga age12c8eltd9jyt3c7r2uydesfp07sur6qnpts9cwvfdygaxsdcmq3rs6pznm2
-    - &homelab-node age12frq2xnlklh7ms6ak35pa5gwr266zzllzy80tpqm5622fw3gkg5s5ldkt5
+    - &beacon age12frq2xnlklh7ms6ak35pa5gwr266zzllzy80tpqm5622fw3gkg5s5ldkt5
     - &saiadha age16yfmhmh5ggyylzwp03alru72j67dz52tzcrm6jtrzdlt7k45xqlqdjnsm0
 creation_rules:
   - path_regex: "secrets/personal.secrets\\.yaml$"
@@ -12,16 +12,17 @@ creation_rules:
       - *metamageia
       - *auriga
       - *saiadha
-  - path_regex: "secrets/personal.secrets\\.env$"
+  - path_regex: "secrets/homelab.secrets\\.env$"
     key_groups:
     - age:
       - *metamageia
       - *auriga
       - *saiadha
+      - *beacon
   - path_regex: "secrets/homelab.secrets\\.yaml$"
     key_groups:
     - age:
       - *metamageia
       - *auriga
-      - *homelab-node
+      - *beacon
       - *saiadha

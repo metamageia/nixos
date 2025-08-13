@@ -119,8 +119,15 @@
     };
     devShells.${system}.default = pkgs.mkShell {
       inherit system;
-      buildInputs = [pkgs.terraform pkgs.doctl pkgs.kustomize pkgs.openssl pkgs.age];
+      buildInputs = [pkgs.terraform pkgs.doctl pkgs.kustomize pkgs.openssl pkgs.age pkgs.sops];
+
       shellHook = ''
+        if [ -f ./secrets/homelab.secrets.env ]; then
+          set -a
+          eval "$(sops -d ./secrets/homelab.secrets.env)"
+          set +a
+        fi
+
         echo "Welcome to the Homeserver development environment!"
       '';
     };
