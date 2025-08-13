@@ -10,7 +10,7 @@ permissions:
   contents: read
 
 jobs:
-  flake-check:
+  build:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout Code
@@ -20,8 +20,8 @@ jobs:
       uses: cachix/install-nix-action@v31
       with:
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
-        
+
     - name: Check Flake
-      run: nix flake check
+      run: nix build .#packages.x86_64-linux.do
 
       
