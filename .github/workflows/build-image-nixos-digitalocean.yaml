@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   build:
@@ -29,7 +29,7 @@ jobs:
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: ./result/*.gz
-        asset_name: nixos.x86_64-linux.do
+        asset_name: nixos.x86_64-linux.do0
         tag: ${{ github.ref }}
         overwrite: true
         body: "Updated custom NixOS unstable image for Digital Ocean"
