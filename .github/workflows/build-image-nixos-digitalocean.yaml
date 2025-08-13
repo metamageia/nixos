@@ -32,6 +32,6 @@ jobs:
         asset_name: nixos.x86_64-linux.do
         tag: ${{ github.ref }}
         overwrite: true
-        body: "Updated custom NixOS image for Digital Ocean"
+        body: "Updated custom NixOS unstable image for Digital Ocean"
 
       
