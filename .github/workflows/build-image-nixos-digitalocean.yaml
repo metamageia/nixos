@@ -25,14 +25,14 @@ jobs:
       run: |
         set -euo pipefail
         OUT=$(nix build .#packages.x86_64-linux.do --print-out-paths)
-        echo "out=$OUT" >> "$GITHUB_OUTPUT"
-        ls -la "$OUT"
+        IMAGE=$(ls "$OUT" | grep .gz)
+        echo "image=$IMAGE" >> "$GITHUB_OUTPUT"
 
     - name: Upload image to release
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ${{ steps.build.outputs.out }}/*.gz
+        file: ${{ steps.build.outputs.image }}
         asset_name: nixos.x86_64-linux.do0
         tag: nixos-unstable
         overwrite: true
