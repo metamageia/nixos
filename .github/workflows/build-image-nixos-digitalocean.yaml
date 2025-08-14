@@ -21,6 +21,7 @@ jobs:
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build Image
+      id: build
       run: |
         set -euo pipefail
         OUT=$(nix build .#packages.x86_64-linux.do --print-out-paths)
