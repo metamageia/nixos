@@ -21,13 +21,15 @@ jobs:
         github_access_token: ${{ secrets.GITHUB_TOKEN }}
 
     - name: Build Image
-      run: export PATH=$(nix build .#packages.x86_64-linux.do --out-link result)
+      run: |
+        export PATH=$(nix build .#packages.x86_64-linux.do --print-out-paths)
+        echo "PATH=${PATH}" >> $GITHUB_ENV
 
     - name: Upload image to release
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: result/*.gz
+        file: $PATH/*.gz
         asset_name: nixos.x86_64-linux.do0
         tag: nixos-unstable
         overwrite: true
