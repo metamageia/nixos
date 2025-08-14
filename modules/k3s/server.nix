@@ -9,9 +9,5 @@
     role = "server";
     tokenFile = config.sops.secrets.clusterSecret.path;
     serverAddr = "https://192.168.100.1:6443";
-    extraFlags = [
-      "--flannel-iface=nebula.mesh"
-      "--flannel-mtu=1280"
-    ];
   };
 }
