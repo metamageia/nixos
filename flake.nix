@@ -79,6 +79,7 @@
           inherit system;
           inherit wallpaper;
           inherit sopsFile;
+          inherit repoUrl;
         };
         modules = [
           ./modules/hosts/auriga
