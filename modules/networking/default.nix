@@ -24,6 +24,8 @@
         80
         443
         8096
+        32417
+        31260
       ];
       allowedUDPPorts = [
         8472
@@ -38,9 +40,9 @@
       ruleset = ''
         table ip nat {
           chain prerouting {
-            type nat hook prerouting priority 0; policy accept;
-            tcp dport 80  redirect to :32494
-            tcp dport 443 redirect to :32380
+            type nat hook prerouting priority dstnat; policy accept;
+            tcp dport 80  redirect to :32417
+            tcp dport 443 redirect to :31260
           }
         }
       '';
