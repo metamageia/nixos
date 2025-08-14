@@ -48,9 +48,10 @@
       config.allowUnfree = true;
     };
 
-    repoUrl = "https://github.com/metamageia/nixos-personal.git";
+    repoUrl = "https://github.com/metamageia/nixos.git";
     sopsFile = ./secrets/homelab.secrets.yaml;
     wallpaper = ./wallpapers/el-roving-clans-01.jpg;
+    
   in {
     nixosConfigurations = {
       argosy = lib.nixosSystem {
