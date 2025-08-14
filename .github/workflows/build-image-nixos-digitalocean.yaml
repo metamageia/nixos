@@ -34,7 +34,7 @@ jobs:
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
         file: ${{ steps.build.outputs.out }}/${{ steps.build.outputs.image }}
-        asset_name: nixos.x86_64-linux.do0
+        asset_name: nixos.x86_64-linux.do
         tag: nixos-unstable
         overwrite: true
         body: "Updated custom NixOS unstable image for Digital Ocean"
