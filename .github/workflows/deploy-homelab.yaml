@@ -1,0 +1,51 @@
+name: Homelab Deploy Workflow
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  Homelab-Deploy:
+    runs-on: ubuntu-latest
+    env:
+      TF_VAR_do_token: ${{ secrets.TF_VAR_do_token }}
+      SSH_KEY: ${{ secrets.SSH_KEY }}
+      TF_VAR_pvt_key: ${{ secrets.TF_VAR_pvt_key }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.SPACES_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.SPACES_SECRET_ACCESS_KEY }}
+
+    defaults:
+      run:
+        working-directory: ./terraform/prod
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+ 
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Check Terraform fmt
+        run: terraform fmt 
+
+      - name: Validate Configuration
+        run: terraform validate
+
+      - name: Terraform Plan
+        run: terraform plan
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve
+        env:
+          TF_INPUT: false
+
+      - name: Generate and Upload Terraform Output
+        run: |
+          terraform output -json > terraform-hosts.json
+          aws --endpoint-url https://nyc3.digitaloceanspaces.com s3 cp terraform-hosts.json s3://homelab-state/terraform-hosts.json
+        
