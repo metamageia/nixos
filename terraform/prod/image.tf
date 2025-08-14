@@ -1,5 +1,5 @@
 resource "digitalocean_custom_image" "nixos" {
   name    = "nixos"
-  url     = "https://channels.nixos.org/nixos-25.05/latest-nixos-minimal-x86_64-linux.iso"
+  url     = "https://github.com/metamageia/nixos/releases/download/nixos-unstable/nixos.x86_64-linux.do.gz"
   regions = ["nyc3"]
 }
