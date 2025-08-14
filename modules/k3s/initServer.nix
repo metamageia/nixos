@@ -8,5 +8,12 @@
   services.k3s = {
     role = "server";
     clusterInit = true;
+    services.k3s = {
+    enable = true;
+    extraFlags = [
+      "--flannel-iface=nebula.mesh"
+      "--flannel-mtu=1280"
+    ];
+  };
   };
 }
