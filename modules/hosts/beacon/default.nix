@@ -52,4 +52,19 @@
       PermitRootLogin = "prohibit-password";
     };
   };
+
+  networking.nftables = {
+      enable = true;
+      ruleset = ''
+          chain prerouting {
+          type nat hook prerouting priority dstnat; policy accept;
+          iifname "eth0" tcp dport 80  dnat to 192.168.100.1:32417
+          iifname "eth0" tcp dport 443 dnat to 192.168.100.1:31260
+        }
+        chain postrouting {
+          type nat hook postrouting priority srcnat; policy accept;
+          oifname "nebula.mesh" ip daddr 192.168.100.1 tcp dport {32417,31260} masquerade
+        }
+      '';
+    };
 }

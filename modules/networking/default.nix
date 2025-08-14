@@ -35,18 +35,7 @@
         1900
       ];
     };
-    nftables = {
-      enable = true;
-      ruleset = ''
-        table ip nat {
-          chain prerouting {
-            type nat hook prerouting priority dstnat; policy accept;
-            tcp dport 80  redirect to :32417
-            tcp dport 443 redirect to :31260
-          }
-        }
-      '';
-    };
+    
   };
   services.resolved = {
     enable = true;
