@@ -9,7 +9,7 @@
     isLighthouse = false;
     staticHostMap = {
       "192.168.100.1" = [
-        "134.199.241.26:4242"
+        "auriga.gagelara.com:4242"
       ];
     };
     lighthouses = ["192.168.100.1"];
