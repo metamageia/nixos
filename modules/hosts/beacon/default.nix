@@ -59,8 +59,8 @@
       table ip nat {
         chain prerouting {
           type nat hook prerouting priority -100; policy accept;
-          iifname "eth0" tcp dport 80  dnat to 192.168.100.1:32417;
-          iifname "eth0" tcp dport 443 dnat to 192.168.100.1:31260;
+          ip daddr 134.199.241.26 tcp dport 80  dnat to 192.168.100.1:32417;
+          ip daddr 134.199.241.26 tcp dport 443 dnat to 192.168.100.1:31260;
         }
 
         chain postrouting {
