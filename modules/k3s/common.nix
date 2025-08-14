@@ -21,7 +21,11 @@
 
   services.k3s = {
     enable = true;
-    extraFlags = ["--node-ip=${nebulaIP}"];
+    extraFlags = [
+      "--node-ip=${nebulaIP}"
+      "--flannel-iface=nebula.mesh"
+      "--flannel-mtu=1280"
+    ];
   };
 
   systemd.services."k3s.service" = {
