@@ -11,6 +11,7 @@
     ../../nvidia
     ../../k3s/agent.nix
     ../../nebula/node.nix
+    ../../comin
 
     # Users
     ../../users/metamageia
