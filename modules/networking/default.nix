@@ -35,7 +35,6 @@
         1900
       ];
     };
-    
   };
   services.resolved = {
     enable = true;
