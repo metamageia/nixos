@@ -51,7 +51,6 @@
     repoUrl = "https://github.com/metamageia/nixos.git";
     sopsFile = ./secrets/homelab.secrets.yaml;
     wallpaper = ./wallpapers/el-roving-clans-01.jpg;
-    
   in {
     nixosConfigurations = {
       argosy = lib.nixosSystem {
@@ -136,7 +135,6 @@
         echo "Welcome to the Homeserver development environment!"
       '';
     };
-
     packages.x86_64-linux = {
       do = nixos-generators.nixosGenerate {
         system = "x86_64-linux";
