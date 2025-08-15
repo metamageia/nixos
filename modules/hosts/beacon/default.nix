@@ -16,6 +16,7 @@
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
   imports = [
+    ../../common.nix
     ../../comin
     ../../k3s/initServer.nix
     ../../nebula/lighthouse.nix
