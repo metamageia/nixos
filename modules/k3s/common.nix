@@ -23,7 +23,6 @@
     enable = true;
     extraFlags = [
       "--node-ip=${nebulaIP}"
-      "--flannel-iface=nebula.mesh"
     ];
   };
 
