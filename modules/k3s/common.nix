@@ -24,7 +24,6 @@
     extraFlags = [
       "--node-ip=${nebulaIP}"
       "--flannel-iface=nebula.mesh"
-      "--disable=traefik"
     ];
   };
 
