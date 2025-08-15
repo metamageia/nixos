@@ -13,6 +13,7 @@
     ./audio
     ./fonts
     ./printing
+    ./rclone
   ];
   environment.systemPackages = with pkgs; [
     inputs.alejandra.defaultPackage.${system}

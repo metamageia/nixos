@@ -3,7 +3,7 @@ environment.systemPackages = with pkgs; [rclone fuse];
 
 sops.secrets = {
     "rclone/drive/token" = {
-      sopsFile = sopsFile;
+     sopsFile = sopsFile;
     };
   };
 
@@ -15,8 +15,8 @@ environment.etc."rclone.conf".text = ''
   team_drive =
 '';
 
-fileSystems."/gdrive" = {
-  device = "drive:";
+fileSystems."/media" = {
+  device = "drive:Server_Media";
   fsType = "rclone";
   options = [
     "nofail"
