@@ -7,6 +7,7 @@ spec:
   replicas: 1
   template:
     spec:
+      hostNetwork: true
       containers:
       - name: jellyfin
         image: jellyfin/jellyfin
@@ -19,44 +20,15 @@ spec:
           mountPath: /config
         - name: media
           mountPath: /media
-          mountPropagation: Bidirectional
-      - name: rclone
-        image: rclone/rclone:latest
-        command: ["/bin/sh", "-c"]
-        args:
-        - |
-          mkdir -p /config/rclone && \
-          rclone mount drive:Server_Media /media \
-          --config /config/rclone/rclone.conf \
-          --allow-other \
-          --allow-non-empty \
-          --vfs-cache-mode=writes \
-          --daemon \
-          -vv
-        securityContext:
-          privileged: true
-          capabilities:
-            add:
-            - SYS_ADMIN
-        volumeMounts:
-        - name: media
-          mountPath: /media
-          mountPropagation: Bidirectional
-        - name: dev-fuse
-          mountPath: /dev/fuse
-        - name: rclone-config
           readOnly: true
-          mountPath: /config/rclone/rclone.conf
-          subPath: rclone.conf
       volumes:
       - name: config
         persistentVolumeClaim:
           claimName: jellyfin-config
       - name: media
-        emptyDir: {}
+        hostPath:
+          path: /media
+          type: Directory
       - name: dev-fuse
         hostPath:
           path: /dev/fuse
-      - name: rclone-config
-        secret:
-          secretName: rclone-config
