@@ -1,0 +1,74 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: test-web-index
+data:
+  index.html: |
+    <!doctype html>
+    <html>
+      <head><meta charset="utf-8"><title>k8s test</title></head>
+      <body>
+        <h1>Kubernetes cluster test</h1>
+        <p>Served from <strong>nginx</strong> on <code>$(HOSTNAME)</code></p>
+      </body>
+    </html>
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: test-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: test-web
+  template:
+    metadata:
+      labels:
+        app: test-web
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:stable-alpine
+        ports:
+        - containerPort: 80
+        volumeMounts:
+        - name: index
+          mountPath: /usr/share/nginx/html/index.html
+          subPath: index.html
+      volumes:
+      - name: index
+        configMap:
+          name: test-web-index
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: test-web
+spec:
+  type: NodePort
+  selector:
+    app: test-web
+  ports:
+  - port: 80
+    targetPort: 80
+    protocol: TCP
+    nodePort: 30080
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: test-web-ingress
+spec:
+  ingressClassName: traefik
+  rules:
+  - http:
+      paths:
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: test-web
+            port:
+              number: 80

@@ -53,5 +53,11 @@
     };
   };
 
+  services.k3s = {
+    extraFlags = [
+      "--node-external-ip=134.199.241.26"
+    ];
+  };
+
 
 }
