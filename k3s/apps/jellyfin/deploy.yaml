@@ -26,9 +26,10 @@ spec:
         args:
         - |
           mkdir -p /config/rclone && \
-          rclone mount drive:/Server_Media/ /media-test \
+          rclone mount drive:Server_Media /media \
           --config /config/rclone/rclone.conf \
           --allow-other \
+          --allow-non-empty \
           --vfs-cache-mode=writes \
           --daemon \
           -vv
