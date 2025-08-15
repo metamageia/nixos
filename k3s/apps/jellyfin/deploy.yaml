@@ -7,7 +7,6 @@ spec:
   replicas: 1
   template:
     spec:
-      hostNetwork: true
       containers:
       - name: jellyfin
         image: jellyfin/jellyfin
