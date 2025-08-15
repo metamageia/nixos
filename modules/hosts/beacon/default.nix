@@ -56,18 +56,18 @@
   networking.nftables = {
     enable = true;
     ruleset = ''
-            table ip nat {
-              chain prerouting {
-                type nat hook prerouting priority -100; policy accept;
-                iifname "ens3" tcp dport 80  dnat to 192.168.100.1:32417;
-                iifname "ens3" tcp dport 443 dnat to 192.168.100.1:31260;
-              }
+      table ip nat {
+        chain prerouting {
+          type nat hook prerouting priority -100; policy accept;
+          iifname "ens3" tcp dport 80  dnat to 192.168.100.1:32417;
+          iifname "ens3" tcp dport 443 dnat to 192.168.100.1:31260;
+        }
 
-              chain postrouting {
-                type nat hook postrouting priority 100; policy accept;
-                oifname "nebula.mesh" ip daddr 192.168.100.1 tcp dport { 32417, 31260 } masquerade;
-              }
-            }
+        chain postrouting {
+          type nat hook postrouting priority 100; policy accept;
+          oifname "nebula.mesh" ip daddr 192.168.100.1 tcp dport { 32417, 31260 } masquerade;
+        }
+      }
     '';
   };
 }
