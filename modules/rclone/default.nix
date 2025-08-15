@@ -30,8 +30,4 @@
       "config=${config.sops.templates."rclone.conf".path}"
     ];
   };
-
-
-    
-
 }

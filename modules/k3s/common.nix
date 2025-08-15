@@ -5,7 +5,9 @@
   nebulaIP,
   ...
 }: {
-  imports = [../rclone/server_media.nix];
+  imports = [
+    ../rclone/server_media.nix
+  ];
 
   environment.variables.KUBECONFIG = "/etc/rancher/k3s/k3s.yaml";
   environment.systemPackages = with pkgs; [

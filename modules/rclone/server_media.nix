@@ -12,22 +12,22 @@
     };
   };
 
-  environment.etc."rclone.conf".text = ''
+  sops.templates."rclone.conf".content = ''
     [drive]
     type = drive
     scope = drive
-    token = ${config.sops.secrets."rclone/drive/token".path}
+    token = ${config.sops.placeholder."rclone/drive/token"}
     team_drive =
   '';
 
-  fileSystems."media" = {
+  fileSystems."/media" = {
     device = "drive:Server_Media";
     fsType = "rclone";
     options = [
       "nofail"
       "allow_other"
       "args2env"
-      "config=/etc/rclone.conf"
+      "config=${config.sops.templates."rclone.conf".path}"
     ];
   };
 }
