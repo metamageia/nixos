@@ -22,5 +22,4 @@
     kustomize
   ];
   virtualisation.docker.enable = true;
-
 }

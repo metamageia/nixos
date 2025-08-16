@@ -56,8 +56,9 @@
 
   services.k3s = {
     extraFlags = [
-      "--node-external-ip=134.199.241.26"
-      "--node-label" "svccontroller.k3s.cattle.io/enablelb=true"
+      "--node-external-ip=167.99.123.140"
+      "--node-label"
+      "svccontroller.k3s.cattle.io/enablelb=true"
     ];
   };
 }
