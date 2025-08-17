@@ -19,7 +19,7 @@
     ../../common.nix
     ../../comin
     ../../k3s/initServer.nix
-    #../../nebula/lighthouse.nix
+    ../../nebula/lighthouse.nix
   ];
   virtualisation.docker.enable = true;
   environment.systemPackages = with pkgs; [
@@ -46,7 +46,6 @@
       PermitRootLogin = "prohibit-password";
     };
   };
-/*
   services.k3s = {
     extraFlags = [
       "--node-external-ip=167.99.123.140"
@@ -54,6 +53,4 @@
       "svccontroller.k3s.cattle.io/enablelb=true"
     ];
   };
-
- */
 }
