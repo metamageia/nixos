@@ -16,6 +16,11 @@
       enable = true;
       wifi.backend = "iwd";
     };
+
+    trustedInterfaces = [ "cni0" "flannel.1" ];
+    checkReversePath = "loose";
+    networking.forwarding.enable = true;
+    
     firewall = {
       allowedTCPPorts = [
         6443
