@@ -18,7 +18,7 @@
   imports = [
     ../../common.nix
     ../../comin
-    ../../k3s/initServer.nix
+    #../../k3s/initServer.nix
     #../../nebula/lighthouse.nix
   ];
   virtualisation.docker.enable = true;
