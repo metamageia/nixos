@@ -17,10 +17,12 @@
       wifi.backend = "iwd";
     };
 
-    trustedInterfaces = [ "cni0" "flannel.1" ];
+    trustedInterfaces = ["cni0" "flannel.1"];
 
     firewall = {
       checkReversePath = "loose";
+      trustedInterfaces = ["cni0" "flannel.1"];
+
       allowedTCPPorts = [
         6443
         2379
