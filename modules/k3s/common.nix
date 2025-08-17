@@ -27,7 +27,6 @@
     enable = true;
     extraFlags = [
       "--node-ip=${nebulaIP}"
-      "--advertise-address=167.99.123.140"
     ];
   };
 
