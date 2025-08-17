@@ -22,12 +22,6 @@
 
   nix.optimise.automatic = true;
 
-  nix.gc = {
-    automatic = true;
-    dates = ["weekly"];
-    options = "--delete-older-than 14d";
-  };
-
   nix.settings.experimental-features = ["nix-command" "flakes"];
   system.stateVersion = "23.11"; # Do Not Change
 }
