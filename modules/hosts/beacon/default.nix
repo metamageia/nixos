@@ -19,14 +19,7 @@
     ../../common.nix
     ../../comin
     ../../k3s/initServer.nix
-    ../../nebula/lighthouse.nix
-
-    #./cachix
-    #./comin
-    #./sops
-    #./firewall
-    #./nebula
-    #./k3s
+    #../../nebula/lighthouse.nix
   ];
   virtualisation.docker.enable = true;
   environment.systemPackages = with pkgs; [
