@@ -17,7 +17,6 @@
       wifi.backend = "iwd";
     };
 
-
     firewall = {
       checkReversePath = "loose";
       trustedInterfaces = ["cni0" "flannel.1"];
@@ -31,7 +30,7 @@
         8096
         30642
         32630
-        30231 
+        30231
         31443
         30080
         30443

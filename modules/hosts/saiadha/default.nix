@@ -17,9 +17,5 @@
   ];
 
   environment.systemPackages = with pkgs; [
-    minikube
-    kubectl
-    kustomize
   ];
-  virtualisation.docker.enable = true;
 }
