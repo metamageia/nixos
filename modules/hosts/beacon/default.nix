@@ -26,6 +26,10 @@
     docker-compose
     git
     nano
+
+    k3s
+    kubectl
+    kustomize
   ];
 
   swapDevices = [
@@ -55,4 +59,11 @@
     ];
   };
   */
+
+  environment.variables.KUBECONFIG = "/etc/rancher/k3s/k3s.yaml";
+  services.k3s = {
+    enable = true;
+    role = "server";
+    clusterInit = true;
+  };
 }
