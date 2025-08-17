@@ -18,10 +18,9 @@
     };
 
     trustedInterfaces = [ "cni0" "flannel.1" ];
-    checkReversePath = "loose";
-    networking.forwarding.enable = true;
-    
+
     firewall = {
+      checkReversePath = "loose";
       allowedTCPPorts = [
         6443
         2379
