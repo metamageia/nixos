@@ -29,7 +29,7 @@
   };
 
   services.nebula.networks.mesh = {
-    enable = false;
+    enable = true;
     cert = config.sops.secrets."nebula/${hostName}.crt".path;
     key = config.sops.secrets."nebula/${hostName}.key".path;
     ca = config.sops.secrets."nebula/ca.crt".path; #08-09-2026
