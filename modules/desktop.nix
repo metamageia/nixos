@@ -6,6 +6,7 @@
 }: {
   imports = [
     ./sddm
+    ./nh
     ./niri
     ./stylix
     ./musicproduction
