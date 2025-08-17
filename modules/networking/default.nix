@@ -17,7 +17,6 @@
       wifi.backend = "iwd";
     };
 
-    trustedInterfaces = ["cni0" "flannel.1"];
 
     firewall = {
       checkReversePath = "loose";
