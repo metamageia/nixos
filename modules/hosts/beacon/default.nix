@@ -46,6 +46,7 @@
       PermitRootLogin = "prohibit-password";
     };
   };
+  /*
   services.k3s = {
     extraFlags = [
       "--node-external-ip=167.99.123.140"
@@ -53,4 +54,5 @@
       "svccontroller.k3s.cattle.io/enablelb=true"
     ];
   };
+  */
 }
