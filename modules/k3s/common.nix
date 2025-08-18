@@ -7,8 +7,8 @@
 }: {
   imports = [
     ../rclone/server_media.nix
+    ../docker
   ];
-  virtualisation.docker.enable = true;
   environment.variables.KUBECONFIG = "/etc/rancher/k3s/k3s.yaml";
   environment.systemPackages = with pkgs; [
     k3s

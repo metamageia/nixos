@@ -21,15 +21,9 @@
     #../../k3s/initServer.nix
     ../../nebula/lighthouse.nix
   ];
-  virtualisation.docker.enable = true;
   environment.systemPackages = with pkgs; [
-    docker-compose
     git
     nano
-
-    k3s
-    kubectl
-    kustomize
   ];
 
   swapDevices = [
