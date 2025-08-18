@@ -12,3 +12,5 @@ crash.log
 secret.yaml
 .sketch
 secrets/sops
+
+docker-compose.yml
