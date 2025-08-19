@@ -27,6 +27,9 @@
 
     nixos-generators.url = "github:nix-community/nixos-generators";
     nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
+
+    compose2nix.url = "github:aksiksi/compose2nix";
+    compose2nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
@@ -38,6 +41,7 @@
     sops-nix,
     alejandra,
     nixos-generators,
+    compose2nix,
     ...
   } @ inputs: let
     system = "x86_64-linux";
@@ -124,7 +128,7 @@
     };
     devShells.${system}.default = pkgs.mkShell {
       inherit system;
-      buildInputs = [pkgs.terraform pkgs.doctl pkgs.kustomize pkgs.openssl pkgs.age pkgs.sops pkgs.dig pkgs.compose2nix];
+      buildInputs = [pkgs.terraform pkgs.doctl pkgs.kustomize pkgs.openssl pkgs.age pkgs.sops pkgs.dig];
 
       shellHook = ''
         if [ -f ./secrets/homelab.secrets.env ]; then
