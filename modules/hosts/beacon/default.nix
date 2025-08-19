@@ -20,6 +20,8 @@
     ../../comin
     #../../k3s/server.nix
     ../../nebula/lighthouse.nix
+
+    ../../jellyfin
   ];
   environment.systemPackages = with pkgs; [
     git

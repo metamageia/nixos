@@ -10,7 +10,7 @@
     ../../nvidia
     #../../k3s/agent.nix
     ../../nebula/node.nix
-    ../../jellyfin
+    
 
     ../../docker
     ../../pihole
