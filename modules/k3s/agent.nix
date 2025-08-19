@@ -8,6 +8,7 @@
   services.k3s = {
     role = "agent";
     tokenFile = config.sops.secrets.clusterSecret.path;
-    serverAddr = "https://192.168.100.1:6443";
+    #serverAddr = "https://192.168.100.1:6443";
+    serverAddr = "https://auriga.gagelara.com:6443";
   };
 }
