@@ -4,12 +4,8 @@
   lib,
   ...
 }: {
-  imports = [./common.nix];
+  imports = [./server.nix];
   services.k3s = {
-    role = "server";
     clusterInit = true;
-    extraFlags = [
-      "--advertise-address=167.99.123.140"
-    ];
   };
 }

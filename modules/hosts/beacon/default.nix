@@ -18,8 +18,8 @@
   imports = [
     ../../common.nix
     ../../comin
-    #../../k3s/initServer.nix
-    ../../nebula/lighthouse.nix
+    ../../k3s/single.nix
+    #../../nebula/lighthouse.nix
   ];
   environment.systemPackages = with pkgs; [
     git
