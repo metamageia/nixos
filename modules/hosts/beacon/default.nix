@@ -18,7 +18,7 @@
   imports = [
     ../../common.nix
     ../../comin
-    ../../k3s/single.nix
+    ../../k3s/server.nix
     #../../nebula/lighthouse.nix
   ];
   environment.systemPackages = with pkgs; [
@@ -44,13 +44,4 @@
       PermitRootLogin = "prohibit-password";
     };
   };
-  /*
-  services.k3s = {
-    extraFlags = [
-      "--node-external-ip=167.99.123.140"
-      "--node-label"
-      "svccontroller.k3s.cattle.io/enablelb=true"
-    ];
-  };
-  */
 }
