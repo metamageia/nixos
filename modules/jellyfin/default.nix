@@ -7,6 +7,11 @@
   imports = [
     ../rclone/server_media.nix
   ];
+  networking.firewall.allowedTCPPorts = [
+    8096
+    80
+    443
+    ];
   environment.systemPackages = with pkgs; [
     jellyfin
     jellyfin-web
@@ -16,11 +21,5 @@
     enable = true;
     openFirewall = true;
     user = "metamageia";
-  };
-  services.caddy = {
-    enable = true;
-    virtualHosts."jellyfin.auriga.gagelara.com".extraConfig = ''
-      reverse_proxy http://${nebulaIP}:8096
-    '';
   };
 }

@@ -10,12 +10,19 @@
     ../../nvidia
     #../../k3s/agent.nix
     ../../nebula/node.nix
-    
 
     ../../docker
-    ../../pihole
+    #../../pihole
+    ../../jellyfin
 
     # Users
     ../../users/metamageia
   ];
+
+services.caddy = {
+    enable = true;
+    virtualHosts."localhost".extraConfig = ''
+      respond "OK"
+    '';
+  };
 }
