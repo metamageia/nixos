@@ -4,9 +4,12 @@
   hostName,
   ...
 }: {
+  #networking.firewall.allowedTCPPorts = [5353];
   services.avahi = {
     enable = true;
     nssmdns4 = true;
+    openFirewall = true;
+    allowInterfaces = [ "eth0" "nebula.mesh" ];
     publish = {
       enable = true;
       addresses = true;

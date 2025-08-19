@@ -18,11 +18,4 @@
     # Users
     ../../users/metamageia
   ];
-
-services.caddy = {
-    enable = true;
-    virtualHosts."localhost".extraConfig = ''
-      respond "OK"
-    '';
-  };
 }

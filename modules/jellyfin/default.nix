@@ -11,7 +11,7 @@
     8096
     80
     443
-    ];
+  ];
   environment.systemPackages = with pkgs; [
     jellyfin
     jellyfin-web
