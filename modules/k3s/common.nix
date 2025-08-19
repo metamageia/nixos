@@ -26,16 +26,16 @@
   services.k3s = {
     enable = true;
     extraFlags = [
-      "--node-ip=${nebulaIP}"
+      #"--node-ip=${nebulaIP}"
     ];
   };
 
-
+/*
   systemd.services."k3s.service" = {
     wants = ["nebula.service"];
     after = ["nebula.service"];
   };
-
+*/
 
   networking.firewall.allowedTCPPorts = [
     6443 # k3s: required so that pods can reach the API server (running on port 6443 by default)

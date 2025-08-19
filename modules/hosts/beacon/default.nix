@@ -19,7 +19,7 @@
     ../../common.nix
     ../../comin
     ../../k3s/server.nix
-    ../../nebula/lighthouse.nix
+    #../../nebula/lighthouse.nix
   ];
   environment.systemPackages = with pkgs; [
     git
@@ -44,4 +44,6 @@
       PermitRootLogin = "prohibit-password";
     };
   };
+
+
 }
