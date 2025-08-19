@@ -14,7 +14,6 @@
 
     ../../docker
     ../../pihole
-     ../../vrising
 
     # Users
     ../../users/metamageia
