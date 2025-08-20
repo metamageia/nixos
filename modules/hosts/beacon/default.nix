@@ -20,6 +20,8 @@
     ../../comin
     #../../k3s/initServer.nix
     ../../nebula/lighthouse.nix
+
+    ../../jellyfin
   ];
   environment.systemPackages = with pkgs; [
     git
@@ -35,13 +37,9 @@
 
   services.caddy = {
     enable = true;
-    virtualHosts."jellyfin.auriga.gagelara.com".extraConfig = ''
-        reverse_proxy 192.168.100.2:8096 {
-        header_up Host {http.request.host}
-        header_up X-Real-IP {http.request.remote}
-        header_up X-Forwarded-For {http.request.remote}
-        header_up X-Forwarded-Proto {scheme}
-      }
+    virtualHosts."auriga.gagelara.com".extraConfig = ''
+        reverse_proxy 192.168.100.1:8096 
+      
     '';
   };
 }
