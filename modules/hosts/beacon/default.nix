@@ -18,10 +18,8 @@
   imports = [
     ../../common.nix
     ../../comin
-    ../../k3s/initServer.nix
+    #../../k3s/initServer.nix
     ../../nebula/lighthouse.nix
-
-    ../../rclone/server_media.nix
 
   ];
   environment.systemPackages = with pkgs; [
@@ -35,11 +33,5 @@
       size = 2 * 1024;
     }
   ];
-
-  services.k3s = {
-    extraFlags = [
-      "--node-external-ip=167.99.123.140"
-    ];
-  };
 
 }
