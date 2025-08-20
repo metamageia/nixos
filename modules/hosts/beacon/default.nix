@@ -39,7 +39,7 @@
     globalConfig = ''
       auto_https off
     '';
-    virtualHosts."localhost".extraConfig = ''
+    virtualHosts."http://localhost:80".extraConfig = ''
       respond "Hello, world!"
     '';
     virtualHosts.":8067".extraConfig = ''
