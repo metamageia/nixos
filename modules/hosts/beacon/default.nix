@@ -18,7 +18,7 @@
   imports = [
     ../../common.nix
     ../../comin
-    ../../k3s/server.nix
+    ../../k3s/single.nix
     ../../nebula/lighthouse.nix
 
   ];
