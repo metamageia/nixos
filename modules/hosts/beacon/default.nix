@@ -44,7 +44,7 @@
     virtualHosts.":8096".extraConfig = ''
       reverse_proxy 192.168.100.2:8096
     '';
-    virtualHosts."jellyfin.auriga.gagelara.com".extraConfig = ''
+    virtualHosts."http://jellyfin.auriga.gagelara.com:80".extraConfig = ''
       reverse_proxy 192.168.100.2:8096
     '';
     virtualHosts.":9876".extraConfig = ''
