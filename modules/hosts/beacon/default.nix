@@ -35,6 +35,7 @@
 
   services.caddy = {
     enable = true;
+    email = "metamageia@gmail.com";
     virtualHosts."localhost".extraConfig = ''
       respond "Hello, world!"
     '';
