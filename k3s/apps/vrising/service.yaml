@@ -1,21 +1,19 @@
 apiVersion: v1
 kind: Service
 metadata:
-  annotations:
-    kompose.cmd: kompose convert -f compose.yaml
-    kompose.version: 1.36.0 (HEAD)
-  labels:
-    io.kompose.service: vrising
-  name: vrising
+  name: vrising-service
 spec:
-  ports:
-    - name: "9876"
-      port: 9876
-      protocol: UDP
-      targetPort: 9876
-    - name: "9877"
-      port: 9877
-      protocol: UDP
-      targetPort: 9877
+  type: NodePort
   selector:
-    io.kompose.service: vrising
+    app: vrising
+  ports:
+    - name: vrising-9877-udp
+      port: 9877
+      targetPort: 9877
+      protocol: UDP
+      nodePort: 32077
+    - name: vrising-9876-udp
+      port: 9876
+      targetPort: 9876
+      protocol: UDP
+      nodePort: 32076

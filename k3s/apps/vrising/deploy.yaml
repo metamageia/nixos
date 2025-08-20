@@ -37,6 +37,7 @@ spec:
               mountPath: /mnt/vrising/server
             - name: persistent-data
               mountPath: /mnt/vrising/persistentdata
+      nodeName: auriga
       volumes:
         - name: server-data
           hostPath:
