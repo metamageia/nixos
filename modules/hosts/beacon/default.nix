@@ -19,7 +19,7 @@
     ../../common.nix
     ../../comin
     ../../k3s/server.nix
-    #../../nebula/lighthouse.nix
+    ../../nebula/lighthouse.nix
 
     ../../rclone/server_media.nix
 
