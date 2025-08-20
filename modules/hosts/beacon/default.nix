@@ -35,7 +35,10 @@
     }
   ];
 
-  services.traefik = {
+  services.caddy = {
     enable = true;
+    virtualHosts."jellyfin.auriga.gagelara.com".extraConfig = ''
+      reverse_proxy localhost:8096
+    '';
   };
 }
