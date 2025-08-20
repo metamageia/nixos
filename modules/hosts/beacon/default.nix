@@ -52,9 +52,9 @@
     '';
   };
 
-  services.nftables = {
+  networking.nftables = {
     enable = true;
-    rules = ''
+    ruleset = ''
       table ip nat {
         chain prerouting {
           type nat hook prerouting priority 0;
