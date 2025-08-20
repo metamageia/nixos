@@ -83,4 +83,7 @@
     };
     wantedBy = ["multi-user.target"];
   };
+
+  # /vrising/persistentdata/Settings ---> ServerGameSettings.json and ServerHostSettings.json
+
 }

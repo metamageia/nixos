@@ -43,7 +43,7 @@
       ];
       hash = "sha256-Ji9pclVcnxTZrnVlDhYffbG+adi+tpNEFgXNH+bsym8="; # build once; Nix will tell you the correct hash
     };
-    extraConfig = ''
+    config = ''
       {
         auto_https off
         layer4 {
@@ -63,6 +63,7 @@
       :8096 {
         reverse_proxy 192.168.100.2:8096
       }
+
       http://jellyfin.auriga.gagelara.com:80 {
         reverse_proxy 192.168.100.2:8096
       }
