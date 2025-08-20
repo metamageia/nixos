@@ -18,7 +18,7 @@
   imports = [
     ../../common.nix
     ../../comin
-    ../../k3s/initServer.nix
+    #../../k3s/initServer.nix
     ../../nebula/lighthouse.nix
   ];
   environment.systemPackages = with pkgs; [
@@ -32,4 +32,11 @@
       size = 2 * 1024;
     }
   ];
+
+  services.caddy = {
+    enable = true;
+    virtualHosts."localhost".extraConfig = ''
+      respond "Hello, world!"
+    '';
+  };
 }

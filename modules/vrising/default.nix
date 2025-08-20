@@ -4,6 +4,12 @@
   lib,
   ...
 }: {
+
+networking.firewall.allowedUDPPorts = [
+    9876 
+    9877 
+  ];
+
   # Runtime
   virtualisation.docker = {
     enable = true;
