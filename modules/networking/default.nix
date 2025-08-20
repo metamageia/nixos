@@ -5,7 +5,7 @@
   ...
 }: {
   imports = [
-    ../avahi
+    #../avahi
     ../openssh
   ];
 
