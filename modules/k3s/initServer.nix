@@ -4,7 +4,7 @@
   lib,
   ...
 }: {
-  imports = [./server.nix];
+  imports = [./common.nix];
   services.k3s = {
     clusterInit = true;
   };
