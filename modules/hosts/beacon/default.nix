@@ -43,7 +43,7 @@
       respond "Hello, world!"
     '';
     virtualHosts.":8067".extraConfig = ''
-      reverse_proxy 127.0.0.1:80
+      reverse_proxy localhost:80
     '';
   };
 }
