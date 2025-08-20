@@ -18,10 +18,9 @@
   imports = [
     ../../common.nix
     ../../comin
-    #../../k3s/server.nix
+    ../../k3s/server.nix
     ../../nebula/lighthouse.nix
 
-    ../../dnsmasq
   ];
   environment.systemPackages = with pkgs; [
     git
