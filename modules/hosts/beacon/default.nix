@@ -35,8 +35,8 @@
 
   services.caddy = {
     enable = true;
-    virtualHosts."auriga.gagelara.com".extraConfig = ''
-      respond "Hello, world!"
+    virtualHosts."jellyfin.auriga.gagelara.com".extraConfig = ''
+      reverse_proxy 192.168.100.2:8096
     '';
   };
 }
