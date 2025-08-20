@@ -21,6 +21,8 @@
     ../../k3s/single.nix
     #../../nebula/lighthouse.nix
 
+    ../../rclone/server_media.nix
+
   ];
   environment.systemPackages = with pkgs; [
     git
