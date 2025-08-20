@@ -9,9 +9,9 @@
     ./hardware-configuration.nix
     ../../nvidia
     #../../k3s/agent.nix
-    ../../nebula/node.nix
+    #../../nebula/node.nix
 
-    ../../docker
+    #../../docker
     #../../pihole
     ../../jellyfin
 
