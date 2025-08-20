@@ -38,7 +38,7 @@
   services.caddy = {
     enable = true;
     virtualHosts."auriga.gagelara.com".extraConfig = ''
-      reverse_proxy 192.168.100.1:8096
+      reverse_proxy localhost:8096
     '';
   };
 }
