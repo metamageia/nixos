@@ -37,7 +37,7 @@
 
   services.caddy = {
     enable = true;
-    virtualHosts."http://jellyfin.auriga.gagelara.com".extraConfig = ''
+    virtualHosts."http://auriga.gagelara.com".extraConfig = ''
       reverse_proxy http://localhost:8096
     '';
   };
