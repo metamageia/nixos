@@ -39,7 +39,7 @@
     virtualHosts."localhost".extraConfig = ''
       respond "Hello, world!"
     '';
-    virtualHosts."http://auriga.gagelara.com".extraConfig = ''
+    virtualHosts."auriga.gagelara.com".extraConfig = ''
     tls internal
     reverse_proxy http://localhost
   '';
