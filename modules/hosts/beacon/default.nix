@@ -19,7 +19,7 @@
     ../../common.nix
     ../../comin
     #../../k3s/initServer.nix
-    #../../nebula/lighthouse.nix
+    ../../nebula/lighthouse.nix
 
     ../../jellyfin
   ];
@@ -34,11 +34,12 @@
       size = 2 * 1024;
     }
   ];
-
+/*
   services.caddy = {
     enable = true;
     virtualHosts."http://auriga.gagelara.com".extraConfig = ''
       reverse_proxy http://localhost:8096
     '';
   };
+  */
 }
