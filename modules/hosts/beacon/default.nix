@@ -33,20 +33,22 @@
     }
   ];
 
-  networking.firewall.allowedTCPPorts = [8067 8096];
+  networking.firewall.allowedTCPPorts = [8096];
+  networking.firewall.allowedUDPPorts = [9876];
   services.caddy = {
     enable = true;
+    email = "metamageia@gmail.com";
     globalConfig = ''
       auto_https off
     '';
-    virtualHosts.":80".extraConfig = ''
-      respond "Hello, world!"
-    '';
-    virtualHosts.":8067".extraConfig = ''
-      reverse_proxy 127.0.0.1:80
-    '';
     virtualHosts.":8096".extraConfig = ''
       reverse_proxy 192.168.100.2:8096
+    '';
+    virtualHosts."jellyfin.auriga.gagelara.com".extraConfig = ''
+      reverse_proxy 192.168.100.2:8096
+    '';
+    virtualHosts.":9876".extraConfig = ''
+      reverse_proxy 192.168.100.3:9876
     '';
   };
 }

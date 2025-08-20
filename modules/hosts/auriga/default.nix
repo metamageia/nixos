@@ -13,7 +13,7 @@
     ../../nebula/node.nix
     ../../comin
 
-    #../../vrising
+    ../../vrising
 
     # Users
     ../../users/metamageia
