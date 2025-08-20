@@ -128,7 +128,16 @@
     };
     devShells.${system}.default = pkgs.mkShell {
       inherit system;
-      buildInputs = [pkgs.terraform pkgs.doctl pkgs.kustomize pkgs.openssl pkgs.age pkgs.sops pkgs.dig];
+      buildInputs = [
+        pkgs.terraform
+        pkgs.doctl
+        pkgs.kustomize
+        pkgs.openssl
+        pkgs.age
+        pkgs.sops
+        pkgs.dig
+        pkgs.caddy
+      ];
 
       shellHook = ''
         if [ -f ./secrets/homelab.secrets.env ]; then
