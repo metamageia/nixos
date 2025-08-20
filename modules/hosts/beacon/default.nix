@@ -39,11 +39,11 @@
     globalConfig = ''
       auto_https off
     '';
-    virtualHosts."http://localhost:80".extraConfig = ''
+    virtualHosts.":80".extraConfig = ''
       respond "Hello, world!"
     '';
     virtualHosts.":8067".extraConfig = ''
-      reverse_proxy localhost:80
+      reverse_proxy 127.0.0.1:80
     '';
   };
 }
