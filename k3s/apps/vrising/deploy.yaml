@@ -17,19 +17,18 @@ spec:
       containers:
         - name: vrising
           image: trueosiris/vrising
+          imagePullPolicy: IfNotPresent
           env:
             - name: TZ
               value: "America/Chicago"
             - name: SERVERNAME
               value: "crimson-company"
-            - name: ADDRESS
-              value: "167.99.123.140"
           ports:
-            - name: udp-9876
+            - name: vrising-9876-udp
               containerPort: 9876
               hostPort: 9876
               protocol: UDP
-            - name: udp-9877
+            - name: vrising-9877-udp
               containerPort: 9877
               hostPort: 9877
               protocol: UDP
@@ -38,7 +37,6 @@ spec:
               mountPath: /mnt/vrising/server
             - name: persistent-data
               mountPath: /mnt/vrising/persistentdata
-      nodeName: auriga
       volumes:
         - name: server-data
           hostPath:
