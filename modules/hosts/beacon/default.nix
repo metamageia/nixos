@@ -39,10 +39,8 @@
     virtualHosts."localhost".extraConfig = ''
       respond "Hello, world!"
     '';
-    virtualHosts."http://167.99.123.140".extraConfig = ''
-    
+    virtualHosts.":80".extraConfig = ''
     reverse_proxy http://localhost
   '';
   };
 }
-#tls internal
