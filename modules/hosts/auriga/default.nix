@@ -10,7 +10,7 @@
     ../../grub
     ../../nvidia
     ../../k3s/agent.nix
-    #../../nebula/node.nix
+    ../../nebula/node.nix
     ../../comin
 
     #../../vrising
