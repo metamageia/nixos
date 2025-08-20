@@ -22,6 +22,8 @@ spec:
               value: "America/Chicago"
             - name: SERVERNAME
               value: "crimson-company"
+            - name: ADDRESS
+              value: "167.99.123.140"
           ports:
             - name: udp-9876
               containerPort: 9876
