@@ -45,10 +45,8 @@
     virtualHosts.":8067".extraConfig = ''
       reverse_proxy 127.0.0.1:80
     '';
-    /*
     virtualHosts.":8096".extraConfig = ''
       reverse_proxy 192.168.100.2:8096
     '';
-    */
   };
 }
