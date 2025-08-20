@@ -24,11 +24,11 @@ spec:
             - name: SERVERNAME
               value: "crimson-company"
           ports:
-            - name: vrising-9876-udp
+            - name: 9876-udp
               containerPort: 9876
               hostPort: 9876
               protocol: UDP
-            - name: vrising-9877-udp
+            - name: 9877-udp
               containerPort: 9877
               hostPort: 9877
               protocol: UDP

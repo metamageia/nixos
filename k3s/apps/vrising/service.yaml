@@ -7,12 +7,12 @@ spec:
   selector:
     app: vrising
   ports:
-    - name: vrising-9877-udp
+    - name: 9877-udp
       port: 9877
       targetPort: 9877
       protocol: UDP
       nodePort: 32077
-    - name: vrising-9876-udp
+    - name: 9876-udp
       port: 9876
       targetPort: 9876
       protocol: UDP
