@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vrising
+  labels:
+    app: vrising
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vrising
+  template:
+    metadata:
+      labels:
+        app: vrising
+    spec:
+      containers:
+        - name: vrising
+          image: trueosiris/vrising
+          env:
+            - name: TZ
+              value: "America/Chicago"
+            - name: SERVERNAME
+              value: "crimson-company"
+          ports:
+            - name: udp-9876
+              containerPort: 9876
+              hostPort: 9876
+              protocol: UDP
+            - name: udp-9877
+              containerPort: 9877
+              hostPort: 9877
+              protocol: UDP
+          volumeMounts:
+            - name: server-data
+              mountPath: /mnt/vrising/server
+            - name: persistent-data
+              mountPath: /mnt/vrising/persistentdata
+      nodeName: auriga
+      volumes:
+        - name: server-data
+          hostPath:
+            path: /vrising/server
+            type: DirectoryOrCreate
+        - name: persistent-data
+          hostPath:
+            path: /vrising/persistentdata
+            type: DirectoryOrCreate
