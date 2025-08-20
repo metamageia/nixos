@@ -35,7 +35,7 @@
 
   services.caddy = {
     enable = true;
-    virtualHosts."localhost".extraConfig = ''
+    virtualHosts."auriga.gagelara.com".extraConfig = ''
       respond "Hello, world!"
     '';
   };
