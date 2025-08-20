@@ -33,14 +33,17 @@
     }
   ];
 
+  networking.firewall.allowedTCPPorts = [8067];
   services.caddy = {
     enable = true;
-    email = "metamageia@gmail.com";
+    globalConfig = ''
+      auto_https off
+    '';
     virtualHosts."localhost".extraConfig = ''
       respond "Hello, world!"
     '';
-    virtualHosts.":80".extraConfig = ''
-    reverse_proxy localhost
-  '';
+    virtualHosts.":8067".extraConfig = ''
+      reverse_proxy 127.0.0.1:80
+    '';
   };
 }

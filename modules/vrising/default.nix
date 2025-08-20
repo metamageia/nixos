@@ -4,10 +4,9 @@
   lib,
   ...
 }: {
-
-networking.firewall.allowedUDPPorts = [
-    9876 
-    9877 
+  networking.firewall.allowedUDPPorts = [
+    9876
+    9877
   ];
 
   # Runtime
