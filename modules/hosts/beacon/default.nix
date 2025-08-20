@@ -34,21 +34,38 @@
   ];
 
   networking.firewall.allowedTCPPorts = [8096 9876];
-  #networking.firewall.allowedUDPPorts = [9876];
+  networking.firewall.allowedUDPPorts = [9876 9877];
   services.caddy = {
     enable = true;
-    email = "metamageia@gmail.com";
-    globalConfig = ''
-      auto_https off
-    '';
-    virtualHosts.":8096".extraConfig = ''
-      reverse_proxy 192.168.100.2:8096
-    '';
-    virtualHosts."http://jellyfin.auriga.gagelara.com:80".extraConfig = ''
-      reverse_proxy 192.168.100.2:8096
-    '';
-    virtualHosts.":9876".extraConfig = ''
-      reverse_proxy 192.168.100.3:9876
+    package = pkgs.caddy.withPlugins {
+      plugins = [
+        "github.com/mholt/caddy-l4@v0.0.0-20250102174933-6e5f5e311ead"
+      ];
+      hash = "sha256-Ji9pclVcnxTZrnVlDhYffbG+adi+tpNEFgXNH+bsym8="; # build once; Nix will tell you the correct hash
+    };
+    extraConfig = ''
+      {
+        auto_https off
+        layer4 {
+          udp/:9876 {
+            route {
+              proxy udp/192.168.100.3:9876
+            }
+          }
+          udp/:9877 {
+            route {
+              proxy udp/192.168.100.3:9877
+            }
+          }
+        }
+      }
+
+      :8096 {
+        reverse_proxy 192.168.100.2:8096
+      }
+      http://jellyfin.auriga.gagelara.com:80 {
+        reverse_proxy 192.168.100.2:8096
+      }
     '';
   };
 }
