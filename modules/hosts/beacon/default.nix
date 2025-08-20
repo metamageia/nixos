@@ -38,5 +38,8 @@
     virtualHosts."localhost".extraConfig = ''
       respond "Hello, world!"
     '';
+    virtualHosts."auriga.gagelara.com".extraConfig = ''
+    reverse_proxy http://localhost
+  '';
   };
 }
