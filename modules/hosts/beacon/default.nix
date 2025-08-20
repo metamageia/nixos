@@ -34,41 +34,36 @@
   ];
 
   networking.firewall.allowedTCPPorts = [8096 9876];
-  networking.firewall.allowedUDPPorts = [9876 9877];
+  networking.firewall.allowedUDPPorts = [9876];
   services.caddy = {
     enable = true;
-    package = pkgs.caddy.withPlugins {
-      plugins = [
-        "github.com/mholt/caddy-l4@v0.0.0-20250102174933-6e5f5e311ead"
-      ];
-      hash = "sha256-Ji9pclVcnxTZrnVlDhYffbG+adi+tpNEFgXNH+bsym8="; 
-    };
+    email = "metamageia@gmail.com";
     globalConfig = ''
-      {
-        auto_https off
-
-        layer4 {
-          udp/:9876 {
-            route {
-              proxy udp/192.168.100.3:9876
-            }
-          }
-          udp/:9877 {
-            route {
-              proxy udp/192.168.100.3:9877
-            }
-          }
-        }
-      }
+      auto_https off
     '';
+    virtualHosts.":8096".extraConfig = ''
+      reverse_proxy 192.168.100.2:8096
+    '';
+    virtualHosts."http://jellyfin.auriga.gagelara.com:80".extraConfig = ''
+      reverse_proxy 192.168.100.2:8096
+    '';
+    virtualHosts.":9876".extraConfig = ''
+      reverse_proxy 192.168.100.3:9876
+    '';
+  };
 
-    config = ''
-      :8096 {
-        reverse_proxy 192.168.100.2:8096
-      }
-
-      http://jellyfin.auriga.gagelara.com:80 {
-        reverse_proxy 192.168.100.2:8096
+  services.nftables = {
+    enable = true;
+    rules = ''
+      table ip nat {
+        chain prerouting {
+          type nat hook prerouting priority 0;
+          udp dport 9876 dnat to 192.168.100.3:9876;
+        }
+        chain postrouting {
+          type nat hook postrouting priority 100;
+          oifname "nebula.mesh" ip daddr 192.168.100.3 udp dport 9876 snat to 192.168.100.1;
+        }
       }
     '';
   };
