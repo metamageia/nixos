@@ -34,12 +34,4 @@
       size = 2 * 1024;
     }
   ];
-
-  services.caddy = {
-    enable = true;
-    virtualHosts."auriga.gagelara.com".extraConfig = ''
-        reverse_proxy 192.168.100.1:8096 
-      
-    '';
-  };
 }
