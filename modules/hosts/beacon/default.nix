@@ -38,7 +38,7 @@
 
   services.k3s = {
     extraFlags = [
-      #"--node-external-ip=167.99.123.140"
+      "--node-external-ip=167.99.123.140"
     ];
   };
 
