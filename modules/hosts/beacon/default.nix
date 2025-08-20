@@ -33,8 +33,8 @@
     }
   ];
 
-  networking.firewall.allowedTCPPorts = [8096];
-  networking.firewall.allowedUDPPorts = [9876];
+  networking.firewall.allowedTCPPorts = [8096 9876];
+  #networking.firewall.allowedUDPPorts = [9876];
   services.caddy = {
     enable = true;
     email = "metamageia@gmail.com";
