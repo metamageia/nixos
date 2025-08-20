@@ -21,7 +21,7 @@
     #../../k3s/server.nix
     ../../nebula/lighthouse.nix
 
-    ../../jellyfin
+    ../../dnsmasq
   ];
   environment.systemPackages = with pkgs; [
     git

@@ -12,6 +12,7 @@
   networking = {
     hostName = hostName;
     wireless.iwd.enable = true;
+    nameservers = [ "192.168.100.1" ];
     networkmanager = {
       enable = true;
       wifi.backend = "iwd";
