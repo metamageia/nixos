@@ -19,7 +19,7 @@
     ../../common.nix
     ../../comin
     #../../k3s/initServer.nix
-    ../../nebula/lighthouse.nix
+    #../../nebula/lighthouse.nix
 
     ../../jellyfin
   ];
