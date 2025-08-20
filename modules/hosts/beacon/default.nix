@@ -40,7 +40,7 @@
       respond "Hello, world!"
     '';
     virtualHosts.":80".extraConfig = ''
-    reverse_proxy http://localhost
+    reverse_proxy localhost
   '';
   };
 }
