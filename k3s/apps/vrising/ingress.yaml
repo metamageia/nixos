@@ -1,0 +1,18 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: vrising-ingress
+  namespace: vrising
+spec:
+  ingressClassName: traefik
+  rules:
+    - host: vrising.auriga.gagelara.com
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: jellyfin-service
+                port:
+                  number: 9876
