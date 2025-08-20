@@ -26,7 +26,7 @@
   services.k3s = {
     enable = true;
     extraFlags = [
-      "--node-ip=${nebulaIP}"
+      #"--node-ip=${nebulaIP}"
     ];
   };
 
