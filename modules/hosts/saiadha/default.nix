@@ -18,5 +18,4 @@
     # Users
     ../../users/metamageia
   ];
-
 }
