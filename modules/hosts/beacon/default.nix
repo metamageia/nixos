@@ -41,11 +41,12 @@
       plugins = [
         "github.com/mholt/caddy-l4@v0.0.0-20250102174933-6e5f5e311ead"
       ];
-      hash = "sha256-Ji9pclVcnxTZrnVlDhYffbG+adi+tpNEFgXNH+bsym8="; # build once; Nix will tell you the correct hash
+      hash = "sha256-Ji9pclVcnxTZrnVlDhYffbG+adi+tpNEFgXNH+bsym8="; 
     };
-    config = ''
+    globalConfig = ''
       {
         auto_https off
+
         layer4 {
           udp/:9876 {
             route {
@@ -59,7 +60,9 @@
           }
         }
       }
+    '';
 
+    config = ''
       :8096 {
         reverse_proxy 192.168.100.2:8096
       }
