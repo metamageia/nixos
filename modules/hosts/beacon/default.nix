@@ -19,7 +19,7 @@
     ../../common.nix
     ../../comin
     #../../k3s/initServer.nix
-    #../../nebula/lighthouse.nix
+    ../../nebula/lighthouse.nix
   ];
   environment.systemPackages = with pkgs; [
     git
@@ -33,7 +33,7 @@
     }
   ];
 
-  networking.firewall.allowedTCPPorts = [8067];
+  networking.firewall.allowedTCPPorts = [8067 8096];
   services.caddy = {
     enable = true;
     globalConfig = ''
@@ -44,6 +44,9 @@
     '';
     virtualHosts.":8067".extraConfig = ''
       reverse_proxy 127.0.0.1:80
+    '';
+    virtualHosts.":8096".extraConfig = ''
+      reverse_proxy 192.168.100.2:8096
     '';
   };
 }
