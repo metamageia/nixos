@@ -34,14 +34,17 @@
   ];
 
   services.caddy = {
-    enable = true;
-    email = "metamageia@gmail.com";
-    virtualHosts."localhost".extraConfig = ''
-      respond "Hello, world!"
-    '';
-    virtualHosts."auriga.gagelara.com".extraConfig = ''
-    tls internal
-    reverse_proxy http://localhost
+  enable = true;
+  virtualHosts."auriga.gagelara.com".extraConfig = ''
+    encode gzip
+    file_server
+    root * ${
+      pkgs.runCommand "testdir" {} ''
+        mkdir "$out"
+        echo hello world > "$out/example.html"
+      ''
+    }
   '';
-  };
+}; 
+networking.firewall.allowedTCPPorts = [ 80 443];
 }
