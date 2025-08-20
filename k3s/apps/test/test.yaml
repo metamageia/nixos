@@ -37,6 +37,7 @@ spec:
         - name: index
           mountPath: /usr/share/nginx/html/index.html
           subPath: index.html
+      nodeName: beacon
       volumes:
       - name: index
         configMap:
