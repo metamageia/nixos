@@ -35,10 +35,7 @@
     }
   ];
 
-  services.caddy = {
+  services.traefik = {
     enable = true;
-    virtualHosts."auriga.gagelara.com".extraConfig = ''
-      reverse_proxy http://127.0.0.1:8096
-    '';
   };
 }
