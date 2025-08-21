@@ -57,7 +57,7 @@
       table ip nat {
         chain prerouting {
           type nat hook prerouting priority dstnat; policy accept;
-          iifname "eth0" ip daddr 167.99.123.140 udp dport 9876 \
+          iifname "ens3" ip daddr 167.99.123.140 udp dport 9876 \
             dnat to 192.168.100.3:9876
         }
         chain postrouting {
