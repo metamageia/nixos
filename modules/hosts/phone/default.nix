@@ -1,4 +1,7 @@
 {pkgs, ...}: {
+  imports = [
+    ../../comin
+  ];
   environment.packages = with pkgs; [
     git
   ];
