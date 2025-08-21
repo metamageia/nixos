@@ -110,7 +110,6 @@
           ./modules/desktop.nix
         ];
       };
-
       beacon = nixpkgs.lib.nixosSystem {
         inherit system;
         inherit pkgs;
@@ -131,6 +130,11 @@
     nixOnDroidConfigurations = {
       phone = nix-on-droid.lib.nixOnDroidConfiguration {
         pkgs = import nixpkgs {system = "aarch64-linux";};
+        specialArgs = {
+          hostName = "phone";
+          inherit inputs;
+          inherit userValues;
+        };
         modules = [./modules/hosts/phone];
       };
     };
