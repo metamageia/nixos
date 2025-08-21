@@ -136,7 +136,6 @@
         pkgs.age
         pkgs.sops
         pkgs.dig
-        pkgs.kompose
       ];
 
       shellHook = ''
