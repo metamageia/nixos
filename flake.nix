@@ -30,6 +30,9 @@
 
     compose2nix.url = "github:aksiksi/compose2nix";
     compose2nix.inputs.nixpkgs.follows = "nixpkgs";
+
+    nix-on-droid.url = "github:nix-community/nix-on-droid/release-24.05";
+    nix-on-droid.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
@@ -42,6 +45,7 @@
     alejandra,
     nixos-generators,
     compose2nix,
+    nix-on-droid,
     ...
   } @ inputs: let
     system = "x86_64-linux";
@@ -106,6 +110,7 @@
           ./modules/desktop.nix
         ];
       };
+
       beacon = nixpkgs.lib.nixosSystem {
         inherit system;
         inherit pkgs;
@@ -121,6 +126,12 @@
           ./modules/hosts/beacon
           ./modules/common.nix
         ];
+      };
+    };
+    nixOnDroidConfigurations = {
+      phone = nix-on-droid.lib.nixOnDroidConfiguration {
+        pkgs = import nixpkgs {system = "aarch64-linux";};
+        modules = [./modules/hosts/phone];
       };
     };
     devShells.${system}.default = pkgs.mkShell {
