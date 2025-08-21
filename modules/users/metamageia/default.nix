@@ -3,7 +3,6 @@
   pkgs,
   inputs,
   userValues,
-  sopsFile,
   ...
 }: {
   imports = [
@@ -21,7 +20,7 @@
   sops.secrets = {
     "passwords/metamageia" = {
       neededForUsers = true;
-      sopsFile = sopsFile;
+      sopsFile = userValues.sopsFile;
     };
   };
 

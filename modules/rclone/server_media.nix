@@ -1,14 +1,14 @@
 {
   pkgs,
   config,
-  sopsFile,
+  userValues,
   ...
 }: {
   environment.systemPackages = with pkgs; [rclone fuse];
 
   sops.secrets = {
     "rclone/drive/token" = {
-      sopsFile = sopsFile;
+      sopsFile = userValues.sopsFile;
     };
   };
 

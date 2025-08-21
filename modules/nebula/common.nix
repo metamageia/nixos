@@ -2,26 +2,26 @@
   config,
   pkgs,
   hostName,
-  sopsFile,
+  userValues,
   ...
 }: {
   environment.systemPackages = with pkgs; [nebula];
 
   sops.secrets = {
     "nebula/${hostName}.key" = {
-      sopsFile = sopsFile;
+      sopsFile = userValues.sopsFile;
       owner = "root";
       group = "nebula-mesh";
       mode = "0640";
     };
     "nebula/${hostName}.crt" = {
-      sopsFile = sopsFile;
+      sopsFile = userValues.sopsFile;
       owner = "root";
       group = "nebula-mesh";
       mode = "0644";
     };
     "nebula/ca.crt" = {
-      sopsFile = sopsFile;
+      sopsFile = userValues.sopsFile;
       owner = "root";
       group = "nebula-mesh";
       mode = "0644";

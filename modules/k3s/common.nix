@@ -1,7 +1,7 @@
 {
   config,
   pkgs,
-  sopsFile,
+  userValues,
   nebulaIP,
   ...
 }: {
@@ -19,7 +19,7 @@
 
   sops.secrets = {
     "clusterSecret" = {
-      sopsFile = sopsFile;
+      sopsFile = userValues.sopsFile;
     };
   };
 

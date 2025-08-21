@@ -3,12 +3,12 @@
   pkgs,
   lib,
   config,
-  sopsFile,
+  userValues,
   ...
 }: {
   sops.secrets = {
     "passwords/pihole" = {
-      sopsFile = sopsFile;
+      sopsFile = userValues.sopsFile;
     };
   };
   # Runtime

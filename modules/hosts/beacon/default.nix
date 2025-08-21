@@ -3,7 +3,7 @@
   system,
   pkgs,
   hostName,
-  sopsFile,
+  userValues,
   ...
 }: {
   users.users.root = {
