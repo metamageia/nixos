@@ -3,7 +3,7 @@
   pkgs,
   ...
 }: {
-  imports = [ 
+  imports = [
   ];
   environment.systemPackages = with pkgs; [
     lutris

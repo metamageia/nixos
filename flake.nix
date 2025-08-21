@@ -33,9 +33,6 @@
 
     nix-on-droid.url = "github:nix-community/nix-on-droid/release-24.05";
     nix-on-droid.inputs.nixpkgs.follows = "nixpkgs";
-
-    nixcord.url = "github:kaylorben/nixcord";
-    nixcord.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
@@ -49,7 +46,6 @@
     nixos-generators,
     compose2nix,
     nix-on-droid,
-    nixord,
     ...
   } @ inputs: let
     system = "x86_64-linux";

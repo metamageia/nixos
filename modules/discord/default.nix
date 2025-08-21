@@ -1,9 +1,11 @@
-{pkgs, inputs, ...}: {
+{
+  pkgs,
+  inputs,
+  ...
+}: {
   imports = [
-    inputs.nixcord.homeModules.nixcord
   ];
-  home.Packages = with pkgs; [
+  home.packages = with pkgs; [
     discord
-    vencord
   ];
 }
