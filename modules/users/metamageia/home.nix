@@ -7,6 +7,7 @@
 }: {
   imports = [
     ../../alacritty
+    ../../discord
     ../../niri/home.nix
     ../../swww
     ../../waybar

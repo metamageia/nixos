@@ -1,4 +1,10 @@
-{pkgs, inputs, config, system, ...}: {
+{
+  pkgs,
+  inputs,
+  config,
+  system,
+  ...
+}: {
   imports = [
     ../../comin
   ];

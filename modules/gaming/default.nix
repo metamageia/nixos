@@ -3,9 +3,10 @@
   pkgs,
   ...
 }: {
+  imports = [ 
+  ];
   environment.systemPackages = with pkgs; [
     lutris
-    discord
     #wine
     #wineWowPackages.stable
     #winetricks
