@@ -51,8 +51,7 @@
       inherit system;
       config.allowUnfree = true;
     };
-    
-    
+
     userValues = {
       wallpaper = ./wallpapers/el-roving-clans-01.jpg;
       repoUrl = "https://github.com/metamageia/nixos.git";
