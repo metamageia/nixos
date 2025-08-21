@@ -133,6 +133,7 @@
         specialArgs = {
           hostName = "phone";
           inherit inputs;
+          inherit system;
           inherit userValues;
         };
         modules = [./modules/hosts/phone];
