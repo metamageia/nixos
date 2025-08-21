@@ -2,7 +2,7 @@
   config,
   pkgs,
   inputs,
-  wallpaper,
+  userValues,
   sopsFile,
   ...
 }: {
@@ -13,7 +13,7 @@
   home-manager = {
     extraSpecialArgs = {
       inherit inputs;
-      inherit wallpaper;
+      inherit userValues;
     };
     users = {metamageia = import ./home.nix;};
   };

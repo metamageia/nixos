@@ -2,7 +2,7 @@
   config,
   pkgs,
   inputs,
-  wallpaper,
+  userValues,
   ...
 }: {
   home.packages = with pkgs; [swww];
@@ -28,7 +28,7 @@
       Wants = ["swww.service"];
     };
     Service = {
-      ExecStart = "${pkgs.swww}/bin/swww img '${wallpaper}' --transition-type center";
+      ExecStart = "${pkgs.swww}/bin/swww img '${userValues.wallpaper}' --transition-type center";
       Restart = "on-failure";
     };
     Install = {

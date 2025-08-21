@@ -51,10 +51,13 @@
       inherit system;
       config.allowUnfree = true;
     };
-
-    repoUrl = "https://github.com/metamageia/nixos.git";
-    sopsFile = ./secrets/homelab.secrets.yaml;
-    wallpaper = ./wallpapers/el-roving-clans-01.jpg;
+    
+    
+    userValues = {
+      wallpaper = ./wallpapers/el-roving-clans-01.jpg;
+      repoUrl = "https://github.com/metamageia/nixos.git";
+      sopsFile = ./secrets/homelab.secrets.yaml;
+    };
   in {
     nixosConfigurations = {
       argosy = lib.nixosSystem {
@@ -64,8 +67,7 @@
           hostName = "argosy";
           inherit inputs;
           inherit system;
-          inherit wallpaper;
-          inherit sopsFile;
+          inherit userValues;
         };
         modules = [
           ./modules/hosts/argosy
@@ -81,9 +83,7 @@
           nebulaIP = "192.168.100.3";
           inherit inputs;
           inherit system;
-          inherit wallpaper;
-          inherit sopsFile;
-          inherit repoUrl;
+          inherit userValues;
         };
         modules = [
           ./modules/hosts/auriga
@@ -99,8 +99,7 @@
           nebulaIP = "192.168.100.2";
           inherit inputs;
           inherit system;
-          inherit wallpaper;
-          inherit sopsFile;
+          inherit userValues;
         };
         modules = [
           ./modules/hosts/saiadha
@@ -115,8 +114,7 @@
           hostName = "beacon";
           inherit inputs;
           inherit system;
-          inherit sopsFile;
-          inherit repoUrl;
+          inherit userValues;
           nebulaIP = "192.168.100.1";
         };
         modules = [
@@ -155,8 +153,7 @@
           hostName = "beacon";
           inherit inputs;
           inherit system;
-          inherit sopsFile;
-          inherit repoUrl;
+          inherit userValues;
         };
         modules = [
           ./modules/hosts/digitalocean

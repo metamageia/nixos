@@ -2,7 +2,7 @@
   config,
   pkgs,
   inputs,
-  wallpaper,
+  userValues,
   ...
 }: {
   imports = [

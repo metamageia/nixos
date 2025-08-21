@@ -1,6 +1,6 @@
 {
   pkgs,
-  wallpaper,
+  userValues,
   inputs,
   ...
 }: {
@@ -8,7 +8,7 @@
   stylix = {
     enable = true;
     homeManagerIntegration.autoImport = true;
-    image = wallpaper;
+    image = userValues.wallpaper;
     opacity.desktop = 0.25;
     fonts = {
       serif = {

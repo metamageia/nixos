@@ -10,20 +10,20 @@
       configDir = "/home/metamageia/Documents/.config/syncthing";
       openDefaultPorts = true;
       devices = {
-        "auriga" = { id = "27P4DZL-P6VMQJB-G32VMXG-67DVGRJ-ZLOCJ5A-CE2TI65-62USK6K-2R5CFAW"; };
+        "auriga" = {id = "27P4DZL-P6VMQJB-G32VMXG-67DVGRJ-ZLOCJ5A-CE2TI65-62USK6K-2R5CFAW";};
         "saiadha" = {id = "FONRABV-HJBZQNY-J2CQVV2-PO53IEP-YRKGCP4-TCFEIAM-EGF5O3M-ZIP4BQY";};
         "phone" = {id = "4PRXCDI-UKGADIJ-INQKWXL-WOUF3P3-JKH4WET-4EEQ5TP-YXR4AED-THF7WAA";};
       };
       folders = {
-      "Obsidian" = {
-        path = "/home/metamageia/Sync/Obsidian";
-        devices = [ "saiadha" "auriga" "phone" ];
+        "Obsidian" = {
+          path = "/home/metamageia/Sync/Obsidian";
+          devices = ["saiadha" "auriga" "phone"];
+        };
+        "Desktop" = {
+          path = "/home/metamageia/Sync/Desktop";
+          devices = ["saiadha" "auriga"];
+        };
       };
-      "Desktop" = {
-        path = "/home/metamageia/Sync/Desktop";
-        devices = [ "saiadha" "auriga" ];
-      };
-    };
     };
   };
 }

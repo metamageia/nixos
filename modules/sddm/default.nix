@@ -1,7 +1,6 @@
 {
   pkgs,
   config,
-  wallpaper,
   ...
 }: {
   services.displayManager.sddm = {

@@ -2,7 +2,7 @@
   config,
   pkgs,
   inputs,
-  repoUrl,
+  userValues,
   ...
 }: {
   imports = [
@@ -14,7 +14,7 @@
     remotes = [
       {
         name = "origin";
-        url = repoUrl;
+        url = userValues.repoUrl;
         branches.main.name = "main";
       }
     ];
