@@ -33,7 +33,7 @@
     }
   ];
 
-  networking.firewall.allowedTCPPorts = [8096 9876];
+  networking.firewall.allowedTCPPorts = [8096];
   networking.firewall.allowedUDPPorts = [9876];
   services.caddy = {
     enable = true;
@@ -52,19 +52,30 @@
     '';
   };
 
-  networking.nftables = {
-    enable = true;
-    ruleset = ''
-      table ip nat {
-        chain prerouting {
-          type nat hook prerouting priority 0;
-          udp dport 9876 dnat to 192.168.100.3:9876;
+  networking = {
+    nftables = {
+      enable = true;
+      ruleset = ''
+        table ip nat {
+          chain prerouting {
+            type nat hook prerouting priority -100;
+            iifname "eth0" ip daddr 167.99.123.140 udp dport 9876 \
+              dnat to 192.168.100.3:9876
+          }
+          chain postrouting {
+            type nat hook postrouting priority 100;
+            oifname "nebula.mesh" ip daddr 192.168.100.3 udp dport 9876 \
+              snat to 192.168.100.1
+          }
         }
-        chain postrouting {
-          type nat hook postrouting priority 100;
-          oifname "nebula.mesh" ip daddr 192.168.100.3 udp dport 9876 snat to 192.168.100.1;
-        }
-      }
-    '';
+      '';
+    };
+  };
+  sysctl = {
+    "net.ipv4.ip_forward" = "1";
+    # Loose RPF globally and off on nebula iface to avoid drops
+    "net.ipv4.conf.all.rp_filter" = "2";
+    "net.ipv4.conf.default.rp_filter" = "2";
+    "net.ipv4.conf.nebula.mesh.rp_filter" = "0";
   };
 }
