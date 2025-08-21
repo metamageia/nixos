@@ -1,7 +1,5 @@
-{ pkgs, ... }:
-
-let
-  serverPassword = "test";
+{pkgs, ...}: let
+  serverPassword = "";
   rconPassword = "";
 
   serverSettings = {
@@ -24,7 +22,7 @@ let
     GameDifficultyPreset = "";
     AdminOnlyDebugEvents = true;
     DisableDebugEvents = false;
-    API = { Enabled = false; };
+    API = {Enabled = false;};
     Rcon = {
       Enabled = false;
       Port = 25575;
@@ -34,7 +32,8 @@ let
 in {
   systemd.tmpfiles.rules = [
     ''
-      f+ /vrising/persistentdata/Settings/ServerGameSettings.json 0644 root root - ${builtins.toJSON serverSettings}
+      f+ /vrising/persistentdata/Settings/ServerHostSettings.json \
+      0644 root root - ${builtins.toJSON serverSettings}
     ''
   ];
 }

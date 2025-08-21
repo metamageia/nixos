@@ -3,9 +3,7 @@
   pkgs,
   lib,
   ...
-}: 
-
-{
+}: {
   imports = [
     ./serverHostSettings.nix
   ];
@@ -89,6 +87,4 @@
     };
     wantedBy = ["multi-user.target"];
   };
-
-
 }
