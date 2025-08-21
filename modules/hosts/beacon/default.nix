@@ -49,17 +49,21 @@
     '';
   };
 
+  boot.kernel.sysctl."net.ipv4.ip_forward" = 1;
+
   networking.nftables = {
     enable = true;
     ruleset = ''
       table ip nat {
         chain prerouting {
-          type nat hook prerouting priority 0;
-          udp dport 9876 dnat to 192.168.100.3:9876;
+          type nat hook prerouting priority dstnat; policy accept;
+          iifname "eth0" ip daddr 167.99.123.140 udp dport 9876 \
+            dnat to 192.168.100.3:9876
         }
         chain postrouting {
-          type nat hook postrouting priority 100;
-          oifname "nebula.mesh" ip daddr 192.168.100.3 udp dport 9876 snat to 192.168.100.1;
+          type nat hook postrouting priority srcnat; policy accept;
+          oifname "nebula.mesh" ip daddr 192.168.100.3 udp dport 9876 \
+            snat to 192.168.100.1
         }
       }
     '';
