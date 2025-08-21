@@ -3,7 +3,13 @@
   pkgs,
   lib,
   ...
-}: {
+}: 
+
+{
+  imports = [
+    ./serverHostSettings.nix
+  ];
+
   networking.firewall.allowedUDPPorts = [
     9876
     9877
@@ -83,4 +89,6 @@
     };
     wantedBy = ["multi-user.target"];
   };
+
+
 }
