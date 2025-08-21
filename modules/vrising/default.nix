@@ -6,6 +6,7 @@
 }: {
   imports = [
     ./serverHostSettings.nix
+    ./serverGameSettings.nix
   ];
 
   networking.firewall.allowedUDPPorts = [
