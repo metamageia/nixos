@@ -3,14 +3,14 @@
   rconPassword = "";
 
   serverSettings = {
-    Name = "Crimson Company";
+    Name = "Crimson Legion";
     Description = "";
     Port = 9876;
     QueryPort = 9877;
     MaxConnectedUsers = 40;
     MaxConnectedAdmins = 4;
     ServerFps = 30;
-    SaveName = "crimson-company";
+    SaveName = "crimson-legion";
     Password = serverPassword;
     Secure = true;
     ListOnSteam = false;
