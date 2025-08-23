@@ -38,7 +38,7 @@
     JournalVBloodSourceUnitMaxDistance = 25.0;
     PvPVampireRespawnModifier = 1.0;
     CastleMinimumDistanceInFloors = 2;
-    ClanSize = 4;
+    ClanSize = 8;
     BloodDrainModifier = 1.0;
     DurabilityDrainModifier = 1.0;
     GarlicAreaStrengthModifier = 1.0;
