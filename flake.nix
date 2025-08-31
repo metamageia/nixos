@@ -57,7 +57,7 @@
     };
 
     userValues = {
-      wallpaper = ./wallpapers/el-roving-clans-01.jpg;
+      wallpaper = ./wallpapers/vrising-01.jpg;
       repoUrl = "https://github.com/metamageia/nixos.git";
       sopsFile = ./secrets/homelab.secrets.yaml;
     };
