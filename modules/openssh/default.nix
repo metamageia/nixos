@@ -11,7 +11,7 @@
       AllowUsers = null;
       UseDns = true;
       X11Forwarding = false;
-      PermitRootLogin = "prohibit-password";
+      PermitRootLogin = "true";
     };
   };
 }
