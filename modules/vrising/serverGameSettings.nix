@@ -218,10 +218,11 @@
     };
   };
 in {
-  systemd.tmpfiles.rules = [
-    ''
-      f+ /vrising/persistentdata/Settings/ServerGameSettings.json \
-      0644 root root - ${builtins.toJSON serverSettings}
-    ''
-  ];
+  environment.etc."vrising/persistentdata/Settings/ServerGameSettings.json".source =
+    pkgs.writeText "ServerGameSettings.json"
+      (builtins.toJSON serverSettings);
+  fileSystems."/vrising/persistentdata/Settings/ServerGameSettings.json" = {
+    device = "/etc/vrising/persistentdata/Settings/ServerGameSettings.json";
+    options = [ "bind" ];
+  };
 }
