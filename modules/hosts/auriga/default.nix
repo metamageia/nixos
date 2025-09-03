@@ -11,7 +11,7 @@
     ../../nvidia
     #../../k3s/agent.nix
     ../../nebula/node.nix
-    ../../comin
+    #../../comin
 
     ../../vrising
 
