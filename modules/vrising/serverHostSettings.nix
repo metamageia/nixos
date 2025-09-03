@@ -10,12 +10,14 @@
     };
   };
   systemd.tmpfiles.rules = [
+    "d /vrising 0755 root root - -"
+    "d /vrising/persistentdata 0755 root root - -"
     "d /vrising/persistentdata/Settings 0755 root root - -"
-    "C /vrising/persistentdata/Settings/ServerHostSettings.json 0644 root root - ${config.sops.templates."ServerHostSettings.json".path}"
+    "L+ /vrising/persistentdata/Settings/ServerHostSettings.json - - - - ${config.sops.templates."ServerHostSettings.json".path}"
   ];
 
   sops.templates."ServerHostSettings.json".content = ''
-        {
+    {
       "Name": "Crimson Legion",
       "Description": "Cracking open some bois with the cold ones",
       "Port": 9876,
