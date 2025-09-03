@@ -1,10 +1,17 @@
-{pkgs, config, ...}: {
-
-systemd.tmpfiles.rules = [
-    ''
-      f+ /vrising/persistentdata/Settings/ServerHostSettings.json \
-      0644 root root - ${config.sops.templates."ServerHostSettings.json".path}
-    ''
+{
+  pkgs,
+  config,
+  userValues,
+  ...
+}: {
+  sops.secrets = {
+    "passwords/vrising" = {
+      sopsFile = userValues.sopsFile;
+    };
+  };
+  systemd.tmpfiles.rules = [
+    "d /vrising/persistentdata/Settings 0755 root root - -"
+    "C /vrising/persistentdata/Settings/ServerHostSettings.json 0644 root root - ${config.sops.templates."ServerHostSettings.json".path}"
   ];
 
   sops.templates."ServerHostSettings.json".content = ''
@@ -17,7 +24,7 @@ systemd.tmpfiles.rules = [
       "MaxConnectedAdmins": 4,
       "ServerFps": 30,
       "SaveName": "Crimson Legion",
-      "Password": "",
+      "Password": "${config.sops.placeholder."passwords/vrising"}",
       "Secure": true,
       "ListOnSteam": false,
       "ListOnEOS": false,
