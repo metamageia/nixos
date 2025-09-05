@@ -6,14 +6,12 @@
   ...
 }: {
 
+# From the wiki: To get credentialsFile (e.g. tunnel-ID.json) do: 
+# cloudflared tunnel login <the-token-you-see-in-dashboard>
+# cloudflared tunnel create ConvenientTunnelName
+
 sops.secrets = {
-    "cloudflared/${hostName}/token" = {
-      sopsFile = userValues.sopsFile;
-    };
-    "cloudflared/${hostName}/cert.pem" = {
-      sopsFile = userValues.sopsFile;
-    };
-    "saiadha-tunnel.json" = {
+    "saiadha-tunnel" = {
       format = "json";
       sopsFile = "${userValues.secretsDir}/saiadha-tunnel.json";
       key = "";
@@ -28,7 +26,7 @@ services.cloudflared = {
     enable = true;
     tunnels = {
       "saiadha-tunnel" = {
-        credentialsFile = "${config.sops.secrets."saiadha-tunnel.json".path}";
+        credentialsFile = "${config.sops.secrets."saiadha-tunnel".path}";
         default = "http_status:404";
       };
     };
