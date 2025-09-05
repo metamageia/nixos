@@ -12,6 +12,11 @@ creation_rules:
       - *metamageia
       - *auriga
       - *saiadha
+  - path_regex: "secrets/saiadha-tunnel\\.json$"
+    key_groups:
+    - age:
+      - *metamageia
+      - *saiadha
   - path_regex: "secrets/homelab.secrets\\.env$"
     key_groups:
     - age:

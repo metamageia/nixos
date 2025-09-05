@@ -60,6 +60,7 @@
       wallpaper = ./wallpapers/vrising-02.jpg;
       repoUrl = "https://github.com/metamageia/nixos.git";
       sopsFile = ./secrets/homelab.secrets.yaml;
+      secretsDir = "${self}/secrets";
     };
   in {
     nixosConfigurations = {
