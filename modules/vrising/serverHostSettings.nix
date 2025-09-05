@@ -17,7 +17,7 @@
     ListOnEOS = false;
     AutoSaveCount = 20;
     AutoSaveInterval = 120;
-    CompressSaveFiles = true;
+    CompressSaveFiles = false;
     GameSettingsPreset = "";
     GameDifficultyPreset = "";
     AdminOnlyDebugEvents = true;
