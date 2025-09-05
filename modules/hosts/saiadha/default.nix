@@ -15,7 +15,7 @@
     #../../pihole
     ../../jellyfin
 
-    ../../cloudflared
+    #../../cloudflared
 
     # Users
     ../../users/metamageia
