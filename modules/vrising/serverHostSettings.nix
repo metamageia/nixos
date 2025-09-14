@@ -16,7 +16,7 @@
     ListOnSteam = false;
     ListOnEOS = false;
     AutoSaveCount = 20;
-    AutoSaveInterval = 120;
+    AutoSaveInterval = 300;
     CompressSaveFiles = false;
     GameSettingsPreset = "";
     GameDifficultyPreset = "";
