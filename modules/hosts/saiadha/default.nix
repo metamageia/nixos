@@ -16,6 +16,7 @@
     ../../jellyfin
 
     #../../cloudflared
+    ../../virt-manager
 
     # Users
     ../../users/metamageia

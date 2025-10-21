@@ -7,9 +7,9 @@
   ];
   environment.systemPackages = with pkgs; [
     lutris
-    #wine
-    #wineWowPackages.stable
-    #winetricks
+    wine
+    wineWowPackages.stable
+    winetricks
     #godot_4
     mindustry
     #cataclysm-dda
