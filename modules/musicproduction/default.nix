@@ -15,14 +15,16 @@
 
     # Plugins
     distrho-ports
-    # bespokesynth
-    # rkrlv2
-    #mda_lv2
-    #x42-plugins
-    #carla
-    #soundfont-generaluser
-    #infamousPlugins
-    #talentedhack
-    #lsp-plugins
+    bespokesynth
+    rkrlv2
+    mda_lv2
+    x42-plugins
+    carla
+    soundfont-generaluser
+    infamousPlugins
+    talentedhack
+    lsp-plugins
+    drum-machine
+    x42-avldrums
   ];
 }

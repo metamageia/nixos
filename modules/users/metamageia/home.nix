@@ -35,6 +35,8 @@
     obsidian
     vscode
     qbittorrent
+    libreoffice-qt
+    docling
   ];
 
   stylix.targets.vscode.enable = true;
