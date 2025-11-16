@@ -33,6 +33,8 @@
 
     nix-on-droid.url = "github:nix-community/nix-on-droid/release-24.05";
     nix-on-droid.inputs.nixpkgs.follows = "nixpkgs";
+
+    affinity-nix.url = "github:mrshmllow/affinity-nix";
   };
 
   outputs = {
@@ -46,6 +48,7 @@
     nixos-generators,
     compose2nix,
     nix-on-droid,
+    affinity-nix,
     ...
   } @ inputs: let
     system = "x86_64-linux";

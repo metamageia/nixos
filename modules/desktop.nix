@@ -18,5 +18,6 @@
   ];
   environment.systemPackages = with pkgs; [
     inputs.alejandra.defaultPackage.${system}
+    inputs.affinity-nix.packages.x86_64-linux.v3
   ];
 }
