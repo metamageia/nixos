@@ -11,7 +11,7 @@
     #../../k3s/agent.nix
     ../../nebula/node.nix
 
-    ../../docker
+    #../../docker
     #../../pihole
     ../../jellyfin
 
@@ -22,6 +22,6 @@
     ../../users/metamageia
 
 
-    ../../comfyui.nix
+   # ../../comfyui.nix
   ];
 }

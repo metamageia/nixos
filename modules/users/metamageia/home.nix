@@ -37,6 +37,10 @@
     qbittorrent
     libreoffice-qt
     docling
+    
+    scribus
+    inkscape
+    krita
   ];
 
   stylix.targets.vscode.enable = true;
