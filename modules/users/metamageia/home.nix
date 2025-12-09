@@ -8,10 +8,7 @@
   imports = [
     ../../alacritty
     ../../discord
-    ../../niri/home.nix
-    ../../swww
-    ../../waybar
-    ../../fuzzel
+
     ../../zen
   ];
 
@@ -37,13 +34,11 @@
     qbittorrent
     libreoffice-qt
     docling
-    
+
     scribus
     inkscape
     krita
   ];
-
-  stylix.targets.vscode.enable = true;
 
   home.file = {
   };

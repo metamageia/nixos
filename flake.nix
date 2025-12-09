@@ -79,7 +79,6 @@
         modules = [
           ./modules/hosts/argosy
           ./modules/common.nix
-          ./modules/desktop.nix
         ];
       };
       auriga = lib.nixosSystem {
@@ -95,7 +94,6 @@
         modules = [
           ./modules/hosts/auriga
           ./modules/common.nix
-          ./modules/desktop.nix
         ];
       };
       saiadha = lib.nixosSystem {
@@ -111,7 +109,6 @@
         modules = [
           ./modules/hosts/saiadha
           ./modules/common.nix
-          ./modules/desktop.nix
         ];
       };
       beacon = nixpkgs.lib.nixosSystem {

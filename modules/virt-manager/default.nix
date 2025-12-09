@@ -5,13 +5,13 @@
   config,
   ...
 }: {
-programs.virt-manager.enable = true;
+  programs.virt-manager.enable = true;
 
-users.groups.libvirtd.members = ["metamageia"];
+  users.groups.libvirtd.members = ["metamageia"];
 
-virtualisation.libvirtd.enable = true;
+  virtualisation.libvirtd.enable = true;
 
-virtualisation.spiceUSBRedirection.enable = true;
+  virtualisation.spiceUSBRedirection.enable = true;
 
-networking.firewall.trustedInterfaces = [ "virbr0" ];
+  networking.firewall.trustedInterfaces = ["virbr0"];
 }

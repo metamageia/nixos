@@ -32,9 +32,9 @@
 in {
   environment.etc."vrising/persistentdata/Settings/ServerHostSettings.json".source =
     pkgs.writeText "ServerHostSettings.json"
-      (builtins.toJSON serverSettings);
+    (builtins.toJSON serverSettings);
   fileSystems."/vrising/persistentdata/Settings/ServerHostSettings.json" = {
     device = "/etc/vrising/persistentdata/Settings/ServerHostSettings.json";
-    options = [ "bind" ];
+    options = ["bind"];
   };
 }

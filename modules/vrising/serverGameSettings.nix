@@ -220,9 +220,9 @@
 in {
   environment.etc."vrising/persistentdata/Settings/ServerGameSettings.json".source =
     pkgs.writeText "ServerGameSettings.json"
-      (builtins.toJSON serverSettings);
+    (builtins.toJSON serverSettings);
   fileSystems."/vrising/persistentdata/Settings/ServerGameSettings.json" = {
     device = "/etc/vrising/persistentdata/Settings/ServerGameSettings.json";
-    options = [ "bind" ];
+    options = ["bind"];
   };
 }

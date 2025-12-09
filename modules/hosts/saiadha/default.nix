@@ -21,7 +21,6 @@
     # Users
     ../../users/metamageia
 
-
-   # ../../comfyui.nix
+    # ../../comfyui.nix
   ];
 }

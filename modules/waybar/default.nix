@@ -32,8 +32,6 @@
     '';
   };
 
-  stylix.targets.waybar.enable = true;
-
   systemd.user.services.waybar = {
     Unit = {
       Description = "Waybar status bar";

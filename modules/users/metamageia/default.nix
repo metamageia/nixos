@@ -8,6 +8,8 @@
   imports = [
     ../../home-manager
     ../../syncthing
+    ../../desktop.nix
+    ../../desktop-presets/niri
   ];
   home-manager = {
     extraSpecialArgs = {

@@ -5,12 +5,11 @@
   hostName,
   ...
 }: {
+  # From the wiki: To get credentialsFile (e.g. tunnel-ID.json) do:
+  # cloudflared tunnel login <the-token-you-see-in-dashboard>
+  # cloudflared tunnel create ConvenientTunnelName
 
-# From the wiki: To get credentialsFile (e.g. tunnel-ID.json) do: 
-# cloudflared tunnel login <the-token-you-see-in-dashboard>
-# cloudflared tunnel create ConvenientTunnelName
-
-sops.secrets = {
+  sops.secrets = {
     "saiadha-tunnel" = {
       format = "json";
       sopsFile = "${userValues.secretsDir}/saiadha-tunnel.json";
@@ -18,11 +17,11 @@ sops.secrets = {
     };
   };
 
-environment.systemPackages = with pkgs; [
+  environment.systemPackages = with pkgs; [
     cloudflared
   ];
 
-services.cloudflared = {
+  services.cloudflared = {
     enable = true;
     tunnels = {
       "saiadha-tunnel" = {
@@ -31,5 +30,4 @@ services.cloudflared = {
       };
     };
   };
-
 }

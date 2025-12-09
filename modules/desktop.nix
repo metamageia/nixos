@@ -5,10 +5,11 @@
   ...
 }: {
   imports = [
-    ./sddm
     ./nh
+
     ./niri
-    ./stylix
+    #./stylix
+
     ./musicproduction
     ./gaming
     ./audio

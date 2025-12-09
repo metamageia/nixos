@@ -4,7 +4,6 @@
   inputs,
   ...
 }: {
-  stylix.targets.niri.enable = true;
   programs.niri = {
     settings = {
       environment = {
