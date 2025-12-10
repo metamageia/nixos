@@ -7,8 +7,9 @@
   imports = [
     ./nh
 
-    ./niri
     #./stylix
+
+    ./kde-plasma
 
     ./musicproduction
     ./gaming

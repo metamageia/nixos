@@ -9,7 +9,7 @@
     ../../home-manager
     ../../syncthing
     ../../desktop.nix
-    ../../desktop-presets/niri
+    #../../desktop-presets/niri
   ];
   home-manager = {
     extraSpecialArgs = {

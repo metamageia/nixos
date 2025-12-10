@@ -7,7 +7,7 @@
 }: {
   programs.fuzzel.enable = true;
 
-  home.packages = with pkgs; [
+  system.packages = with pkgs; [
     fuzzel
     jq
     wl-clipboard

@@ -6,8 +6,8 @@
   ...
 }: {
   imports = [
-    ../../../niri
-    ../../../niri/home.nix
+    ../../niri
+    ../../niri/home.nix
     ../../sddm
     ../../swww
     ../../waybar
