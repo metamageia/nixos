@@ -7,6 +7,10 @@
 }: {
   imports = [
     ./hardware-configuration.nix
+    ../../common.nix
+
+    ../../desktop-presets/plasma
+
     ../../nvidia
     #../../k3s/agent.nix
     ../../nebula/node.nix

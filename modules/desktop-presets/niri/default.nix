@@ -6,6 +6,8 @@
   ...
 }: {
   imports = [
+    ../../desktop-presets
+
     ../../niri
     ../../niri/home.nix
     ../../sddm
