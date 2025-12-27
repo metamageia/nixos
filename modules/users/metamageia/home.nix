@@ -33,7 +33,7 @@
     vscode
     qbittorrent
     libreoffice-qt
-    docling
+    #docling
 
     scribus
     inkscape

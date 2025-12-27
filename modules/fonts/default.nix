@@ -6,7 +6,7 @@
 }: {
   fonts.packages = with pkgs; [
     corefonts
-    vistafonts
+    vista-fonts
   ];
   environment.systemPackages = with pkgs; [
     iosevka
