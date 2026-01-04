@@ -25,6 +25,9 @@
     # Users
     ../../users/metamageia
 
+    # Services
+    ../../claude-reflect
+
     # ../../comfyui.nix
   ];
 }
