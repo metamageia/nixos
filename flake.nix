@@ -35,6 +35,8 @@
     nix-on-droid.inputs.nixpkgs.follows = "nixpkgs";
 
     affinity-nix.url = "github:mrshmllow/affinity-nix";
+
+    claude-code.url = "github:sadjow/claude-code-nix";
   };
 
   outputs = {
@@ -49,6 +51,7 @@
     compose2nix,
     nix-on-droid,
     affinity-nix,
+    claude-code,
     ...
   } @ inputs: let
     system = "x86_64-linux";
