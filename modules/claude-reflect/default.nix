@@ -24,10 +24,15 @@ in {
   };
 
   systemd.timers.claude-daily-reflect = {
-    description = "Timer for daily Claude reflection";
+    description = "Timer for Claude reflection (every 6 hours)";
     wantedBy = ["timers.target"];
     timerConfig = {
-      OnCalendar = "*-*-* 03:30:00 America/Chicago";
+      OnCalendar = [
+        "*-*-* 03:30:00 America/Chicago"
+        "*-*-* 09:30:00 America/Chicago"
+        "*-*-* 15:30:00 America/Chicago"
+        "*-*-* 21:30:00 America/Chicago"
+      ];
       Persistent = true;
       RandomizedDelaySec = "30min";
     };
