@@ -9,7 +9,7 @@
     ./hardware-configuration.nix
     ../../common.nix
 
-    ../../desktop-presets/plasma
+    ../../desktop-presets/niri
 
     ../../nvidia
     #../../k3s/agent.nix

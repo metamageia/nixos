@@ -5,20 +5,21 @@
   inputs,
   ...
 }: {
-  programs.fuzzel.enable = true;
+  # This is a home-manager module
+  programs.fuzzel = {
+    enable = true;
+    settings = {
+      main = {
+        font = lib.mkForce "DejaVu Sans:size=16";
+        dpi-aware = "no";
+      };
+    };
+  };
 
-  system.packages = with pkgs; [
-    fuzzel
+  home.packages = with pkgs; [
     jq
     wl-clipboard
     xdg-utils
     coreutils
   ];
-
-  programs.fuzzel.settings = {
-    main = {
-      font = lib.mkForce "DejaVu Sans:size=16";
-      dpi-aware = "no";
-    };
-  };
 }

@@ -139,6 +139,7 @@
           inherit inputs;
           inherit system;
           inherit userValues;
+          nebulaIP = "192.168.100.4";
         };
         modules = [./modules/hosts/phone];
       };
