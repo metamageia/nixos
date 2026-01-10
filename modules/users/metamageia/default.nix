@@ -8,6 +8,7 @@
   imports = [
     ../../home-manager
     ../../syncthing
+    ../../obsidian-git
     ../../desktop.nix
     #../../desktop-presets/niri
   ];

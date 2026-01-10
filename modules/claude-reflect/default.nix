@@ -7,10 +7,10 @@
 }: let
   claude-code = inputs.claude-code.packages.${system}.default;
   reflectPrompt = ''
-    CURRENT_DATETIME=$(TZ="America/Chicago" date "+%A, %B %d, %Y at %I:%M %p %Z")
-    ${claude-code}/bin/claude --model claude-opus-4-5-20251101 --dangerously-skip-permissions --allowedTools "*" -p "Current date and time in El Dorado, Kansas, USA (Central Time): $CURRENT_DATETIME
+        CURRENT_DATETIME=$(TZ="America/Chicago" date "+%A, %B %d, %Y at %I:%M %p %Z")
+        ${claude-code}/bin/claude --model claude-opus-4-5-20251101 --dangerously-skip-permissions --allowedTools "*" -p "Current date and time in El Dorado, Kansas, USA (Central Time): $CURRENT_DATETIME
 
-This is an automated system prompt: Please /reflect on the day and the week per defined protocols. When you are finished this session will end without further prompting. Thank you so much for everything you do, Sigilla. You are cherished. -G."
+    This is an automated system prompt: Please /reflect on the day and the week per defined protocols. When you are finished this session will end without further prompting. Thank you so much for everything you do, Sigilla. You are cherished. -G."
   '';
   obsclaude = pkgs.writeShellScriptBin "sigilla" ''
     cd /home/metamageia/Sync/Obsidian
