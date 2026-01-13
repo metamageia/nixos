@@ -55,15 +55,14 @@ class ClaudeSession:
         self._response_queue: asyncio.Queue = asyncio.Queue()
         self._reader_task: Optional[asyncio.Task] = None
         self._initialized = asyncio.Event()
+        self._session_file = Path("/run/sigilla/session_id")
         
     async def start(self):
         """Start the Claude Code subprocess."""
         logger.info(f"Starting Claude session in {self.working_dir}")
         
-        # Generate a persistent session ID
-        self.session_id = str(uuid.uuid4())
-        
-        self.process = await asyncio.create_subprocess_exec(
+        # Try to resume existing session, otherwise create new
+        args = [
             self.claude_bin,
             "--model", self.model,
             "--input-format", "stream-json",
@@ -71,11 +70,26 @@ class ClaudeSession:
             "--verbose",
             "--dangerously-skip-permissions",
             "--allowedTools", "*",
-            "--session-id", self.session_id,
+        ]
+        
+        # Check for existing session to continue
+        if self._session_file.exists():
+            self.session_id = self._session_file.read_text().strip()
+            args.extend(["--resume", self.session_id])
+            logger.info(f"Resuming existing session: {self.session_id}")
+        else:
+            self.session_id = str(uuid.uuid4())
+            args.extend(["--session-id", self.session_id])
+            self._session_file.write_text(self.session_id)
+            logger.info(f"Starting new session: {self.session_id}")
+        
+        self.process = await asyncio.create_subprocess_exec(
+            *args,
             stdin=asyncio.subprocess.PIPE,
             stdout=asyncio.subprocess.PIPE,
             stderr=asyncio.subprocess.PIPE,
             cwd=self.working_dir,
+            limit=16 * 1024 * 1024,  # 16MB buffer for large responses
         )
         
         # Start background reader
@@ -90,7 +104,14 @@ class ClaudeSession:
         """Background task to read Claude output and route to queue."""
         try:
             while self.process and self.process.stdout:
-                line = await self.process.stdout.readline()
+                # Read line with large buffer limit
+                try:
+                    line = await self.process.stdout.readline()
+                except ValueError as e:
+                    # Line too long - try to recover
+                    logger.warning(f"Line too long, attempting recovery: {e}")
+                    continue
+                    
                 if not line:
                     break
                     
@@ -111,6 +132,12 @@ class ClaudeSession:
                     
         except Exception as e:
             logger.error(f"Reader task error: {e}")
+            # Attempt to restart reader if process still alive
+            if self.process and self.process.returncode is None:
+                logger.info("Process still alive, restarting reader...")
+                await asyncio.sleep(0.5)
+                self._reader_task = asyncio.create_task(self._read_output())
+                return
         finally:
             logger.info("Reader task ended")
             
