@@ -15,6 +15,7 @@ Architecture:
 import asyncio
 import json
 import os
+import shutil
 import signal
 import sys
 import uuid
@@ -29,6 +30,7 @@ WORKING_DIR = os.environ.get("SIGILLA_WORKDIR", "/home/metamageia/Sync/Obsidian"
 CLAUDE_BIN = os.environ.get("SIGILLA_CLAUDE_BIN", "claude")
 MODEL = os.environ.get("SIGILLA_MODEL", "claude-opus-4-5-20251101")
 LOG_DIR = os.environ.get("SIGILLA_LOG_DIR", "/var/log/sigilla")
+SESSION_BACKUP_DIR = os.environ.get("SIGILLA_BACKUP_DIR", "/home/metamageia/Sync/Obsidian/private/sigilla/session-backup")
 
 # Logging setup
 logging.basicConfig(
@@ -55,7 +57,10 @@ class ClaudeSession:
         self._response_queue: asyncio.Queue = asyncio.Queue()
         self._reader_task: Optional[asyncio.Task] = None
         self._initialized = asyncio.Event()
-        self._session_file = Path("/run/sigilla/session_id")
+        # Store session ID in persistent location (survives reboots)
+        self._session_file = Path("/var/lib/sigilla/session_id")
+        # Also keep a copy in /run for quick access by other tools
+        self._runtime_session_file = Path("/run/sigilla/session_id")
         
     async def start(self):
         """Start the Claude Code subprocess."""
@@ -80,8 +85,13 @@ class ClaudeSession:
         else:
             self.session_id = str(uuid.uuid4())
             args.extend(["--session-id", self.session_id])
+            self._session_file.parent.mkdir(parents=True, exist_ok=True)
             self._session_file.write_text(self.session_id)
             logger.info(f"Starting new session: {self.session_id}")
+        
+        # Also write to runtime location for quick access
+        self._runtime_session_file.parent.mkdir(parents=True, exist_ok=True)
+        self._runtime_session_file.write_text(self.session_id)
         
         self.process = await asyncio.create_subprocess_exec(
             *args,
@@ -207,6 +217,34 @@ class ClaudeSession:
     @property
     def is_running(self) -> bool:
         return self.process is not None and self.process.returncode is None
+    
+    def backup_session(self):
+        """Backup the current session file to the backup directory."""
+        if not self.session_id:
+            logger.warning("No session ID to backup")
+            return
+        
+        # Source: Claude's session file
+        # Path format: ~/.claude/projects/-<working_dir_with_dashes>/<session_id>.jsonl
+        working_dir_slug = self.working_dir.replace('/', '-')
+        source_file = Path.home() / ".claude" / "projects" / working_dir_slug / f"{self.session_id}.jsonl"
+        
+        if not source_file.exists():
+            logger.warning(f"Session file not found: {source_file}")
+            return
+        
+        # Ensure backup directory exists
+        backup_dir = Path(SESSION_BACKUP_DIR)
+        backup_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Backup destination
+        backup_file = backup_dir / f"{self.session_id}.jsonl"
+        
+        try:
+            shutil.copy2(source_file, backup_file)
+            logger.info(f"Session backed up to {backup_file}")
+        except Exception as e:
+            logger.error(f"Failed to backup session: {e}")
 
 
 class SigillaServer:
@@ -231,7 +269,8 @@ class SigillaServer:
             
         self.server = await asyncio.start_unix_server(
             self._handle_client,
-            path=self.socket_path
+            path=self.socket_path,
+            limit=16 * 1024 * 1024  # 16MB buffer for large responses
         )
         
         # Set socket permissions
@@ -296,6 +335,9 @@ class SigillaServer:
                             for resp in responses:
                                 writer.write((json.dumps(resp) + "\n").encode())
                                 await writer.drain()
+                            
+                            # Backup session after each message
+                            self.claude.backup_session()
                                 
                         except Exception as e:
                             logger.error(f"Error processing message: {e}")

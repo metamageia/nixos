@@ -114,6 +114,12 @@ in {
 
       ExecStart = "${sigillaDaemon}";
 
+      # Let systemd create and manage these directories with correct permissions
+      RuntimeDirectory = "sigilla";
+      RuntimeDirectoryMode = "0755";
+      StateDirectory = "sigilla";
+      StateDirectoryMode = "0755";
+
       Environment = [
         "HOME=/home/metamageia"
         "SIGILLA_SOCKET=${socketPath}"

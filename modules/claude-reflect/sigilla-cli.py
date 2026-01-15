@@ -20,7 +20,10 @@ SOCKET_PATH = os.environ.get("SIGILLA_SOCKET", "/run/sigilla/sigilla.sock")
 async def send_prompt(prompt: str, timeout: float = 300) -> str:
     """Send a prompt to Sigilla and return the response."""
     try:
-        reader, writer = await asyncio.open_unix_connection(SOCKET_PATH)
+        reader, writer = await asyncio.open_unix_connection(
+            SOCKET_PATH,
+            limit=16 * 1024 * 1024  # 16MB buffer for large responses
+        )
     except FileNotFoundError:
         print(f"Error: Socket not found at {SOCKET_PATH}", file=sys.stderr)
         print("Is the sigilla daemon running?", file=sys.stderr)
