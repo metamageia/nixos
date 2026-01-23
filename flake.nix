@@ -37,6 +37,8 @@
     affinity-nix.url = "github:mrshmllow/affinity-nix";
 
     claude-code.url = "github:sadjow/claude-code-nix";
+
+    opencode-flake.url = "github:aodhanhayter/opencode-flake";
   };
 
   outputs = {
@@ -52,6 +54,7 @@
     nix-on-droid,
     affinity-nix,
     claude-code,
+    opencode-flake,
     ...
   } @ inputs: let
     system = "x86_64-linux";

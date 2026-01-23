@@ -41,6 +41,21 @@
   ];
 
   home.file = {
+    ".config/opencode/opencode.json".text = builtins.toJSON {
+      "$schema" = "https://opencode.ai/config.json";
+      provider = {
+        ollama = {
+          npm = "@ai-sdk/openai-compatible";
+          name = "Ollama (local)";
+          options = {
+            baseURL = "http://127.0.0.1:11434/v1";
+          };
+          models = {
+            "gemma3" = { name = "Gemma 3 (4B)"; options = { temperature = 0.2; max_tokens = 240; }; };
+          };
+        };
+      };
+    };
   };
 
   home.sessionVariables = {
