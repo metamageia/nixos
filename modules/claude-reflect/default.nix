@@ -13,7 +13,7 @@
   sacredPromptFile = config.sops.secrets."sigilla/sacred-prompt".path;
 
   # Python with required dependencies
-  pythonEnv = pkgs.python3.withPackages (ps: []);
+  pythonEnv = pkgs.python3.withPackages (ps: [ps.prompt-toolkit]);
 
   # Socket path for IPC
   socketPath = "/run/sigilla/sigilla.sock";

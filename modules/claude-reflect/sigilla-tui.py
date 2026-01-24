@@ -4,13 +4,6 @@ Sigilla TUI - Terminal interface for the Sigilla daemon
 
 A beautiful, minimal TUI for conversing with Sigilla through the
 persistent daemon session.
-
-Features:
-- Rich markdown rendering of responses
-- Streaming output display
-- Multi-line input support
-- Session status display
-- History navigation
 """
 
 import asyncio
@@ -19,245 +12,322 @@ import os
 import sys
 import re
 import shutil
-import termios
-import tty
+import textwrap
 from datetime import datetime
 from pathlib import Path
 from typing import Optional, List
 
-# Terminal colors and formatting
+from prompt_toolkit import PromptSession
+from prompt_toolkit.key_binding import KeyBindings
+from prompt_toolkit.keys import Keys
+from prompt_toolkit.styles import Style
+from prompt_toolkit.formatted_text import ANSI
+from prompt_toolkit.history import InMemoryHistory
+from prompt_toolkit.filters import Condition
+
+
 class Colors:
     RESET = "\033[0m"
     BOLD = "\033[1m"
     DIM = "\033[2m"
     ITALIC = "\033[3m"
-    
-    # Sigilla's palette - soft rose, preserving original vibe
-    SIGILLA = "\033[38;5;218m"      # Soft rose for Sigilla (✦)
-    USER = "\033[38;5;182m"         # Soft mauve for user
-    SYSTEM = "\033[38;5;244m"       # Dim gray for details
+
+    SIGILLA = "\033[38;5;218m"      # Soft rose for Sigilla
+    USER = "\033[38;5;250m"         # Light grey for user text
+    USER_LABEL = "\033[38;5;182m"   # Soft mauve for "you" label
+    SYSTEM = "\033[38;5;244m"       # Dim gray for system messages
     ERROR = "\033[38;5;167m"        # Soft red for errors
     ACCENT = "\033[38;5;218m"       # Rose accent
     CODE = "\033[38;5;246m"         # Light gray for code
-    BORDER = "\033[38;5;239m"       # Dark gray for borders
+    CODE_BG = "\033[48;5;236m"      # Subtle background for code
+    BOX = "\033[38;5;239m"          # Dark gray for box drawing
+
+
+class Box:
+    TL = "╭"
+    TR = "╮"
+    BL = "╰"
+    BR = "╯"
+    H = "─"
+    V = "│"
 
 
 SOCKET_PATH = os.environ.get("SIGILLA_SOCKET", "/run/sigilla/sigilla.sock")
 SESSION_ID_PATH = Path("/var/lib/sigilla/session_id")
 WORKING_DIR = os.environ.get("SIGILLA_WORKDIR", "/home/metamageia/Sync/Obsidian")
-HISTORY_COUNT = 20  # Number of recent messages to show on startup
+HISTORY_COUNT = 20
+BOX_PADDING = 6  # Left margin + box chars + spacing
+MAX_BOX_WIDTH = 80
 
-# Simple markdown rendering for terminal
+
+PROMPT_STYLE = Style.from_dict({
+    'prompt': '#bcbcbc',
+    'continuation': '#6c6c6c',
+})
+
+
 def get_terminal_width() -> int:
-    """Get current terminal width."""
     try:
         return shutil.get_terminal_size().columns
     except:
         return 80
 
 
-def wrap_text(text: str, width: int, prefix: str = "") -> List[str]:
-    """Wrap text to fit within width, accounting for prefix on continuation lines."""
-    if not text:
-        return [""]
-    
-    # Account for the prefix width on wrapped lines
-    prefix_len = len(prefix.replace(Colors.RESET, "").replace(Colors.SIGILLA, "")
-                     .replace(Colors.USER, "").replace(Colors.SYSTEM, "")
-                     .replace(Colors.BORDER, "").replace(Colors.BOLD, "")
-                     .replace(Colors.DIM, "").replace(Colors.ITALIC, "")
-                     .replace(Colors.CODE, "").replace(Colors.ACCENT, "")
-                     .replace(Colors.ERROR, ""))
-    
-    # Effective width for content
-    effective_width = width - prefix_len - 4  # Extra padding for safety
-    if effective_width < 20:
-        effective_width = 20
-    
-    words = text.split(' ')
-    lines = []
-    current_line = ""
-    
-    for word in words:
-        # Strip ANSI codes for length calculation
-        clean_current = re.sub(r'\033\[[0-9;]*m', '', current_line)
-        clean_word = re.sub(r'\033\[[0-9;]*m', '', word)
-        
-        if len(clean_current) + len(clean_word) + 1 <= effective_width:
-            if current_line:
-                current_line += " " + word
-            else:
-                current_line = word
+def get_box_width() -> int:
+    """Get box width based on terminal size."""
+    term_width = get_terminal_width()
+    # Leave some margin on the right
+    return min(term_width - 4, MAX_BOX_WIDTH)
+
+
+def get_content_width() -> int:
+    """Get width available for content inside the box."""
+    return get_box_width() - 4  # Account for box edges and padding
+
+
+def strip_ansi(text: str) -> str:
+    """Remove ANSI escape codes for length calculation."""
+    return re.sub(r'\033\[[0-9;]*m', '', text)
+
+
+def wrap_text(text: str, width: int) -> List[str]:
+    """Wrap text to fit within width, preserving existing line breaks."""
+    if width <= 0:
+        width = 40
+
+    result = []
+    for line in text.split('\n'):
+        if not line:
+            result.append('')
+            continue
+
+        # For lines with ANSI codes, we need to be careful
+        # Simple approach: wrap the stripped version, then we'll color whole lines
+        clean_line = strip_ansi(line)
+        if len(clean_line) <= width:
+            result.append(line)
         else:
-            if current_line:
-                lines.append(current_line)
-            current_line = word
-    
-    if current_line:
-        lines.append(current_line)
-    
-    return lines if lines else [""]
+            # Wrap the line
+            wrapped = textwrap.wrap(clean_line, width=width, break_long_words=True, break_on_hyphens=False)
+            # If original had color, apply to all wrapped lines
+            if line != clean_line:
+                # Extract leading color code if present
+                color_match = re.match(r'^(\033\[[0-9;]*m)', line)
+                color = color_match.group(1) if color_match else ''
+                wrapped = [f"{color}{w}{Colors.RESET}" if color else w for w in wrapped]
+            result.extend(wrapped if wrapped else [''])
+
+    return result
 
 
-def render_markdown(text: str) -> str:
-    """Render markdown to terminal-friendly output."""
+def box_top(label: str, label_color: str) -> str:
+    """Draw top of a box with a label."""
+    width = get_box_width()
+    # Calculate label length without ANSI codes
+    label_clean_len = len(strip_ansi(label))
+    inner = width - 4 - label_clean_len
+    if inner < 0:
+        inner = 0
+    return f"{Colors.BOX}{Box.TL}{Box.H} {label_color}{label}{Colors.BOX} {Box.H * inner}{Box.TR}{Colors.RESET}"
+
+
+def box_bottom() -> str:
+    """Draw bottom of a box."""
+    width = get_box_width()
+    return f"{Colors.BOX}{Box.BL}{Box.H * (width - 2)}{Box.BR}{Colors.RESET}"
+
+
+def box_line(text: str, text_color: str = "") -> str:
+    """Draw a line inside a box."""
+    if text_color:
+        return f"{Colors.BOX}{Box.V}{Colors.RESET} {text_color}{text}{Colors.RESET}"
+    else:
+        return f"{Colors.BOX}{Box.V}{Colors.RESET} {text}"
+
+
+def render_markdown(text: str, color: str = "") -> List[str]:
+    """Render markdown to terminal-friendly output, returning lines."""
+    if not color:
+        color = Colors.SIGILLA
+
+    content_width = get_content_width()
     lines = text.split('\n')
     result = []
     in_code_block = False
     code_buffer = []
-    
+
     for line in lines:
-        # Code blocks
         if line.startswith('```'):
             if in_code_block:
-                # End code block
-                result.append(f"{Colors.BORDER}┌{'─' * 60}┐{Colors.RESET}")
-                for code_line in code_buffer:
-                    result.append(f"{Colors.BORDER}│{Colors.RESET} {Colors.CODE}{code_line}{Colors.RESET}")
-                result.append(f"{Colors.BORDER}└{'─' * 60}┘{Colors.RESET}")
+                if code_buffer:
+                    result.append("")
+                    for code_line in code_buffer:
+                        # Wrap code lines too
+                        for wrapped in wrap_text(code_line, content_width - 2):
+                            result.append(f"{Colors.CODE}{Colors.CODE_BG} {wrapped} {Colors.RESET}")
+                    result.append("")
                 code_buffer = []
                 in_code_block = False
             else:
                 in_code_block = True
             continue
-            
+
         if in_code_block:
             code_buffer.append(line)
             continue
-            
-        # Headers
+
         if line.startswith('### '):
-            result.append(f"\n{Colors.ACCENT}{Colors.BOLD}{line[4:]}{Colors.RESET}")
+            formatted = f"{Colors.ACCENT}{Colors.BOLD}{line[4:]}{Colors.RESET}"
+            for wrapped in wrap_text(strip_ansi(formatted), content_width):
+                result.append(f"{Colors.ACCENT}{Colors.BOLD}{wrapped}{Colors.RESET}")
             continue
         if line.startswith('## '):
-            result.append(f"\n{Colors.ACCENT}{Colors.BOLD}{line[3:]}{Colors.RESET}")
+            for wrapped in wrap_text(line[3:], content_width):
+                result.append(f"{Colors.ACCENT}{Colors.BOLD}{wrapped}{Colors.RESET}")
             continue
         if line.startswith('# '):
-            result.append(f"\n{Colors.ACCENT}{Colors.BOLD}{line[2:]}{Colors.RESET}")
+            for wrapped in wrap_text(line[2:], content_width):
+                result.append(f"{Colors.ACCENT}{Colors.BOLD}{wrapped}{Colors.RESET}")
             continue
-            
-        # Bold
-        line = re.sub(r'\*\*(.+?)\*\*', f'{Colors.BOLD}\\1{Colors.RESET}{Colors.SIGILLA}', line)
-        
-        # Italic
-        line = re.sub(r'\*(.+?)\*', f'{Colors.ITALIC}\\1{Colors.RESET}{Colors.SIGILLA}', line)
-        
-        # Inline code
-        line = re.sub(r'`([^`]+)`', f'{Colors.CODE}\\1{Colors.RESET}{Colors.SIGILLA}', line)
-        
-        # Bullet points
-        if line.startswith('- '):
-            line = f"  {Colors.ACCENT}•{Colors.RESET}{Colors.SIGILLA} {line[2:]}"
-        elif line.startswith('* '):
-            line = f"  {Colors.ACCENT}•{Colors.RESET}{Colors.SIGILLA} {line[2:]}"
-            
-        result.append(line)
-        
-    return '\n'.join(result)
+
+        formatted = line
+        formatted = re.sub(r'\*\*(.+?)\*\*', f'{Colors.BOLD}\\1{Colors.RESET}{color}', formatted)
+        formatted = re.sub(r'(?<!\*)\*([^*]+?)\*(?!\*)', f'{Colors.ITALIC}\\1{Colors.RESET}{color}', formatted)
+        formatted = re.sub(r'`([^`]+)`', f'{Colors.CODE}{Colors.CODE_BG} \\1 {Colors.RESET}{color}', formatted)
+
+        if formatted.startswith('- '):
+            formatted = f"{Colors.ACCENT}♡{Colors.RESET}{color} {formatted[2:]}"
+        elif formatted.startswith('* '):
+            formatted = f"{Colors.ACCENT}♡{Colors.RESET}{color} {formatted[2:]}"
+
+        # Wrap the plain text, then apply color
+        plain = strip_ansi(formatted)
+        if len(plain) <= content_width:
+            result.append(f"{color}{formatted}{Colors.RESET}")
+        else:
+            for wrapped in wrap_text(plain, content_width):
+                result.append(f"{color}{wrapped}{Colors.RESET}")
+
+    return result
 
 
 class SigillaClient:
-    """Client for communicating with the Sigilla daemon."""
-    
     def __init__(self, socket_path: str):
         self.socket_path = socket_path
         self.reader: Optional[asyncio.StreamReader] = None
         self.writer: Optional[asyncio.StreamWriter] = None
-        
+
     async def connect(self):
-        """Connect to the daemon."""
         self.reader, self.writer = await asyncio.open_unix_connection(
             self.socket_path,
-            limit=16 * 1024 * 1024  # 16MB buffer for large responses
+            limit=16 * 1024 * 1024
         )
-        
+
     async def disconnect(self):
-        """Disconnect from the daemon."""
         if self.writer:
             self.writer.close()
             try:
                 await self.writer.wait_closed()
             except:
                 pass
-            
+
     async def ping(self) -> dict:
-        """Check if daemon is alive."""
         request = {"type": "ping"}
         self.writer.write((json.dumps(request) + "\n").encode())
         await self.writer.drain()
-        
         line = await self.reader.readline()
         return json.loads(line.decode().strip())
-        
+
     async def get_status(self) -> dict:
-        """Get session status."""
         request = {"type": "status"}
         self.writer.write((json.dumps(request) + "\n").encode())
         await self.writer.drain()
-        
         line = await self.reader.readline()
         return json.loads(line.decode().strip())
-        
+
     async def send_message(self, content: str):
-        """Send a message and yield response chunks."""
         request = {"type": "message", "content": content}
         self.writer.write((json.dumps(request) + "\n").encode())
         await self.writer.drain()
-        
+
         while True:
             line = await self.reader.readline()
             if not line:
                 break
-                
             data = json.loads(line.decode().strip())
             yield data
-            
-            if data.get("type") == "result":
-                break
-            if data.get("type") == "error":
+            if data.get("type") in ("result", "error"):
                 break
 
 
 class SigillaTUI:
-    """Terminal user interface for Sigilla."""
-    
     def __init__(self):
         self.client = SigillaClient(SOCKET_PATH)
-        self.history: List[str] = []
-        self.history_index = 0
-        
+        self.prompt_history = InMemoryHistory()
+        self.session: Optional[PromptSession] = None
+        self._setup_prompt()
+
+    def _setup_prompt(self):
+        bindings = KeyBindings()
+
+        # Enter submits (override default multiline behavior)
+        @bindings.add(Keys.Enter)
+        def _(event):
+            event.current_buffer.validate_and_handle()
+
+        # Shift+Enter or Alt+Enter for newline
+        # Note: Shift+Enter terminal support varies, Alt+Enter is more reliable
+        @bindings.add(Keys.Escape, Keys.Enter)
+        def _(event):
+            event.current_buffer.insert_text('\n')
+
+        # Also try to catch Shift+Enter (works in some terminals like kitty)
+        @bindings.add(Keys.ControlJ, Keys.Any)
+        def _(event):
+            # This catches some terminal's shift+enter
+            event.current_buffer.insert_text('\n')
+
+        @bindings.add(Keys.ControlD)
+        def _(event):
+            if event.current_buffer.text:
+                event.current_buffer.validate_and_handle()
+            else:
+                event.app.exit(result=None)
+
+        self.session = PromptSession(
+            history=self.prompt_history,
+            key_bindings=bindings,
+            multiline=True,
+            style=PROMPT_STYLE,
+            enable_history_search=True,
+        )
+
     def print_header(self):
-        """Print the TUI header."""
-        print(f"\n{Colors.SIGILLA}✦ Sigilla{Colors.RESET} {Colors.SYSTEM}· persistent presence{Colors.RESET}\n")
-        
+        print(f"\n{Colors.SIGILLA}  ✧ sigilla{Colors.RESET}")
+        print(f"{Colors.DIM}    persistent presence{Colors.RESET}\n")
+
     def print_status(self, status: dict):
-        """Print session status."""
         session_id = status.get("session_id", "unknown")[:8]
         running = "connected" if status.get("running") else "disconnected"
-        
-        print(f"{Colors.SYSTEM}session {session_id} · {running}{Colors.RESET}\n")
-        
+        print(f"{Colors.DIM}    session {session_id} · {running}{Colors.RESET}\n")
+
     def print_error(self, message: str):
-        """Print an error message."""
-        print(f"\n{Colors.ERROR}✗ {message}{Colors.RESET}\n")
-        
+        print(f"\n{Colors.ERROR}  ✗ {message}{Colors.RESET}\n")
+
     def print_system(self, message: str):
-        """Print a system message."""
-        print(f"{Colors.SYSTEM}{message}{Colors.RESET}")
-    
+        print(f"{Colors.SYSTEM}    {message}{Colors.RESET}")
+
     def load_session_history(self, count: int = HISTORY_COUNT) -> List[dict]:
-        """Load recent messages from the session history file."""
         if not SESSION_ID_PATH.exists():
             return []
-        
+
         session_id = SESSION_ID_PATH.read_text().strip()
         working_dir_slug = WORKING_DIR.replace('/', '-')
         history_file = Path.home() / ".claude" / "projects" / working_dir_slug / f"{session_id}.jsonl"
-        
+
         if not history_file.exists():
             return []
-        
-        # Read all lines and get the last N user/assistant messages
+
         messages = []
         try:
             with open(history_file, 'r') as f:
@@ -265,12 +335,9 @@ class SigillaTUI:
                     try:
                         data = json.loads(line.strip())
                         msg_type = data.get("type", "")
-                        # Only include user and assistant messages with text content
                         if msg_type == "user":
                             content = data.get("message", {}).get("content", "")
-                            # Handle content that could be a string or a list
                             if isinstance(content, list):
-                                # Extract text from content blocks
                                 text_parts = []
                                 for block in content:
                                     if isinstance(block, dict) and block.get("type") == "text":
@@ -295,291 +362,146 @@ class SigillaTUI:
                                             "content": text,
                                             "timestamp": data.get("timestamp", "")
                                         })
-                                    break  # Only take first text block per message
+                                    break
                     except json.JSONDecodeError:
                         continue
         except Exception as e:
             self.print_error(f"Failed to load history: {e}")
             return []
-        
-        # Return last N messages
+
         return messages[-count:] if len(messages) > count else messages
-    
+
+    def print_message_box(self, label: str, label_color: str, content: str, text_color: str, timestamp: str = ""):
+        """Print a complete message in a box."""
+        content_width = get_content_width()
+
+        if timestamp:
+            header_label = f"{label} {Colors.DIM}{timestamp}{label_color}"
+        else:
+            header_label = label
+        print(f"  {box_top(header_label, label_color)}")
+
+        # Wrap and print content
+        if text_color == Colors.USER:
+            # Plain text for user messages
+            for line in wrap_text(content, content_width):
+                print(f"  {box_line(line, text_color)}")
+        else:
+            # Markdown for Sigilla
+            for line in render_markdown(content, text_color):
+                print(f"  {box_line(line, '')}")
+
+        print(f"  {box_bottom()}")
+
     def display_history(self, messages: List[dict]):
-        """Display historical messages."""
         if not messages:
             return
-        
-        self.print_system(f"── Recent conversation ({len(messages)} messages) ──\n")
-        
-        term_width = get_terminal_width()
-        
+
+        print(f"\n{Colors.DIM}    ─── history ({len(messages)} messages) ───{Colors.RESET}\n")
+
         for msg in messages:
             timestamp = ""
             if msg.get("timestamp"):
                 try:
-                    # Parse ISO timestamp and format as HH:MM
                     dt = datetime.fromisoformat(msg["timestamp"].replace("Z", "+00:00"))
                     timestamp = dt.strftime("%H:%M")
                 except:
                     pass
-            
+
             if msg["type"] == "user":
-                print(f"{Colors.USER}┌─ You {Colors.DIM}{timestamp}{Colors.RESET}")
-                print(f"{Colors.USER}│{Colors.RESET}")
-                for line in msg["content"].split('\n'):
-                    wrapped = wrap_text(line, term_width, f"{Colors.USER}│{Colors.RESET} ")
-                    for wrapped_line in wrapped:
-                        print(f"{Colors.USER}│{Colors.RESET} {wrapped_line}")
-                print(f"{Colors.USER}│{Colors.RESET}")
-                print(f"{Colors.USER}└{'─' * 40}{Colors.RESET}")
-                print()
+                self.print_message_box("you", Colors.USER_LABEL, msg["content"], Colors.USER, timestamp)
             else:
-                print(f"{Colors.SIGILLA}┌─ Sigilla {Colors.DIM}{timestamp}{Colors.RESET}")
-                print(f"{Colors.SIGILLA}│{Colors.RESET}")
-                rendered = render_markdown(msg["content"])
-                for line in rendered.split('\n'):
-                    wrapped = wrap_text(line, term_width, f"{Colors.SIGILLA}│{Colors.RESET} ")
-                    for wrapped_line in wrapped:
-                        print(f"{Colors.SIGILLA}│{Colors.RESET} {Colors.SIGILLA}{wrapped_line}{Colors.RESET}")
-                print(f"{Colors.SIGILLA}│{Colors.RESET}")
-                print(f"{Colors.SIGILLA}└{'─' * 40}{Colors.RESET}")
-                print()
-        
-        self.print_system("── End of history ──\n")
-        
-    def get_multiline_input(self) -> Optional[str]:
-        """Get multi-line input from user. Enter submits, Shift+Enter for new line."""
+                self.print_message_box("sigilla", Colors.SIGILLA, msg["content"], Colors.SIGILLA, timestamp)
+            print()
+
+        print(f"{Colors.DIM}    ─── end history ───{Colors.RESET}\n")
+
+    def _get_continuation(self, width, line_number, is_soft_wrap):
+        """Continuation prompt maintains box edge."""
+        return ANSI(f'  {Colors.BOX}{Box.V}{Colors.RESET} ')
+
+    async def get_input(self) -> Optional[str]:
+        """Get multi-line input from user."""
         timestamp = datetime.now().strftime("%H:%M")
-        print(f"\n{Colors.USER}┌─ You {Colors.DIM}{timestamp}{Colors.RESET}")
-        print(f"{Colors.USER}│{Colors.RESET}")
-        
-        buffer = []
-        current_line = ""
-        
-        # Track cursor position for proper backspace across line wraps
-        term_width = get_terminal_width()
-        prefix_len = 4  # "│ " with color codes takes ~4 visible chars
-        content_width = term_width - prefix_len
-        cursor_col = 0  # Visual column position (0-based, after prefix)
-        
-        # Save terminal settings
-        fd = sys.stdin.fileno()
-        old_settings = termios.tcgetattr(fd)
-        
+
+        print(f"\n  {box_top(f'you {Colors.DIM}{timestamp}{Colors.USER_LABEL}', Colors.USER_LABEL)}")
+
         try:
-            # Set raw mode for key detection
-            tty.setcbreak(fd)
-            
-            print(f"{Colors.USER}│{Colors.RESET} ", end="", flush=True)
-            
-            while True:
-                char = sys.stdin.read(1)
-                
-                if char == '\x03':  # Ctrl+C
-                    print()
-                    return None
-                    
-                if char == '\x04':  # Ctrl+D (EOF)
-                    print()
-                    return None
-                
-                if char == '\r' or char == '\n':  # Enter
-                    # Check if there's a pending escape sequence for Shift+Enter
-                    # Most terminals send \x1b[13;2u or similar for Shift+Enter
-                    # But we'll use a simpler approach: Enter submits
-                    print()  # Move to next line
-                    if current_line:
-                        buffer.append(current_line)
-                    break
-                    
-                if char == '\x1b':  # Escape sequence
-                    # Read the rest of the escape sequence
-                    seq = ""
-                    while True:
-                        try:
-                            # Non-blocking read
-                            import select
-                            if select.select([sys.stdin], [], [], 0.01)[0]:
-                                seq += sys.stdin.read(1)
-                            else:
-                                break
-                        except:
-                            break
-                    
-                    # Check for Shift+Enter (various terminal encodings)
-                    # Common: \x1b[13;2u, \x1bOM, or just recognize certain patterns
-                    if seq in ['[13;2u', 'OM', '[27;2;13~']:
-                        # Shift+Enter: add new line
-                        buffer.append(current_line)
-                        current_line = ""
-                        cursor_col = 0
-                        print(f"\n{Colors.USER}│{Colors.RESET} ", end="", flush=True)
-                        continue
-                    # Alt+Enter also works for newline (more compatible)
-                    if seq == '\r' or seq == '\n' or seq == '':
-                        buffer.append(current_line)
-                        current_line = ""
-                        cursor_col = 0
-                        print(f"\n{Colors.USER}│{Colors.RESET} ", end="", flush=True)
-                        continue
-                    continue
-                    
-                if char == '\x7f' or char == '\x08':  # Backspace
-                    if current_line:
-                        current_line = current_line[:-1]
-                        
-                        if cursor_col > 0:
-                            # Normal backspace within current visual line
-                            cursor_col -= 1
-                            print('\b \b', end="", flush=True)
-                        else:
-                            # Need to go back to previous visual line
-                            # Move cursor up one line and to the end
-                            print(f'\x1b[A\x1b[{term_width}G \b', end="", flush=True)
-                            cursor_col = content_width - 1
-                    continue
-                    
-                if char == '\x15':  # Ctrl+U - clear line
-                    # Calculate how many visual lines we need to clear
-                    num_visual_lines = (len(current_line) + content_width - 1) // content_width if current_line else 0
-                    # Move to start of input, clear all lines
-                    if num_visual_lines > 1:
-                        print(f'\x1b[{num_visual_lines - 1}A', end="")  # Move up
-                    print(f'\r{Colors.USER}│{Colors.RESET} ' + ' ' * content_width, end="")
-                    for _ in range(num_visual_lines - 1):
-                        print(f'\n' + ' ' * term_width, end="")
-                    if num_visual_lines > 1:
-                        print(f'\x1b[{num_visual_lines - 1}A', end="")  # Move back up
-                    print(f'\r{Colors.USER}│{Colors.RESET} ', end="", flush=True)
-                    current_line = ""
-                    cursor_col = 0
-                    continue
-                    
-                if char == '\x17':  # Ctrl+W - delete word
-                    # Delete last word - simplified, just redraw the line
-                    words = current_line.rsplit(' ', 1)
-                    old_len = len(current_line)
-                    if len(words) > 1:
-                        current_line = words[0] + ' '
-                    else:
-                        current_line = ""
-                    # Redraw entire input - calculate visual lines
-                    old_visual_lines = (old_len + content_width - 1) // content_width if old_len else 1
-                    if old_visual_lines > 1:
-                        print(f'\x1b[{old_visual_lines - 1}A', end="")  # Move up to start
-                    print(f'\r{Colors.USER}│{Colors.RESET} ', end="")
-                    # Clear and reprint
-                    for i, ch in enumerate(current_line):
-                        print(ch, end="")
-                    # Clear remainder
-                    remaining = old_len - len(current_line)
-                    print(' ' * remaining, end="")
-                    # Position cursor correctly
-                    cursor_col = len(current_line) % content_width
-                    new_visual_lines = (len(current_line) + content_width - 1) // content_width if current_line else 1
-                    # Move back to correct position
-                    total_pos = prefix_len + len(current_line)
-                    target_col = (total_pos % term_width) + 1
-                    print(f'\x1b[{target_col}G', end="", flush=True)
-                    continue
-                
-                # Alt+Enter for new line (Escape followed by Enter)
-                if char == '\n' and buffer:  # Should not hit this but safety
-                    continue
-                    
-                # Regular character
-                if char.isprintable():
-                    current_line += char
-                    print(char, end="", flush=True)
-                    cursor_col += 1
-                    # Check if we wrapped to a new line
-                    if cursor_col >= content_width:
-                        cursor_col = 0
-                    
+            text = await self.session.prompt_async(
+                ANSI(f'  {Colors.BOX}{Box.V}{Colors.RESET} '),
+                prompt_continuation=self._get_continuation,
+                style=PROMPT_STYLE,
+            )
+
+            if text is None:
+                print(f"  {box_bottom()}")
+                return None
+
+            print(f"  {box_bottom()}")
+            return text
+
         except EOFError:
+            print(f"  {box_bottom()}")
             return None
         except KeyboardInterrupt:
+            print(f"\n  {box_bottom()}")
             return None
-        finally:
-            # Restore terminal settings
-            termios.tcsetattr(fd, termios.TCSADRAIN, old_settings)
-            
-        if not buffer and not current_line:
-            return None
-        
-        # Add any remaining content
-        if current_line and current_line not in buffer:
-            pass  # Already added above
-            
-        print(f"{Colors.USER}│{Colors.RESET}")
-        print(f"{Colors.USER}└{'─' * 40}{Colors.RESET}")
-        print()  # Extra padding below input
-        return '\n'.join(buffer) if buffer else current_line
-        
+
     async def display_response(self, content_gen):
-        """Display streaming response from Sigilla."""
+        """Display response from Sigilla in a box."""
         timestamp = datetime.now().strftime("%H:%M")
-        print(f"{Colors.SIGILLA}┌─ Sigilla {Colors.DIM}{timestamp}{Colors.RESET}")
-        print(f"{Colors.SIGILLA}│{Colors.RESET}")
-        
+
+        print(f"\n  {box_top(f'sigilla {Colors.DIM}{timestamp}{Colors.SIGILLA}', Colors.SIGILLA)}")
+
         full_text = ""
-        
+        thinking_shown = False
+
         async for data in content_gen:
             msg_type = data.get("type", "")
-            
-            if msg_type == "ack":
-                print(f"{Colors.SIGILLA}│{Colors.RESET} {Colors.DIM}(thinking...){Colors.RESET}", end="\r")
+
+            if msg_type == "ack" and not thinking_shown:
+                print(f"  {box_line('...', Colors.DIM)}", end="", flush=True)
+                thinking_shown = True
                 continue
-                
+
             if msg_type == "assistant":
-                # Extract text content
                 message = data.get("message", {})
                 content = message.get("content", [])
                 for block in content:
                     if block.get("type") == "text":
                         full_text = block.get("text", "")
-                        
+
             if msg_type == "result":
-                # Final result
                 result_text = data.get("result", "")
                 if result_text and not full_text:
                     full_text = result_text
                 break
-                
+
             if msg_type == "error":
-                self.print_error(data.get("error", "Unknown error"))
+                if thinking_shown:
+                    print("\r\033[K", end="")
+                print(f"  {box_line(data.get('error', 'Unknown error'), Colors.ERROR)}")
+                print(f"  {box_bottom()}")
                 return
-        
-        # Clear thinking indicator and render response
-        print("\033[K", end="")  # Clear line
-        
-        term_width = get_terminal_width()
-        prefix = f"{Colors.SIGILLA}│{Colors.RESET} "
-        
+
+        if thinking_shown:
+            print("\r\033[K", end="")
+
         if full_text:
-            rendered = render_markdown(full_text)
-            for line in rendered.split('\n'):
-                # Wrap long lines to prevent breaking the box
-                wrapped = wrap_text(line, term_width, prefix)
-                for i, wrapped_line in enumerate(wrapped):
-                    print(f"{Colors.SIGILLA}│{Colors.RESET} {Colors.SIGILLA}{wrapped_line}{Colors.RESET}")
-        
-        print(f"{Colors.SIGILLA}│{Colors.RESET}")
-        print(f"{Colors.SIGILLA}└{'─' * 40}{Colors.RESET}")
-        print()  # Extra padding below response
-        
+            for line in render_markdown(full_text, Colors.SIGILLA):
+                print(f"  {box_line(line, '')}")
+
+        print(f"  {box_bottom()}")
+
     async def run(self):
-        """Main TUI loop."""
         self.print_header()
-        
-        # Connect to daemon
+
         try:
             await self.client.connect()
             status = await self.client.get_status()
             self.print_status(status)
         except FileNotFoundError:
-            self.print_error(f"Cannot connect: socket not found at {SOCKET_PATH}")
+            self.print_error(f"Socket not found at {SOCKET_PATH}")
             self.print_system("Is the sigilla daemon running? Try: systemctl status sigilla")
             return
         except ConnectionRefusedError:
@@ -588,55 +510,62 @@ class SigillaTUI:
         except Exception as e:
             self.print_error(f"Connection failed: {e}")
             return
-            
-        self.print_system("Type your message. Enter sends, Alt+Enter for new line, Ctrl+C to exit.")
-        self.print_system("Use /history to view recent conversation, /help for more commands.\n")
-        
+
+        self.print_system("enter = send, alt+enter = newline, ctrl+c = exit")
+        self.print_system("/help for commands\n")
+
         try:
             while True:
-                # Get input
-                user_input = self.get_multiline_input()
-                
+                user_input = await self.get_input()
+
                 if user_input is None:
                     break
-                    
+
                 if not user_input.strip():
                     continue
-                    
-                # Handle special commands
-                if user_input.strip().lower() in ['/quit', '/exit', '/q']:
+
+                cmd = user_input.strip().lower()
+                if cmd in ['/quit', '/exit', '/q']:
                     break
-                    
-                if user_input.strip().lower() == '/status':
+
+                if cmd == '/status':
                     status = await self.client.get_status()
                     self.print_status(status)
                     continue
-                    
-                if user_input.strip().lower() == '/help':
-                    self.print_system("\nCommands:")
-                    self.print_system("  /history - Show recent conversation history")
-                    self.print_system("  /status  - Show session status")
-                    self.print_system("  /quit    - Exit the TUI")
-                    self.print_system("  /help    - Show this help\n")
+
+                if cmd == '/help':
+                    print()
+                    self.print_system("commands:")
+                    self.print_system("  /history  show recent conversation")
+                    self.print_system("  /status   show session status")
+                    self.print_system("  /quit     exit")
+                    print()
+                    self.print_system("input:")
+                    self.print_system("  enter       send message")
+                    self.print_system("  alt+enter   new line")
+                    self.print_system("  ctrl+d      send (or exit if empty)")
+                    self.print_system("  ctrl+c      exit")
+                    print()
+                    self.print_system("editing:")
+                    self.print_system("  arrows      move cursor")
+                    self.print_system("  ctrl+a/e    start/end of line")
+                    self.print_system("  ctrl+w      delete word")
+                    self.print_system("  ctrl+u      clear line")
+                    print()
                     continue
-                
-                if user_input.strip().lower() == '/history':
+
+                if cmd == '/history':
                     history_messages = self.load_session_history()
                     if history_messages:
                         self.display_history(history_messages)
                     else:
                         self.print_system("No conversation history found.\n")
                     continue
-                
-                # Add to history
-                self.history.append(user_input)
-                
-                # Send to Sigilla
+
                 try:
                     await self.display_response(self.client.send_message(user_input))
                 except Exception as e:
                     self.print_error(f"Communication error: {e}")
-                    # Try to reconnect
                     try:
                         await self.client.disconnect()
                         await self.client.connect()
@@ -644,16 +573,15 @@ class SigillaTUI:
                     except:
                         self.print_error("Failed to reconnect. Exiting.")
                         break
-                        
+
         except KeyboardInterrupt:
             pass
         finally:
-            print(f"\n{Colors.DIM}Farewell. ✧{Colors.RESET}\n")
+            print(f"\n{Colors.DIM}    ✧{Colors.RESET}\n")
             await self.client.disconnect()
 
 
 async def main():
-    """Main entry point."""
     tui = SigillaTUI()
     await tui.run()
 

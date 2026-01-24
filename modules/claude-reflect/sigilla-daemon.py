@@ -5,7 +5,8 @@ Sigilla Daemon - Persistent Claude Code session manager
 This daemon maintains a long-running Claude Code session and accepts
 connections from clients (TUI, automated heartbeats) via Unix socket.
 
-sudo systemctl restart sigilla.service to restart
+sudo systemctl restart sigilla.service 
+to restart
 
 Architecture:
 - Spawns Claude Code with stream-json input/output
