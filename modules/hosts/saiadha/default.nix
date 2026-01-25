@@ -26,13 +26,14 @@
     ../../users/metamageia
 
     # Services
-    ../../claude-reflect
+    #../../claude-reflect
     ../../ollama
     #../../open-webui
     # ../../comfyui.nix
   ];
   environment.systemPackages = [
     inputs.opencode-flake.packages.${pkgs.system}.default
+    pkgs.github-copilot-cli
   ];
   # Enable Ollama and the Web UI on this host
   services.localOllama.enable = true;
