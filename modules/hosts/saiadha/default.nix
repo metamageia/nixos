@@ -37,9 +37,27 @@
   ];
   # Enable Ollama and the Web UI on this host
   services.localOllama.enable = true;
-  # Use a conversational, lower-latency model that's better for persona work
-  # (Gemma 3 — 4B). Change this if you want a different local model.
-  services.localOllama.defaultModel = "gemma3";
+  # Qwen 2.5 7B - supports tool/function calling for agent CLIs
+  # Fits in ~4.5GB VRAM on GTX 1660
+  services.localOllama.defaultModel = "qwen2.5:7b";
+
+  # Also pull the faster 3B variant
+  systemd.services.ollama-pull-qwen-3b = {
+    description = "Pull Qwen 2.5 3B model";
+    wants = ["ollama.service"];
+    after = ["ollama.service"];
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = "${pkgs.ollama}/bin/ollama pull qwen2.5:3b";
+      User = "ollama";
+      Group = "ollama";
+      Environment = [
+        "HOME=/var/lib/ollama"
+        "OLLAMA_HOST=127.0.0.1:11434"
+      ];
+    };
+    wantedBy = ["multi-user.target"];
+  };
 
   #services.openWebUI.enable = true;
 

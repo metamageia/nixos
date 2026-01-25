@@ -51,6 +51,8 @@
             baseURL = "http://127.0.0.1:11434/v1";
           };
           models = {
+            "qwen2.5:7b" = { name = "Qwen 2.5 (7B) - Tool support"; options = { temperature = 0.7; max_tokens = 512; }; };
+            "qwen2.5:3b" = { name = "Qwen 2.5 (3B) - Fast tool support"; options = { temperature = 0.7; max_tokens = 512; }; };
             "gemma3" = { name = "Gemma 3 (4B)"; options = { temperature = 0.2; max_tokens = 240; }; };
           };
         };
