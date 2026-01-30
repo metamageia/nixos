@@ -26,7 +26,7 @@
     ../../users/metamageia
 
     # Services
-    #../../claude-reflect
+    ../../claude-reflect
     ../../ollama
     #../../open-webui
     # ../../comfyui.nix

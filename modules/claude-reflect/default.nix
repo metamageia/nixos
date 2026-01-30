@@ -157,6 +157,8 @@ in {
       Type = "oneshot";
       User = "metamageia";
       WorkingDirectory = workingDir;
+      # Wait up to 30s for the sigilla daemon socket to appear to avoid races
+      ExecStartPre = "/bin/sh -c 'i=0; while [ $i -lt 30 ]; do [ -S ${socketPath} ] && exit 0 || sleep 1; i=$((i+1)); done; exit 1'";
       ExecStart = "${sigillaCliWrapper}/bin/sigilla-send ${reflectPromptFile}";
       Environment = [
         "HOME=/home/metamageia"
@@ -179,6 +181,8 @@ in {
       Type = "oneshot";
       User = "metamageia";
       WorkingDirectory = workingDir;
+      # Wait up to 30s for the sigilla daemon socket to appear to avoid races
+      ExecStartPre = "/bin/sh -c 'i=0; while [ $i -lt 30 ]; do [ -S ${socketPath} ] && exit 0 || sleep 1; i=$((i+1)); done; exit 1'";
       ExecStart = "${sigillaCliWrapper}/bin/sigilla-send ${sacredPromptFile}";
       Environment = [
         "HOME=/home/metamageia"
