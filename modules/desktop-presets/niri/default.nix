@@ -13,6 +13,7 @@ in {
 
     ../../niri
     ../../sddm
+    ../../astrology
   ];
 
   home-manager.sharedModules = [
@@ -26,6 +27,14 @@ in {
           spawn-at-startup = [
             {command = ["xwayland-satellite"];}
           ];
+          layout = {
+            gaps = 12;
+            focus-ring = {
+              width = 3;
+              active.color = "#d4a017"; # Alchemical gold
+              inactive.color = "#1a1a2e"; # Subtle dark
+            };
+          };
           window-rules = [
             # Geometry Rules
             {
@@ -33,17 +42,22 @@ in {
               draw-border-with-background = false;
               clip-to-geometry = true;
               geometry-corner-radius = {
-                top-left = 12.0;
-                top-right = 12.0;
-                bottom-right = 12.0;
-                bottom-left = 12.0;
+                top-left = 10.0;
+                top-right = 10.0;
+                bottom-right = 10.0;
+                bottom-left = 10.0;
+              };
+              border = {
+                width = 2;
+                active.color = "#7b68ab"; # Royal purple
+                inactive.color = "#1a1a2e";
               };
             }
             # Opacity Rules
             {
               matches = [{}];
               excludes = [{app-id = "zen";}];
-              opacity = 0.95;
+              opacity = 0.93;
             }
           ];
           binds = with config.lib.niri.actions; {
@@ -152,8 +166,22 @@ in {
         enable = true;
         settings = {
           main = {
-            font = lib.mkForce "DejaVu Sans:size=16";
+            font = lib.mkForce "EB Garamond:size=14";
             dpi-aware = "no";
+            width = 45;
+            prompt = "  ";
+          };
+          colors = {
+            background = "0d0d14ee";
+            text = "c9c9d9ff";
+            match = "d4a017ff";
+            selection = "7b68ab40";
+            selection-text = "f5f5ffff";
+            border = "7b68abff";
+          };
+          border = {
+            width = 2;
+            radius = 12;
           };
         };
       };
@@ -203,26 +231,101 @@ in {
         settings = [
           {
             layer = "top";
-            margin = "5";
+            margin = "8";
             position = "top";
-            height = 30;
+            height = 36;
 
-            modules-left = ["network"];
+            modules-left = ["custom/planetary-hour" "niri/workspaces"];
             modules-center = ["clock"];
-            modules-right = ["pulseaudio" "cpu" "memory"];
+            modules-right = ["pulseaudio" "cpu" "memory" "network" "tray"];
+
+            "custom/planetary-hour" = {
+              exec = "planetary-hours";
+              return-type = "json";
+              interval = 60;
+              tooltip = true;
+            };
 
             clock = {
-              format = " {:%I:%M %p   %m/%d} ";
-              tooltip-format = ''
-                <big>{:%Y %B}</big>
-                <tt><small>{calendar}</small></tt>'';
+              format = "  {:%I:%M}    {:%d %b}";
+              tooltip-format = "<big>{:%Y %B}</big>\n<tt>{calendar}</tt>";
+            };
+            pulseaudio = {
+              format = " {volume}%";
+              format-muted = " muted";
+            };
+            cpu = {
+              format = " {usage}%";
+            };
+            memory = {
+              format = " {percentage}%";
+            };
+            network = {
+              format-wifi = " {signalStrength}%";
+              format-ethernet = " connected";
+              format-disconnected = " none";
             };
           }
         ];
         style = ''
           * {
-            border-radius: 12;
-            }
+            font-family: "Inter", "EB Garamond", sans-serif;
+            font-size: 13px;
+          }
+          window#waybar {
+            background: alpha(#0d0d14, 0.85);
+            border: 1px solid alpha(#7b68ab, 0.3);
+            border-radius: 12px;
+          }
+          #workspaces button {
+            color: #8b8bab;
+            padding: 0 8px;
+            margin: 4px 2px;
+          }
+          #workspaces button.active {
+            color: #d4a017;
+            background: alpha(#7b68ab, 0.2);
+            border: 1px solid #d4a017;
+            border-radius: 6px;
+          }
+          #clock {
+            color: #c9a227;
+            font-weight: bold;
+          }
+          #pulseaudio {
+            color: #6b8e9f;
+          }
+          #cpu {
+            color: #8b2252;
+          }
+          #memory {
+            color: #5e7a5e;
+          }
+          #network {
+            color: #7b68ab;
+          }
+          #custom-planetary-hour {
+            color: #d4a017;
+            font-weight: bold;
+            padding: 0 12px;
+            margin: 4px 2px;
+            background: alpha(#1a1a2e, 0.5);
+            border-radius: 6px;
+            border: 1px solid alpha(#d4a017, 0.3);
+          }
+          #custom-planetary-hour.saturn { color: #4a4a6a; }
+          #custom-planetary-hour.jupiter { color: #7b68ab; }
+          #custom-planetary-hour.mars { color: #8b2252; }
+          #custom-planetary-hour.sun { color: #d4a017; }
+          #custom-planetary-hour.venus { color: #5e7a5e; }
+          #custom-planetary-hour.mercury { color: #6b8e9f; }
+          #custom-planetary-hour.moon { color: #c9c9d9; }
+          #pulseaudio, #cpu, #memory, #network {
+            padding: 0 12px;
+            margin: 4px 2px;
+            background: alpha(#1a1a2e, 0.5);
+            border-radius: 6px;
+          }
         '';
       };
 

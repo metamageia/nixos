@@ -1,0 +1,18 @@
+scheme: "Hermetic Arcanum"
+author: "metamageia"
+base00: "0d0d14"  # Deep void black (background)
+base01: "1a1a2e"  # Obsidian panel background
+base02: "2d2d44"  # Selection/highlight background
+base03: "4a4a6a"  # Comments, muted text
+base04: "8b8bab"  # Dark foreground (secondary text)
+base05: "c9c9d9"  # Default foreground (primary text)
+base06: "e0e0ec"  # Light foreground
+base07: "f5f5ff"  # Brightest text (headings)
+base08: "8b2252"  # Deep crimson (errors)
+base09: "d4a017"  # Alchemical gold (constants, accents)
+base0A: "c9a227"  # Amber/sulfur (types)
+base0B: "5e7a5e"  # Verdigris green (strings, success)
+base0C: "6b8e9f"  # Mercury silver-blue (cyan)
+base0D: "7b68ab"  # Royal purple (functions)
+base0E: "9b59b6"  # Amethyst purple (keywords)
+base0F: "6e4a3a"  # Burnt umber (special)
