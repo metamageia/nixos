@@ -26,14 +26,18 @@
     ../../users/metamageia
 
     # Services
-    ../../claude-reflect
     ../../ollama
     #../../open-webui
     # ../../comfyui.nix
   ];
-  environment.systemPackages = [
+  environment.systemPackages = with pkgs; [
     inputs.opencode-flake.packages.${pkgs.system}.default
-    pkgs.github-copilot-cli
+    github-copilot-cli
+    adwaita-icon-theme
+    speex
+    libtheora
+    libgudev
+    libvdpau
   ];
   # Enable Ollama and the Web UI on this host
   services.localOllama.enable = true;
@@ -64,4 +68,6 @@
   # If you want the Web UI reachable from other LAN hosts, add the port here.
   # By default it's bound to 127.0.0.1 for safety.
   # networking.firewall.allowedTCPPorts = [ 3000 ];
+
+  hardware.graphics.enable32Bit = true;
 }

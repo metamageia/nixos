@@ -17,12 +17,42 @@
     ${builtins.readFile ./planetary-hours.py}
   '';
 
-  # Astrolog GUI wrapper with proper GTK environment
-  astrolog-gui = pkgs.writeShellScriptBin "astrolog-gui" ''
-    export GI_TYPELIB_PATH="${pkgs.gtk4}/lib/girepository-1.0:${pkgs.gdk-pixbuf}/lib/girepository-1.0:${pkgs.pango}/lib/girepository-1.0:${pkgs.graphene}/lib/girepository-1.0:${pkgs.harfbuzz}/lib/girepository-1.0:${pkgs.glib}/lib/girepository-1.0''${GI_TYPELIB_PATH:+:$GI_TYPELIB_PATH}"
-    export XDG_DATA_DIRS="${pkgs.gtk4}/share:${pkgs.gsettings-desktop-schemas}/share''${XDG_DATA_DIRS:+:$XDG_DATA_DIRS}"
-    exec ${pythonEnv}/bin/python3 ${./astrolog-gui.py} "$@"
-  '';
+  # Astrolog GUI - proper GTK4 Python application with wrapGAppsHook4
+  astrolog-gui = pkgs.stdenv.mkDerivation {
+    pname = "astrolog-gui";
+    version = "1.0";
+    src = ./astrolog-gui.py;
+    dontUnpack = true;
+
+    nativeBuildInputs = [
+      pkgs.wrapGAppsHook4
+      pkgs.gobject-introspection
+    ];
+
+    buildInputs = [
+      pythonEnv
+      pkgs.gtk4
+      pkgs.libadwaita
+      pkgs.gdk-pixbuf
+      pkgs.pango
+      pkgs.graphene
+      pkgs.harfbuzz
+      pkgs.cairo
+      pkgs.glib
+      pkgs.astrolog
+    ];
+
+    installPhase = ''
+      mkdir -p $out/bin $out/share/astrolog-gui
+      cp $src $out/share/astrolog-gui/astrolog-gui.py
+      cat > $out/bin/astrolog-gui <<EOF
+      #!${pkgs.bash}/bin/bash
+      export PATH="${pkgs.astrolog}/bin:\$PATH"
+      exec ${pythonEnv}/bin/python3 $out/share/astrolog-gui/astrolog-gui.py "\$@"
+      EOF
+      chmod +x $out/bin/astrolog-gui
+    '';
+  };
 in {
   # System-wide astrology packages
   environment.systemPackages = with pkgs; [
@@ -37,12 +67,6 @@ in {
     planetary-hours
     astrolog-gui
 
-    # GTK4 dependencies for GUI
-    gtk4
-    gobject-introspection
-    gdk-pixbuf
-    pango
-    graphene
   ];
 
   # Home-manager configuration for user-level settings

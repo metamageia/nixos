@@ -6,7 +6,7 @@ Outputs JSON for waybar custom module
 
 import json
 import ephem
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 import math
 
 # El Dorado, KS coordinates
@@ -49,8 +49,11 @@ def get_sun_times(date):
 
     sun = ephem.Sun()
 
-    # Set to noon of the given date
-    observer.date = ephem.Date(date.strftime("%Y/%m/%d 12:00:00"))
+    # Set to local noon converted to UTC for accurate sunrise/sunset calculation
+    local_noon = datetime(date.year, date.month, date.day, 12, 0, 0)
+    utc_offset = datetime.now().astimezone().utcoffset()
+    utc_noon = local_noon - utc_offset
+    observer.date = ephem.Date(utc_noon)
 
     try:
         sunrise = observer.previous_rising(sun)
@@ -128,9 +131,11 @@ def get_planetary_hour(now=None):
 
     planet_name, planet_symbol = PLANETS[planet_index]
 
-    # Format remaining time
-    remaining_mins = int(remaining.total_seconds() / 60)
-    remaining_str = f"{remaining_mins}m"
+    # Format remaining time (minutes and seconds)
+    remaining_secs_total = int(remaining.total_seconds())
+    remaining_mins = remaining_secs_total // 60
+    remaining_secs = remaining_secs_total % 60
+    remaining_str = f"{remaining_mins}m {remaining_secs}s"
 
     # Determine period name
     period = "Day" if is_day else "Night"
@@ -142,26 +147,35 @@ def get_planetary_hour(now=None):
         "hour": hour_num,
         "period": period,
         "remaining": remaining_str,
+        "remaining_seconds": remaining_secs_total,
         "is_day": is_day,
     }
 
 
 def main():
-    info = get_planetary_hour()
+    try:
+        info = get_planetary_hour()
 
-    # Format for waybar
-    text = f"{info['symbol']} {info['planet']}"
-    tooltip = (
-        f"Planetary Hour of {info['planet']} {info['symbol']}\n"
-        f"{info['period']} Hour {info['hour']}/12\n"
-        f"Time remaining: {info['remaining']}\n"
-        f"Location: El Dorado, KS"
-    )
+        # Format for waybar
+        text = f"{info['symbol']} {info['planet']}"
+        tooltip = (
+            f"Planetary Hour of {info['planet']} {info['symbol']}\n"
+            f"{info['period']} Hour {info['hour']}/12\n"
+            f"Time remaining: {info['remaining']}\n"
+            f"Location: El Dorado, KS"
+        )
 
-    # Add class for styling based on planet
-    css_class = info["planet"].lower()
+        # Add class for styling based on planet
+        css_class = info["planet"].lower()
 
-    output = {"text": text, "tooltip": tooltip, "class": css_class}
+        output = {"text": text, "tooltip": tooltip, "class": css_class}
+    except Exception as e:
+        # Return valid JSON on error to prevent waybar module from breaking
+        output = {
+            "text": "⚠ Error",
+            "tooltip": f"Planetary hours calculation failed:\n{str(e)}",
+            "class": "error",
+        }
 
     print(json.dumps(output))
 

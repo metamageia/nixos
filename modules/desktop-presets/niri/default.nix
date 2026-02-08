@@ -242,12 +242,13 @@ in {
             "custom/planetary-hour" = {
               exec = "planetary-hours";
               return-type = "json";
-              interval = 60;
+              interval = 10;
               tooltip = true;
             };
 
             clock = {
-              format = "  {:%I:%M}    {:%d %b}";
+              format = "{:%I:%M %p  ·  %a %d %b}";
+              interval = 60;
               tooltip-format = "<big>{:%Y %B}</big>\n<tt>{calendar}</tt>";
             };
             pulseaudio = {
@@ -291,6 +292,10 @@ in {
           #clock {
             color: #c9a227;
             font-weight: bold;
+            padding: 0 16px;
+            margin: 4px 2px;
+            background: alpha(#1a1a2e, 0.5);
+            border-radius: 6px;
           }
           #pulseaudio {
             color: #6b8e9f;
