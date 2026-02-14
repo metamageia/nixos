@@ -7,8 +7,13 @@
   ];
   environment.systemPackages = with pkgs; [
     lutris
+    libvdpau
+    speex
+    libtheora
+    libgudev
+
     wine
-    wineWowPackages.stable
+    wineWow64Packages.stable
     winetricks
     #godot_4
     mindustry

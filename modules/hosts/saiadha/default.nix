@@ -31,7 +31,7 @@
     # ../../comfyui.nix
   ];
   environment.systemPackages = with pkgs; [
-    inputs.opencode-flake.packages.${pkgs.system}.default
+    inputs.opencode-flake.packages.${pkgs.stdenv.hostPlatform.system}.default
     github-copilot-cli
     adwaita-icon-theme
     speex

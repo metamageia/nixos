@@ -18,6 +18,6 @@
   };
   services.resolved = {
     enable = true;
-    fallbackDns = ["8.8.8.8"];
+    settings.Resolve.FallbackDNS = ["8.8.8.8"];
   };
 }

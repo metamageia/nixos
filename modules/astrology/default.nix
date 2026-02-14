@@ -66,7 +66,6 @@ in {
     # Custom scripts
     planetary-hours
     astrolog-gui
-
   ];
 
   # Home-manager configuration for user-level settings
