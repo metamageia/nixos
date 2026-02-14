@@ -79,7 +79,6 @@
         specialArgs = {
           hostName = "argosy";
           inherit inputs;
-          inherit system;
           inherit userValues;
         };
         modules = [
@@ -94,7 +93,6 @@
           hostName = "auriga";
           nebulaIP = "192.168.100.3";
           inherit inputs;
-          inherit system;
           inherit userValues;
         };
         modules = [
@@ -109,7 +107,6 @@
           hostName = "saiadha";
           nebulaIP = "192.168.100.2";
           inherit inputs;
-          inherit system;
           inherit userValues;
         };
         modules = [
@@ -123,7 +120,6 @@
         specialArgs = {
           hostName = "beacon";
           inherit inputs;
-          inherit system;
           inherit userValues;
           nebulaIP = "192.168.100.1";
         };
@@ -140,7 +136,6 @@
         specialArgs = {
           hostName = "phone";
           inherit inputs;
-          inherit system;
           inherit userValues;
           nebulaIP = "192.168.100.4";
         };
@@ -175,7 +170,6 @@
         specialArgs = {
           hostName = "beacon";
           inherit inputs;
-          inherit system;
           inherit userValues;
         };
         modules = [
