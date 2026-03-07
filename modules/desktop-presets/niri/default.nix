@@ -13,7 +13,6 @@ in {
 
     ../../niri
     ../../sddm
-    ../../astrology
   ];
 
   home-manager.sharedModules = [
@@ -21,6 +20,7 @@ in {
       # Niri window manager settings
       programs.niri = {
         settings = {
+          clipboard.disable-primary = true;
           environment = {
             DISPLAY = ":0";
           };

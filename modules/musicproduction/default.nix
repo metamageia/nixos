@@ -10,7 +10,7 @@
   environment.systemPackages = with pkgs; [
     # Daw
     reaper
-    bitwig-studio
+    #bitwig-studio
     # ardour
     #lmms
 
