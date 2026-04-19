@@ -70,7 +70,7 @@
     };
 
     userValues = {
-      wallpaper = ./wallpapers/warframe-entrati-01.jpg;
+      wallpaper = ./wallpapers/mary-01.png;
       repoUrl = "https://github.com/metamageia/nixos.git";
       sopsFile = ./secrets/homelab.secrets.yaml;
       secretsDir = "${self}/secrets";
