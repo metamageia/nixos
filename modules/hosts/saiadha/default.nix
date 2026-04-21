@@ -21,6 +21,8 @@
     #../../cloudflared
     ../../virt-manager
 
+    ../../homestead
+
     # Users
     ../../users/metamageia
 

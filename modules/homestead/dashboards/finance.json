@@ -1,0 +1,437 @@
+{
+  "annotations": {
+    "list": []
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "links": [],
+  "panels": [
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "homestead-pg"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          },
+          "unit": "currencyUSD"
+        }
+      },
+      "gridPos": { "h": 4, "w": 8, "x": 0, "y": 0 },
+      "id": 1,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "title": "Total Balance",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "homestead-pg" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(SUM(lb.balance), 0) AS \"Total Balance\" FROM (SELECT DISTINCT ON (account_id) account_id, balance FROM balance_snapshots ORDER BY account_id, snapshot_date DESC, CASE source WHEN 'manual' THEN 0 ELSE 1 END, id DESC) lb",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "homestead-pg"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              { "color": "red", "value": null }
+            ]
+          },
+          "unit": "currencyUSD"
+        }
+      },
+      "gridPos": { "h": 4, "w": 8, "x": 8, "y": 0 },
+      "id": 2,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "title": "Spent This Month",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "homestead-pg" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(SUM(ABS(amount)), 0) AS \"Spent\" FROM transactions WHERE amount < 0 AND date >= date_trunc('month', CURRENT_DATE)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "homestead-pg"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          },
+          "unit": "currencyUSD"
+        }
+      },
+      "gridPos": { "h": 4, "w": 8, "x": 16, "y": 0 },
+      "id": 3,
+      "options": {
+        "colorMode": "value",
+        "graphMode": "none",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "title": "Income This Month",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "homestead-pg" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(SUM(amount), 0) AS \"Income\" FROM transactions WHERE amount > 0 AND date >= date_trunc('month', CURRENT_DATE)",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "homestead-pg"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "hideFrom": { "legend": false, "tooltip": false, "viz": false }
+          },
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "currencyUSD"
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 4 },
+      "id": 4,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "right" },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": true
+        },
+        "tooltip": { "mode": "single" }
+      },
+      "title": "Spending by Category",
+      "type": "piechart",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "homestead-pg" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT COALESCE(c.name, 'uncategorized') AS metric, SUM(ABS(t.amount)) AS \"value\" FROM transactions t LEFT JOIN categories c ON t.category_id = c.id WHERE t.amount < 0 AND t.date >= date_trunc('month', CURRENT_DATE) GROUP BY c.name ORDER BY \"value\" DESC",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "homestead-pg"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "currencyUSD",
+          "custom": {
+            "axisBorderShow": false,
+            "axisLabel": "",
+            "drawStyle": "bars",
+            "fillOpacity": 80,
+            "stacking": { "mode": "none" }
+          }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 4 },
+      "id": 5,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "title": "Income vs Expenses by Month",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "homestead-pg" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT date_trunc('month', date) AS time, SUM(CASE WHEN amount > 0 THEN amount ELSE 0 END) AS \"Income\", SUM(CASE WHEN amount < 0 THEN ABS(amount) ELSE 0 END) AS \"Expenses\" FROM transactions GROUP BY date_trunc('month', date) ORDER BY time",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "homestead-pg"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "unit": "currencyUSD",
+          "custom": {
+            "axisBorderShow": false,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "pointSize": 5,
+            "showPoints": "auto",
+            "lineWidth": 2
+          }
+        }
+      },
+      "gridPos": { "h": 8, "w": 24, "x": 0, "y": 12 },
+      "id": 6,
+      "options": {
+        "legend": { "displayMode": "list", "placement": "bottom" },
+        "tooltip": { "mode": "single" }
+      },
+      "title": "Net Worth Over Time",
+      "type": "timeseries",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "homestead-pg" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT snapshot_date AS time, SUM(balance) AS \"Net Worth\" FROM (SELECT DISTINCT ON (account_id, snapshot_date) account_id, snapshot_date, balance FROM balance_snapshots ORDER BY account_id, snapshot_date, CASE source WHEN 'manual' THEN 0 ELSE 1 END, id DESC) best GROUP BY snapshot_date ORDER BY snapshot_date",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "homestead-pg"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null },
+              { "color": "yellow", "value": 80 },
+              { "color": "red", "value": 100 }
+            ]
+          },
+          "unit": "currencyUSD",
+          "max": 100,
+          "custom": {
+            "fillOpacity": 80
+          }
+        }
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 0, "y": 20 },
+      "id": 7,
+      "options": {
+        "displayMode": "lcd",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        }
+      },
+      "title": "Budget vs Actual (This Month)",
+      "type": "bargauge",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "homestead-pg" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT c.name AS category, COALESCE(SUM(ABS(t.amount)), 0) AS spent, b.amount AS budget FROM budgets b JOIN categories c ON b.category_id = c.id LEFT JOIN transactions t ON t.category_id = c.id AND t.amount < 0 AND t.date >= date_trunc('month', CURRENT_DATE) AND t.date < date_trunc('month', CURRENT_DATE) + INTERVAL '1 month' WHERE b.month = date_trunc('month', CURRENT_DATE) GROUP BY c.name, b.amount ORDER BY c.name",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "homestead-pg"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "thresholds": {
+            "steps": [
+              { "color": "green", "value": null }
+            ]
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": []
+      },
+      "gridPos": { "h": 8, "w": 12, "x": 12, "y": 20 },
+      "id": 8,
+      "options": {
+        "colorMode": "background",
+        "graphMode": "area",
+        "justifyMode": "auto",
+        "textMode": "auto",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": true
+        }
+      },
+      "title": "Account Balances",
+      "type": "stat",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "homestead-pg" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT a.name, lb.balance FROM accounts a JOIN (SELECT DISTINCT ON (account_id) account_id, balance FROM balance_snapshots ORDER BY account_id, snapshot_date DESC, CASE source WHEN 'manual' THEN 0 ELSE 1 END, id DESC) lb ON a.id = lb.account_id ORDER BY a.name",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "datasource": {
+        "type": "postgres",
+        "uid": "homestead-pg"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "custom": {
+            "align": "auto",
+            "cellOptions": { "type": "auto" },
+            "filterable": true
+          },
+          "unit": "currencyUSD"
+        },
+        "overrides": [
+          {
+            "matcher": { "id": "byName", "options": "date" },
+            "properties": [{ "id": "custom.width", "value": 110 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "account" },
+            "properties": [{ "id": "custom.width", "value": 140 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "category" },
+            "properties": [{ "id": "custom.width", "value": 120 }]
+          },
+          {
+            "matcher": { "id": "byName", "options": "amount" },
+            "properties": [
+              { "id": "custom.width", "value": 100 },
+              {
+                "id": "thresholds",
+                "value": {
+                  "mode": "absolute",
+                  "steps": [
+                    { "color": "red", "value": null },
+                    { "color": "green", "value": 0 }
+                  ]
+                }
+              },
+              { "id": "custom.cellOptions", "value": { "type": "color-text" } }
+            ]
+          }
+        ]
+      },
+      "gridPos": { "h": 10, "w": 24, "x": 0, "y": 28 },
+      "id": 9,
+      "options": {
+        "showHeader": true,
+        "sortBy": [{ "desc": true, "displayName": "date" }]
+      },
+      "title": "Recent Transactions",
+      "type": "table",
+      "targets": [
+        {
+          "datasource": { "type": "postgres", "uid": "homestead-pg" },
+          "format": "table",
+          "rawQuery": true,
+          "rawSql": "SELECT t.date, a.name AS account, t.description, t.amount, COALESCE(c.name, '') AS category, t.source FROM transactions t JOIN accounts a ON t.account_id = a.id LEFT JOIN categories c ON t.category_id = c.id ORDER BY t.date DESC, t.created_at DESC LIMIT 100",
+          "refId": "A"
+        }
+      ]
+    },
+    {
+      "gridPos": { "h": 3, "w": 24, "x": 0, "y": 38 },
+      "id": 11,
+      "title": "",
+      "type": "text",
+      "options": {
+        "mode": "markdown",
+        "content": "### [Import Transactions &rarr;](http://saiadha:3001/)\nImport bank transactions via bookmarklet or set account balances.",
+        "code": { "language": "plaintext", "showLineNumbers": false, "showMiniMap": false }
+      }
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["homestead", "finance"],
+  "templating": {
+    "list": []
+  },
+  "time": {
+    "from": "now-6M",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "Finance Overview",
+  "uid": "homestead-finance",
+  "version": 1
+}
