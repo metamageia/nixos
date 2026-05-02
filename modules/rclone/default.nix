@@ -4,6 +4,8 @@
   userValues,
   ...
 }: {
+  imports = [./music-sync.nix];
+
   environment.systemPackages = with pkgs; [rclone fuse];
 
   sops.secrets = {

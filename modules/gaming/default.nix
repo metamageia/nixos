@@ -6,7 +6,7 @@
   imports = [
   ];
   environment.systemPackages = with pkgs; [
-    lutris
+    #lutris
     libvdpau
     speex
     libtheora
