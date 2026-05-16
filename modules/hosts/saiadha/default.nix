@@ -17,6 +17,7 @@
     #../../docker
     #../../pihole
     ../../jellyfin
+    ../../comfyui
 
     #../../cloudflared
     ../../virt-manager

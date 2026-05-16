@@ -7,7 +7,7 @@
   imports = [
     ./nh
 
-    #./stylix
+    ./stylix
 
     ./musicproduction
     ./gaming

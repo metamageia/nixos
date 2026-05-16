@@ -51,8 +51,8 @@
         "Mod+Q".action = close-window;
 
         "Mod+Left".action = focus-column-left;
-        "Mod+Down".action = focus-window-down;
-        "Mod+Up".action = focus-window-up;
+        "Mod+Down".action = focus-workspace-down;
+        "Mod+Up".action = focus-workspace-up;
         "Mod+Right".action = focus-column-right;
 
         "Mod+H".action = focus-column-left;
@@ -61,8 +61,8 @@
         "Mod+L".action = focus-column-right;
 
         "Mod+Ctrl+Left".action = move-column-left;
-        "Mod+Ctrl+Down".action = move-window-down;
-        "Mod+Ctrl+Up".action = move-window-up;
+        "Mod+Ctrl+Down".action = move-column-to-workspace-down;
+        "Mod+Ctrl+Up".action = move-column-to-workspace-up;
         "Mod+Ctrl+Right".action = move-column-right;
         "Mod+Ctrl+H".action = move-column-left;
         "Mod+Ctrl+J".action = move-window-down;
