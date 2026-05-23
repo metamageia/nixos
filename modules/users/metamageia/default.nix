@@ -9,7 +9,7 @@
     ../../home-manager
     ../../syncthing
     #../../obsidian-git
-    ../../desktop.nix
+    #../../desktop.nix
     #../../desktop-presets/niri
   ];
   home-manager = {

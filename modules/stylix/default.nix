@@ -5,12 +5,11 @@
   ...
 }: {
   imports = [inputs.stylix.nixosModules.stylix];
+
   stylix = {
     enable = true;
     homeManagerIntegration.autoImport = true;
     image = userValues.wallpaper;
-
-
   };
 
   #stylix.targets.fuzzel.enable = true;

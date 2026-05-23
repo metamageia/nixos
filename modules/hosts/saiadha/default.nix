@@ -14,28 +14,21 @@
     #../../k3s/agent.nix
     ../../nebula/node.nix
 
-    #../../docker
-    #../../pihole
-    ../../jellyfin
-    ../../comfyui
+    #../../jellyfin
+    #../../comfyui
 
-    #../../cloudflared
-    ../../virt-manager
-
-    ../../homestead
+    #../../virt-manager
 
     # Users
     ../../users/metamageia
 
   ];
   environment.systemPackages = with pkgs; [
-    inputs.opencode-flake.packages.${pkgs.stdenv.hostPlatform.system}.default
-    github-copilot-cli
-    adwaita-icon-theme
-    speex
-    libtheora
-    libgudev
-    libvdpau
+    #adwaita-icon-theme
+    #speex
+    #libtheora
+    #libgudev
+    #libvdpau
   ];
 
   hardware.graphics.enable32Bit = true;

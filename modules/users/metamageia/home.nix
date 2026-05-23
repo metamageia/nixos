@@ -8,8 +8,8 @@
   imports = [
     ../../alacritty
     ../../discord
-
     ../../zen
+    ../../awww
   ];
 
   programs = {
@@ -21,15 +21,6 @@
     };
 
     bash.enable = true;
-  };
-
-  # GTK theming
-  gtk = {
-    enable = true;
-    iconTheme = {
-      package = pkgs.papirus-icon-theme;
-      name = "Papirus-Dark";
-    };
   };
 
   home.username = "metamageia";
@@ -44,8 +35,7 @@
     libreoffice-qt
 
     scribus
-    inkscape
-    #krita
+    
   ];
 
   home.sessionVariables = {

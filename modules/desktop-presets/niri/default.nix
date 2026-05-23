@@ -13,6 +13,7 @@ in {
 
     ../../niri
     ../../sddm
+    
   ];
 
   home-manager.sharedModules = [
@@ -31,8 +32,6 @@ in {
             gaps = 12;
             focus-ring = {
               width = 3;
-              active.color = "#d4a017"; # Alchemical gold
-              inactive.color = "#1a1a2e"; # Subtle dark
             };
           };
           window-rules = [
@@ -49,8 +48,6 @@ in {
               };
               border = {
                 width = 2;
-                active.color = "#7b68ab"; # Royal purple
-                inactive.color = "#1a1a2e";
               };
             }
             # Opacity Rules
@@ -161,69 +158,14 @@ in {
         };
       };
 
-      # Fuzzel launcher
-      programs.fuzzel = {
-        enable = true;
-        settings = {
-          main = {
-            font = lib.mkForce "EB Garamond:size=14";
-            dpi-aware = "no";
-            width = 45;
-            prompt = "  ";
-          };
-          colors = {
-            background = "0d0d14ee";
-            text = "c9c9d9ff";
-            match = "d4a017ff";
-            selection = "7b68ab40";
-            selection-text = "f5f5ffff";
-            border = "7b68abff";
-          };
-          border = {
-            width = 2;
-            radius = 12;
-          };
-        };
-      };
-
       home.packages = with pkgs; [
-        fuzzel-search
-        swww
+        #fuzzel-search
+        fuzzel
         jq
         wl-clipboard
         xdg-utils
         coreutils
       ];
-
-      # swww wallpaper daemon
-      systemd.user.services.swww = {
-        Unit = {
-          Description = "Start swww daemon";
-          After = ["graphical-session.target"];
-        };
-        Service = {
-          ExecStart = "${pkgs.swww}/bin/swww-daemon --format xrgb";
-          Restart = "on-failure";
-        };
-        Install = {
-          WantedBy = ["default.target"];
-        };
-      };
-
-      systemd.user.services.swww-wallpaper = {
-        Unit = {
-          Description = "Set initial wallpaper using swww";
-          After = ["swww.service"];
-          Wants = ["swww.service"];
-        };
-        Service = {
-          ExecStart = "${pkgs.swww}/bin/swww img '${userValues.wallpaper}' --transition-type center";
-          Restart = "on-failure";
-        };
-        Install = {
-          WantedBy = ["default.target"];
-        };
-      };
 
       # Waybar status bar
       programs.waybar = {
@@ -238,13 +180,6 @@ in {
             modules-left = ["custom/planetary-hour" "niri/workspaces"];
             modules-center = ["clock"];
             modules-right = ["pulseaudio" "cpu" "memory" "network" "tray"];
-
-            "custom/planetary-hour" = {
-              exec = "planetary-hours";
-              return-type = "json";
-              interval = 10;
-              tooltip = true;
-            };
 
             clock = {
               format = "{:%I:%M %p  ·  %a %d %b}";
@@ -317,19 +252,6 @@ in {
             background: alpha(#1a1a2e, 0.5);
             border-radius: 6px;
             border: 1px solid alpha(#d4a017, 0.3);
-          }
-          #custom-planetary-hour.saturn { color: #4a4a6a; }
-          #custom-planetary-hour.jupiter { color: #7b68ab; }
-          #custom-planetary-hour.mars { color: #8b2252; }
-          #custom-planetary-hour.sun { color: #d4a017; }
-          #custom-planetary-hour.venus { color: #5e7a5e; }
-          #custom-planetary-hour.mercury { color: #6b8e9f; }
-          #custom-planetary-hour.moon { color: #c9c9d9; }
-          #pulseaudio, #cpu, #memory, #network {
-            padding: 0 12px;
-            margin: 4px 2px;
-            background: alpha(#1a1a2e, 0.5);
-            border-radius: 6px;
           }
         '';
       };

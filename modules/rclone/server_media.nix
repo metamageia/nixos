@@ -28,6 +28,11 @@
       "allow_other"
       "args2env"
       "config=${config.sops.templates."rclone.conf".path}"
+      "uid=1000"
+      "gid=100"
+      "file-perms=0664"
+      "dir-perms=0775"
+      "vfs-cache-mode=full"
     ];
   };
 }

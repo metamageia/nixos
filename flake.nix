@@ -37,11 +37,6 @@
     affinity-nix.url = "github:mrshmllow/affinity-nix";
 
     claude-code.url = "github:sadjow/claude-code-nix";
-
-    opencode-flake.url = "github:aodhanhayter/opencode-flake";
-
-    openclaw.url = "github:Scout-DJ/openclaw-nix";
-    openclaw.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
@@ -57,8 +52,6 @@
     nix-on-droid,
     affinity-nix,
     claude-code,
-    opencode-flake,
-    openclaw,
     ...
   } @ inputs: let
     system = "x86_64-linux";
@@ -70,7 +63,7 @@
     };
 
     userValues = {
-      wallpaper = ./wallpapers/mary-01.png;
+      wallpaper = ./wallpapers/warframe-entrati-01.jpg;
       repoUrl = "https://github.com/metamageia/nixos.git";
       sopsFile = ./secrets/homelab.secrets.yaml;
       secretsDir = "${self}/secrets";
@@ -116,8 +109,6 @@
         modules = [
           ./modules/hosts/saiadha
           ./modules/common.nix
-          openclaw.nixosModules.default
-          {nixpkgs.overlays = [openclaw.overlays.default];}
         ];
       };
       beacon = nixpkgs.lib.nixosSystem {
