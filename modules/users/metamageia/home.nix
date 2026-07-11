@@ -21,6 +21,7 @@
     };
 
     bash.enable = true;
+
   };
 
   home.username = "metamageia";

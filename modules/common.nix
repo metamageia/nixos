@@ -15,7 +15,6 @@
     wget
     unzip
     unrar
-    git
     claude-code
   ];
 
