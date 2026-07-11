@@ -31,11 +31,7 @@
   home.packages = with pkgs; [
     obsidian
     vscode
-    qbittorrent
-    libreoffice-qt
-
-    scribus
-    
+    qbittorrent    
   ];
 
   home.sessionVariables = {

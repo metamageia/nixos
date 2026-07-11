@@ -12,6 +12,6 @@
     sops
     age
   ];
-  sops.age.keyFile = "/etc/sops/age/keys.txt";
+  #sops.age.keyFile = "/etc/sops/age/keys.txt";
   sops.validateSopsFiles = false;
 }
