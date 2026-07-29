@@ -37,6 +37,10 @@
     affinity-nix.url = "github:mrshmllow/affinity-nix";
 
     claude-code.url = "github:sadjow/claude-code-nix";
+
+    # Intentionally not following nixpkgs: the package is built with uv2nix,
+    # which resolves Python deps against upstream's locked nixpkgs.
+    hermes-agent.url = "github:NousResearch/hermes-agent";
   };
 
   outputs = {
@@ -63,7 +67,7 @@
     };
 
     userValues = {
-      wallpaper = ./wallpapers/mary-01.png;
+      wallpaper = ./wallpapers/warframe-entrati-01.jpg;
       repoUrl = "https://github.com/metamageia/nixos.git";
       sopsFile = ./secrets/homelab.secrets.yaml;
       secretsDir = "${self}/secrets";

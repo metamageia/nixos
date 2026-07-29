@@ -28,8 +28,8 @@
         # Opacity Rules
         {
           matches = [{}];
-          excludes = [{app-id = "zen";}];
-          opacity = 0.95;
+          excludes = [{app-id = "zen";}{app-id = "vlc";}];
+          #opacity = 0.95;
         }
       ];
       binds = with config.lib.niri.actions; {

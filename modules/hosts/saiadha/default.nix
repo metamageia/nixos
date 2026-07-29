@@ -13,6 +13,8 @@
     ../../nvidia
     #../../k3s/agent.nix
     ../../nebula/node.nix
+    ../../jellyfin
+    ../../hermes-agent
 
     # Users
     ../../users/metamageia

@@ -6,8 +6,12 @@
 }: {
   imports = [inputs.stylix.nixosModules.stylix];
 
+  # autoImport skips the home-manager module while stylix is disabled, but
+  # niri-flake's stylix integration reads config.stylix.enable unconditionally.
+  home-manager.sharedModules = [inputs.stylix.homeModules.stylix];
+
   stylix = {
-    enable = true;
+    enable = false;
     homeManagerIntegration.autoImport = true;
     image = userValues.wallpaper;
   };

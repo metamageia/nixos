@@ -15,8 +15,11 @@
     wine
     wineWow64Packages.stable
     winetricks
-    #godot_4
+    godot_4
+    blender
+    obs-studio
     mindustry
+    python3
     #cataclysm-dda
     #cockatrice
     #dolphin-emu

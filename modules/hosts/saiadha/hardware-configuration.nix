@@ -15,7 +15,8 @@
 
   boot.loader.grub = {
   enable = true;
-  devices = [ "/dev/sda" ];   # note: devices, plural, as a list
+  # Install GRUB to the SSD that holds root, not the 7TB data drive.
+  devices = [ "/dev/disk/by-id/ata-MKNSSDRE500GB_MK17011810032CC91" ];
 };
 
   fileSystems."/" =

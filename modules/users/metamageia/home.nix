@@ -38,5 +38,10 @@
   home.sessionVariables = {
   };
 
+  # Convenience handle on the gateway-managed SOUL.md, which hermes rewrites
+  # at runtime — an out-of-store symlink keeps it mutable.
+  home.file.".hermes/SOUL.md".source =
+    config.lib.file.mkOutOfStoreSymlink "/var/lib/hermes/.hermes/SOUL.md";
+
   programs.home-manager.enable = true;
 }
