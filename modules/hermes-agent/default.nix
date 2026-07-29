@@ -5,7 +5,73 @@
   lib,
   userValues,
   ...
-}: {
+}: let
+  # misaki's espeak fallback (used for out-of-dictionary words) imports
+  # espeakng_loader, which is not in nixpkgs. It only exists to locate the
+  # shared library and phoneme data, so point it at the real package.
+  espeakngLoader = pkgs.writeTextFile {
+    name = "espeakng-loader-shim";
+    destination = "/espeakng_loader/__init__.py";
+    text = ''
+      from pathlib import Path
+
+
+      def get_library_path():
+          return Path("${lib.getLib pkgs.espeak-ng}/lib/libespeak-ng.so")
+
+
+      def get_data_path():
+          return Path("${pkgs.espeak-ng}/share/espeak-ng-data")
+    '';
+  };
+
+  # kokoro-onnx runs the same Kokoro-82M weights on onnxruntime instead of
+  # torch, which keeps the CPU inference path (real-time for short utterances)
+  # while dropping the entire uncached CUDA/torch/spacy build closure.
+  kokoro-onnx = pkgs.python3.pkgs.buildPythonPackage rec {
+    pname = "kokoro-onnx";
+    version = "0.5.0";
+    pyproject = true;
+
+    src = pkgs.fetchPypi {
+      pname = "kokoro_onnx";
+      inherit version;
+      sha256 = "0sn9g9c605rb24gamkidmc1p31dgg7095xwkskc8x0p2hpq1bssv";
+    };
+
+    build-system = [pkgs.python3.pkgs.hatchling];
+
+    # Upstream pins the phonemizer-fork and espeakng-loader wheels, neither in
+    # nixpkgs. Stock phonemizer 3.3 is import-compatible (same module, espeak
+    # default backend), and espeakng_loader is supplied by the shim above.
+    pythonRemoveDeps = ["phonemizer-fork" "espeakng-loader"];
+    dependencies = with pkgs.python3.pkgs; [onnxruntime numpy phonemizer];
+  };
+
+  kokoroModel = pkgs.fetchurl {
+    url = "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/kokoro-v1.0.onnx";
+    sha256 = "1id66qvfzh2cfq44c8vpqcmvxvnh7w2qc9m32n08gcflyznghpbx";
+  };
+  kokoroVoices = pkgs.fetchurl {
+    url = "https://github.com/thewh1teagle/kokoro-onnx/releases/download/model-files-v1.0/voices-v1.0.bin";
+    sha256 = "0zdz3ygw5s8g2k4wml7y9qk7j5n0grz1kr3g5vrrk3cf62w119mw";
+  };
+
+  kokoroEnv = pkgs.python3.withPackages (ps:
+    with ps; [
+      numpy
+      onnxruntime
+      phonemizer
+      soundfile
+      kokoro-onnx
+    ]);
+
+  kokoro-tts = pkgs.writeShellScriptBin "kokoro-tts" ''
+    export PYTHONPATH=${espeakngLoader}''${PYTHONPATH:+:$PYTHONPATH}
+    exec ${kokoroEnv}/bin/python3 ${./kokoro-tts.py} \
+      --model ${kokoroModel} --voices ${kokoroVoices} "$@"
+  '';
+in {
   imports = [
     inputs.hermes-agent.nixosModules.default
   ];
@@ -36,6 +102,18 @@
   # Upstream pins HOME to stateDir, which makes the agent believe its home is
   # /var/lib/hermes. HERMES_HOME is set separately, so state still resolves.
   systemd.services.hermes-agent.environment.HOME = lib.mkForce "/home/metamageia";
+
+  # Upstream's unit PATH holds only hermes' own closure, so the agent's shell
+  # tool sees none of the system profile (no nvidia-smi, no sqlite3, ...).
+  systemd.services.hermes-agent.path = [
+    kokoro-tts
+    config.hardware.nvidia.package.bin
+    "/run/current-system/sw"
+  ];
+
+  # Lets any CUDA consumer the agent starts resolve libcuda.so.1, which ships
+  # with the kernel driver rather than with the CUDA libraries themselves.
+  systemd.services.hermes-agent.environment.LD_LIBRARY_PATH = "${config.hardware.nvidia.package}/lib";
 
   services.hermes-agent = {
     enable = true;
@@ -86,8 +164,17 @@
         skin = "sigilla";
       };
       tts = {
-        provider = "openai";
-        use_gateway = true;
+        provider = "kokoro";
+        # Nix settings deep-merge into the live config.yaml, so the previous
+        # gateway-backed setting has to be turned off rather than dropped.
+        use_gateway = false;
+        providers.kokoro = {
+          type = "command";
+          command = "kokoro-tts --text-file {input_path} --output {output_path} --voice {voice} --speed {speed}";
+          output_format = "wav";
+          voice = "af_bella";
+          speed = 1.0;
+        };
       };
       stt = {
         provider = "openai";
