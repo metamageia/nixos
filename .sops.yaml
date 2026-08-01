@@ -6,7 +6,7 @@ keys:
     - &beacon age12frq2xnlklh7ms6ak35pa5gwr266zzllzy80tpqm5622fw3gkg5s5ldkt5
     - &saiadha age1g294m4re2u7s0qduhzvvym66v90jjpgfrygl3ejgqy5yygeu5ejqalzmae
 creation_rules:
-  - path_regex: "secrets/sigilla.secrets\\.yaml$"
+  - path_regex: "secrets/hermes.secrets\\.yaml$"
     key_groups:
     - age:
       - *metamageia

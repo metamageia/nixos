@@ -18,7 +18,7 @@
     godot_4
     blender
     obs-studio
-    mindustry
+    #mindustry
     python3
     #cataclysm-dda
     #cockatrice

@@ -40,4 +40,23 @@
         email = "metamageia@gmail.com";
       };
     };
+
+  # Allow passwordless system rebuilds so the Hermes agent can run
+  # `nixos-rebuild switch` (and `nh os switch`, which wraps it) unattended.
+  # Required because sudo cannot prompt for a password with no TTY present.
+  security.sudo.extraRules = [
+    {
+      users = [ "metamageia" ];
+      commands = [
+        {
+          command = "/run/current-system/sw/bin/nixos-rebuild switch *";
+          options = [ "NOPASSWD" ];
+        }
+        {
+          command = "/run/current-system/sw/bin/nixos-rebuild boot *";
+          options = [ "NOPASSWD" ];
+        }
+      ];
+    }
+  ];
 }

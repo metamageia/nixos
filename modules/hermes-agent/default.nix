@@ -86,13 +86,24 @@ in {
       sopsFile = "${userValues.secretsDir}/hermes-auth.json";
       key = "";
     };
-    "sigilla-discord" = {
+    "hermes-discord" = {
       sopsFile = "${userValues.secretsDir}/personal.secrets.yaml";
+    };
+    # Google Workspace OAuth client (gmail/calendar/drive/sheets/docs).
+    # sops-nix decrypts the `google-api` key in personal.secrets.yaml and
+    # places it where the google-workspace skill's setup.py reads it
+    # (HERMES_HOME/google_client_secret.json).
+    "google-api" = {
+      sopsFile = "${userValues.secretsDir}/personal.secrets.yaml";
+      owner = "metamageia";
+      group = "hermes";
+      mode = "0440";
+      path = "/var/lib/hermes/.hermes/google_client_secret.json";
     };
   };
 
   sops.templates."hermes.env".content = ''
-    DISCORD_BOT_TOKEN=${config.sops.placeholder."sigilla-discord"}
+    DISCORD_BOT_TOKEN=${config.sops.placeholder."hermes-discord"}
   '';
 
   # Run as the login user so the agent can reach /home/metamageia, which is
@@ -125,7 +136,7 @@ in {
 
     # `minimal` omits discord.py, and hermes' lazy-installer cannot write to
     # the read-only /nix/store, so the dep must be baked in at build time.
-    extraDependencyGroups = ["messaging"];
+    extraDependencyGroups = ["messaging" "firecrawl"];
 
     # Seeded once; hermes refreshes the OAuth token in place afterward.
     authFile = config.sops.secrets."hermes-auth".path;
@@ -133,7 +144,7 @@ in {
     environmentFiles = [config.sops.templates."hermes.env".path];
 
     environment = {
-      DISCORD_HOME_CHANNEL = "1531817978138464399";
+      DISCORD_HOME_CHANNEL = "1532688784796291164";
       DISCORD_ALLOWED_USERS = "663086185920331777";
 
       # Hermes otherwise tightens HERMES_HOME to 0700 (secure_parent_dir),
@@ -147,7 +158,7 @@ in {
       terminal.cwd = "/home/metamageia";
 
       model = {
-        default = "minimax/minimax-m3";
+        default = "deepseek/deepseek-v4-flash-0731";
         provider = "nous";
         base_url = "https://inference-api.nousresearch.com/v1";
       };
@@ -161,7 +172,7 @@ in {
       };
       display = {
         show_reasoning = false;
-        skin = "sigilla";
+        skin = "hermes";
       };
       tts = {
         provider = "kokoro";
@@ -182,6 +193,16 @@ in {
       };
       image_gen.use_gateway = true;
       approvals.destructive_slash_confirm = false;
+    };
+
+    # Robinhood Agentic Trading — remote HTTP MCP server, OAuth 2.1 PKCE.
+    # Declared here (not freeform settings) so it survives nixos-rebuild switch.
+    # Authenticate after the switch with: hermes mcp login robinhood-trading
+    mcpServers = {
+      robinhood-trading = {
+        url = "https://agent.robinhood.com/mcp/trading";
+        auth = "oauth";
+      };
     };
   };
 }
