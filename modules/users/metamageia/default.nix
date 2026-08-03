@@ -27,7 +27,7 @@
   users.users.metamageia = {
     isNormalUser = true;
     description = "Metamageia";
-    extraGroups = ["networkmanager" "wheel" "docker" "video" "render"];
+    extraGroups = ["networkmanager" "wheel" "docker" "video" "render" "cdrom"];
     hashedPasswordFile = config.sops.secrets."passwords/metamageia".path;
     packages = with pkgs; [
     ];

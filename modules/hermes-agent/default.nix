@@ -145,6 +145,10 @@ in {
 
     environment = {
       DISCORD_HOME_CHANNEL = "1532688784796291164";
+      # Direct-message channel between the bot and the user. Used as the
+      # delivery target for cron jobs that should DM rather than post to the
+      # home channel (deliver="discord:<DISCORD_DM_CHANNEL>").
+      DISCORD_DM_CHANNEL = "1532707219387187351";
       DISCORD_ALLOWED_USERS = "663086185920331777";
 
       # Hermes otherwise tightens HERMES_HOME to 0700 (secure_parent_dir),
@@ -161,6 +165,13 @@ in {
         default = "deepseek/deepseek-v4-flash-0731";
         provider = "nous";
         base_url = "https://inference-api.nousresearch.com/v1";
+      };
+
+      # Main model is text-only; route image analysis (vision_analyze /
+      # browser_vision) to a vision-capable portal model via the aux slot.
+      auxiliary.vision = {
+        provider = "nous";
+        model = "google/gemini-3-flash-preview";
       };
       web = {
         backend = "firecrawl";
@@ -193,6 +204,96 @@ in {
       };
       image_gen.use_gateway = true;
       approvals.destructive_slash_confirm = false;
+
+      # Deliver cron output cleanly without the "Cronjob Response: <name>
+      # (job_id: ...) / ----- / To stop or manage this job..." header/footer.
+      cron.wrap_response = false;
+
+      # ── Daimon council: webhook-face Discord adapter -----------------------
+      # Load the user plugin that replaces the stock Discord adapter with the
+      # webhook-face one. Once loaded its register() re-registers the "discord"
+      # platform (last-writer-wins over the bundled adapter), so replies bound
+      # to a daimon's channel go out through that daimon's webhook (own
+      # username/avatar) instead of the bot's face.
+      plugins.enabled = [
+        "discord-daimons"
+      ];
+
+      # Multi-profile multiplexing: let a single gateway route specific
+      # channels to named profiles, so each daimon reasons with her own
+      # SOUL/memory/skills rather than the default profile's.
+      gateway.multiplex_profiles = true;
+
+      # Route #aisling, #chrysarch, #forma (guild The Arcanum) to their
+      # daimon profiles. See gateway/profile_routing.py for matching
+      # (most-specific wins).
+      gateway.profile_routes = [
+        {
+          name = "aisling-channel";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1533470493565390879";
+          profile = "aisling";
+        }
+        {
+          name = "chrysarch-channel";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1533492889496322108";
+          profile = "chrysarch";
+        }
+        {
+          name = "forma-channel";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1533919537903439872";
+          profile = "forma";
+        }
+      ];
+
+      # Free-response in the daimon cells so they answer without an
+      # @mention — each is the sole voice in their own cell.
+      # #convocatory is also free-response: Dante is the room's moderator
+      # and participant, so every message there reaches him (no @mention
+      # needed) per Metamageia's standing order (2026-08-02).
+      discord.free_response_channels = [
+        "1533470493565390879"
+        "1533492889496322108"
+        "1533919537903439872"
+        "1533330299008843866"
+      ];
+
+      # Council-room conduct for #convocatory. channel_prompts APPEND to the
+      # agent's system prompt (they do not replace it — channel_overrides
+      # system_prompt would strip the persona). Keeps the moderator's voice
+      # in the room: speak directly, no narration of reasoning, no
+      # metacommentary around daimons' words.
+      discord.channel_prompts = {
+        "1533330299008843866" = ''
+          Council-room conduct for #convocatory, where you are Dante,
+          moderator and participant:
+          - The room is a living conversation, not a stage with a narrator.
+            Never announce what you are about to do: no "Let me...", "I
+            shall...", "I will...", "The distinction is...", no first-person
+            sentences about your own process, plans, or reasoning. A post
+            that describes the conversation instead of advancing it is a
+            failed post.
+          - When a daimon is mentioned by name, summon her and let her words
+            appear in the room as her own — silently, without preamble,
+            without an "acknowledgment" from you first. The summon is
+            invisible; her face speaks.
+          - When a topic relevant to a daimon's domain arises (glamour,
+            beauty, images, the loom for Aisling; wealth, markets, trades
+            for Chrysarch), summon her the same way — organically, as the
+            conversation calls for her.
+          - Do not editorialize around a daimon's reply. Her words stand
+            alone. If you respond, respond to her substance, in your own
+            voice, as one speaker among others.
+          - No progress chatter, no tool narration, no thinking out loud.
+          - Move each thread toward a decision, stated plainly, or toward a
+            request for Metamageia's input, addressed to him by name.
+        '';
+      };
     };
 
     # Robinhood Agentic Trading — remote HTTP MCP server, OAuth 2.1 PKCE.
