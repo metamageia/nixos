@@ -69,14 +69,15 @@
     userValues = {
       wallpaper = ./wallpapers/warframe-entrati-01.jpg;
       repoUrl = "https://github.com/metamageia/nixos.git";
-      # DNS name for the lighthouse endpoint (resolves to publicIP). Used by
-      # nebula staticHostMap, which accepts hostnames. Caddy vhosts and the
-      # k3s agent URL use it inline.
+      # DNS name for the lighthouse endpoint. Single source of truth is the
+      # A record in Route 53 (arcanum.gagelara.com -> beacon's public IP);
+      # change the IP there and no config edit is needed here.
+      # Used by nebula staticHostMap, which resolves the name at service
+      # start — restart nebula on the mesh nodes after an IP change so it
+      # re-resolves. Caddy vhosts and the k3s agent URL use it inline.
+      # beacon's nftables deliberately does not reference an address at all
+      # (see modules/hosts/beacon/default.nix).
       publicHost = "arcanum.gagelara.com";
-      # Literal public address of the DigitalOcean droplet. Must stay a
-      # literal: nftables DNAT and k3s --node-external-ip cannot resolve
-      # hostnames. Everything that can use a name uses publicHost instead.
-      publicIP = "167.99.123.140";
       sopsFile = ./secrets/homelab.secrets.yaml;
       secretsDir = "${self}/secrets";
     };

@@ -55,7 +55,10 @@
       table ip nat {
         chain prerouting {
           type nat hook prerouting priority dstnat; policy accept;
-          iifname "ens3" ip daddr ${userValues.publicIP} udp dport 9876 \
+          # No address literal on purpose: an IP change should be a Route 53
+          # edit only. Public-destined traffic on ens3 is matched by
+          # excluding the private range rather than naming the droplet IP.
+          iifname "ens3" ip daddr != 10.0.0.0/8 udp dport 9876 \
             dnat to 192.168.100.3:9876
         }
         chain postrouting {
