@@ -43,7 +43,7 @@
     virtualHosts.":8096".extraConfig = ''
       reverse_proxy 192.168.100.2:8096
     '';
-    virtualHosts."http://jellyfin.auriga.gagelara.com:80".extraConfig = ''
+    virtualHosts."http://jellyfin.arcanum.gagelara.com:80".extraConfig = ''
       reverse_proxy 192.168.100.2:8096
     '';
   };
@@ -55,7 +55,7 @@
       table ip nat {
         chain prerouting {
           type nat hook prerouting priority dstnat; policy accept;
-          iifname "ens3" ip daddr 167.99.123.140 udp dport 9876 \
+          iifname "ens3" ip daddr ${userValues.publicIP} udp dport 9876 \
             dnat to 192.168.100.3:9876
         }
         chain postrouting {

@@ -69,6 +69,14 @@
     userValues = {
       wallpaper = ./wallpapers/warframe-entrati-01.jpg;
       repoUrl = "https://github.com/metamageia/nixos.git";
+      # DNS name for the lighthouse endpoint (resolves to publicIP). Used by
+      # nebula staticHostMap, which accepts hostnames. Caddy vhosts and the
+      # k3s agent URL use it inline.
+      publicHost = "arcanum.gagelara.com";
+      # Literal public address of the DigitalOcean droplet. Must stay a
+      # literal: nftables DNAT and k3s --node-external-ip cannot resolve
+      # hostnames. Everything that can use a name uses publicHost instead.
+      publicIP = "167.99.123.140";
       sopsFile = ./secrets/homelab.secrets.yaml;
       secretsDir = "${self}/secrets";
     };

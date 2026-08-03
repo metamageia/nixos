@@ -6,7 +6,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: "linkding.auriga.gagelara.com"
+    - host: "linkding.arcanum.gagelara.com"
       http:
         paths:
           - path: /
