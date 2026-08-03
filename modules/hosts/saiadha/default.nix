@@ -6,7 +6,6 @@
 }: {
   imports = [
     ./hardware-configuration.nix
-    ../../common.nix
 
     ../../desktop-presets/niri
 

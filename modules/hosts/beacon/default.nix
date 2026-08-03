@@ -2,7 +2,6 @@
   config,
   pkgs,
   hostName,
-  userValues,
   ...
 }: {
   users.users.root = {
@@ -15,7 +14,6 @@
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
   imports = [
-    ../../common.nix
     #../../comin
     #../../k3s/initServer.nix
     ../../nebula/lighthouse.nix
@@ -55,9 +53,7 @@
       table ip nat {
         chain prerouting {
           type nat hook prerouting priority dstnat; policy accept;
-          # No address literal on purpose: an IP change should be a Route 53
-          # edit only. Public-destined traffic on ens3 is matched by
-          # excluding the private range rather than naming the droplet IP.
+          # Public traffic on ens3, matched without naming the droplet IP.
           iifname "ens3" ip daddr != 10.0.0.0/8 udp dport 9876 \
             dnat to 192.168.100.3:9876
         }

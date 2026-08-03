@@ -3,10 +3,7 @@
   pkgs,
   ...
 }: let
-  # The Mod+S launcher script lives beside the fuzzel module. Built here —
-  # at the consumer of the bind — so the keybinding references a store path
-  # rather than depending on the session PATH. Same name and content as any
-  # other build of it, so the store path dedupes across consumers.
+  # Built here so the Mod+S bind references a store path, not the session PATH.
   fuzzel-search = pkgs.writeShellScriptBin "fuzzel-search" (builtins.readFile ../fuzzel/fuzzel-search.sh);
 in {
   programs.niri = {

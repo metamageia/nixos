@@ -25,9 +25,6 @@
     alejandra.url = "github:kamadorueda/alejandra/4.0.0";
     alejandra.inputs.nixpkgs.follows = "nixpkgs";
 
-    nixos-generators.url = "github:nix-community/nixos-generators";
-    nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
-
     compose2nix.url = "github:aksiksi/compose2nix";
     compose2nix.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -51,7 +48,6 @@
     home-manager,
     sops-nix,
     alejandra,
-    nixos-generators,
     compose2nix,
     nix-on-droid,
     affinity-nix,
@@ -69,14 +65,7 @@
     userValues = {
       wallpaper = ./wallpapers/warframe-entrati-01.jpg;
       repoUrl = "https://github.com/metamageia/nixos.git";
-      # DNS name for the lighthouse endpoint. Single source of truth is the
-      # A record in Route 53 (arcanum.gagelara.com -> beacon's public IP);
-      # change the IP there and no config edit is needed here.
-      # Used by nebula staticHostMap, which resolves the name at service
-      # start — restart nebula on the mesh nodes after an IP change so it
-      # re-resolves. Caddy vhosts and the k3s agent URL use it inline.
-      # beacon's nftables deliberately does not reference an address at all
-      # (see modules/hosts/beacon/default.nix).
+      # DNS name for the lighthouse; its A record in Route 53 owns the public IP.
       publicHost = "arcanum.gagelara.com";
       sopsFile = ./secrets/homelab.secrets.yaml;
       secretsDir = "${self}/secrets";
@@ -173,20 +162,6 @@
 
         echo "Welcome to the Homeserver development environment!"
       '';
-    };
-    packages.x86_64-linux = {
-      do = nixos-generators.nixosGenerate {
-        system = "x86_64-linux";
-        specialArgs = {
-          hostName = "beacon";
-          inherit inputs;
-          inherit userValues;
-        };
-        modules = [
-          ./modules/hosts/digitalocean
-        ];
-        format = "do";
-      };
     };
   };
 }
