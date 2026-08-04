@@ -1,44 +1,28 @@
 keys:
   - users:
-    - &metamageia age18xnfe59qwzamuk4j0gctp2vj6mu8ypmpq5s05hdqzthxhu0vpscs40aw7u
-  - hosts:
-    - &auriga age12c8eltd9jyt3c7r2uydesfp07sur6qnpts9cwvfdygaxsdcmq3rs6pznm2
-    - &beacon age12frq2xnlklh7ms6ak35pa5gwr266zzllzy80tpqm5622fw3gkg5s5ldkt5
-    - &saiadha age1g294m4re2u7s0qduhzvvym66v90jjpgfrygl3ejgqy5yygeu5ejqalzmae
+    - &metamageia age1t89rkzpg93a7fu9nrle05fsqtxyvk82fnau0vp8we0pqvdptc9nq5qlnm5
 creation_rules:
   - path_regex: "secrets/hermes.secrets\\.yaml$"
     key_groups:
     - age:
       - *metamageia
-      - *auriga
-      - *saiadha
   - path_regex: "secrets/personal.secrets\\.yaml$"
     key_groups:
     - age:
       - *metamageia
-      - *auriga
-      - *saiadha
   - path_regex: "secrets/saiadha-tunnel\\.json$"
     key_groups:
     - age:
       - *metamageia
-      - *saiadha
   - path_regex: "secrets/hermes-auth\\.json$"
     key_groups:
     - age:
       - *metamageia
-      - *saiadha
   - path_regex: "secrets/homelab.secrets\\.env$"
     key_groups:
     - age:
       - *metamageia
-      - *auriga
-      - *saiadha
-      - *beacon
   - path_regex: "secrets/homelab.secrets\\.yaml$"
     key_groups:
     - age:
       - *metamageia
-      - *auriga
-      - *beacon
-      - *saiadha
