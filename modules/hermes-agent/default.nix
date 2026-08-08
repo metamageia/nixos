@@ -105,15 +105,27 @@ in {
     # $HERMES_HOME/secrets/ until the switch lands.
     "daimon-aisling-webhook" = {
       sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
+      owner = "metamageia";
+      group = "hermes";
+      mode = "0440";
     };
     "daimon-chrysarch-webhook" = {
       sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
+      owner = "metamageia";
+      group = "hermes";
+      mode = "0440";
     };
     "daimon-forma-webhook" = {
       sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
+      owner = "metamageia";
+      group = "hermes";
+      mode = "0440";
     };
     "daimon-rubedo-webhook" = {
       sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
+      owner = "metamageia";
+      group = "hermes";
+      mode = "0440";
     };
   };
 
