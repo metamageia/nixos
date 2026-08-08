@@ -6,6 +6,10 @@ creation_rules:
     key_groups:
     - age:
       - *metamageia
+  - path_regex: "secrets/daimons.secrets\\.yaml$"
+    key_groups:
+    - age:
+      - *metamageia
   - path_regex: "secrets/personal.secrets\\.yaml$"
     key_groups:
     - age:

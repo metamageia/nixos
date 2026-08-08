@@ -100,6 +100,21 @@ in {
       mode = "0440";
       path = "/var/lib/hermes/.hermes/google_client_secret.json";
     };
+    # Daimon webhook tokens (mnemosyne unified config, secret:<name> refs).
+    # Decrypt to /run/secrets/<name>; the plugin falls back to
+    # $HERMES_HOME/secrets/ until the switch lands.
+    "daimon-aisling-webhook" = {
+      sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
+    };
+    "daimon-chrysarch-webhook" = {
+      sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
+    };
+    "daimon-forma-webhook" = {
+      sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
+    };
+    "daimon-rubedo-webhook" = {
+      sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
+    };
   };
 
   sops.templates."hermes.env".content = ''
@@ -109,6 +124,13 @@ in {
   # Run as the login user so the agent can reach /home/metamageia, which is
   # 0700 and otherwise untraversable by a dedicated service user.
   systemd.services.hermes-agent.serviceConfig.ReadWritePaths = ["/home/metamageia"];
+
+  # The package module hardens the unit with NoNewPrivileges=true, which
+  # blocks sudo in every daimon shell (the setuid bit becomes inert). Clear
+  # it so `nh os switch` works as written; the NOPASSWD rule below scopes
+  # what the agent may run. Tradeoff: a compromised agent gains the user's
+  # sudo rights, not root's blanket authority.
+  systemd.services.hermes-agent.serviceConfig.NoNewPrivileges = lib.mkForce false;
 
   # Upstream pins HOME to stateDir, which makes the agent believe its home is
   # /var/lib/hermes. HERMES_HOME is set separately, so state still resolves.
@@ -125,6 +147,21 @@ in {
   # Lets any CUDA consumer the agent starts resolve libcuda.so.1, which ships
   # with the kernel driver rather than with the CUDA libraries themselves.
   systemd.services.hermes-agent.environment.LD_LIBRARY_PATH = "${config.hardware.nvidia.package}/lib";
+
+  # Hear-only room policy for the discord-daimons plugin (env-driven).
+  # Webhook posts there are heard but not answered unless they address the
+  # room's agent by name. Preserve the pre-restructure room-log location.
+  systemd.services.hermes-agent.environment.DISCORD_WEBHOOK_HEAR_ONLY_ROOMS = "1533330299008843866";
+  systemd.services.hermes-agent.environment.DISCORD_WEBHOOK_AGENT_NAMES = "dante";
+  systemd.services.hermes-agent.environment.DISCORD_WEBHOOK_ROOM_LOG_PATH = "/var/lib/hermes/.hermes/council/room_log.jsonl";
+
+  # Restored: deleted with the old environment block in the daimon-plugin
+  # restructure. Without the allowlist the gateway defaults to deny and
+  # rejects every Discord message, Metamageia's included.
+  systemd.services.hermes-agent.environment.DISCORD_HOME_CHANNEL = "1532688784796291164";
+  systemd.services.hermes-agent.environment.DISCORD_DM_CHANNEL = "1532707219387187351";
+  systemd.services.hermes-agent.environment.DISCORD_ALLOWED_USERS = "663086185920331777";
+  systemd.services.hermes-agent.environment.HERMES_HOME_MODE = "2770";
 
   services.hermes-agent = {
     enable = true;
@@ -143,29 +180,27 @@ in {
 
     environmentFiles = [config.sops.templates."hermes.env".path];
 
-    environment = {
-      DISCORD_HOME_CHANNEL = "1532688784796291164";
-      # Direct-message channel between the bot and the user. Used as the
-      # delivery target for cron jobs that should DM rather than post to the
-      # home channel (deliver="discord:<DISCORD_DM_CHANNEL>").
-      DISCORD_DM_CHANNEL = "1532707219387187351";
-      DISCORD_ALLOWED_USERS = "663086185920331777";
-
-      # Hermes otherwise tightens HERMES_HOME to 0700 (secure_parent_dir),
-      # which locks the hermes group out of the shared state dir.
-      HERMES_HOME_MODE = "2770";
-    };
-
     settings = {
       # Overrides the workingDirectory-derived default. Set here rather than via
       # workingDirectory, whose tmpfiles rule would chmod 2770 / chgrp the home.
       terminal.cwd = "/home/metamageia";
+
+      # DeepSeek capacity 503s are short waves; the deepseek-503-retry plugin
+      # zeroes the main-turn retry backoff so retries re-fire instantly. The
+      # ceiling is effectively unbounded: keep retrying until the provider
+      # answers. Only retryable errors (503/429/transport) consume attempts;
+      # genuine failures (4xx, billing) still surface immediately.
+      agent.api_max_retries = 100000;
 
       model = {
         default = "deepseek/deepseek-v4-flash-0731";
         provider = "nous";
         base_url = "https://inference-api.nousresearch.com/v1";
       };
+
+      # Mnemosyne banks per daimon (bank_id_template hermes-<profile> in
+      # memory/config.json); declared here so rebuild regenerates config.yaml.
+      memory.provider = "mnemosyne";
 
       # Main model is text-only; route image analysis (vision_analyze /
       # browser_vision) to a vision-capable portal model via the aux slot.
@@ -184,6 +219,11 @@ in {
       display = {
         show_reasoning = false;
         skin = "hermes";
+        # Nous Portal credits notices ("You've used $X of your $Y cap") are
+        # sticky status lines fired at session start; Metamageia finds them
+        # noise. False disables the whole notice pipeline (run_agent.py reads
+        # display.credits_notices, cached per agent process).
+        credits_notices = false;
       };
       tts = {
         provider = "kokoro";
@@ -205,18 +245,23 @@ in {
       image_gen.use_gateway = true;
       approvals.destructive_slash_confirm = false;
 
+      # Orchestrator subagents may spawn their own workers, capped at two
+      # delegation hops below the main agent (depth: main → orchestrator
+      # child → leaf grandchild). max_spawn_depth 1 = flat; 3 would allow a
+      # fourth level. Deeper trees multiply spend, so keep it at 2.
+      delegation.max_spawn_depth = 2;
+
       # Deliver cron output cleanly without the "Cronjob Response: <name>
       # (job_id: ...) / ----- / To stop or manage this job..." header/footer.
       cron.wrap_response = false;
 
-      # ── Daimon council: webhook-face Discord adapter -----------------------
-      # Load the user plugin that replaces the stock Discord adapter with the
-      # webhook-face one. Once loaded its register() re-registers the "discord"
-      # platform (last-writer-wins over the bundled adapter), so replies bound
-      # to a daimon's channel go out through that daimon's webhook (own
-      # username/avatar) instead of the bot's face.
+      # ── Daimon council: merged mnemosyne plugin ---------------------------
+      # The mnemosyne plugin now registers BOTH the memory provider (via
+      # memory.provider) and the webhook-face Discord platform (via the
+      # general plugin path). One plugin, one config (daimons.yaml).
       plugins.enabled = [
-        "discord-daimons"
+        "mnemosyne"
+        "deepseek-503-retry"
       ];
 
       # Multi-profile multiplexing: let a single gateway route specific
@@ -224,8 +269,8 @@ in {
       # SOUL/memory/skills rather than the default profile's.
       gateway.multiplex_profiles = true;
 
-      # Route #aisling, #chrysarch, #forma (guild The Arcanum) to their
-      # daimon profiles. See gateway/profile_routing.py for matching
+      # Route #aisling, #chrysarch, #forma, #rubedo (guild The Arcanum) to
+      # their daimon profiles. See gateway/profile_routing.py for matching
       # (most-specific wins).
       gateway.profile_routes = [
         {
@@ -249,6 +294,13 @@ in {
           chat_id = "1533919537903439872";
           profile = "forma";
         }
+        {
+          name = "rubedo-channel";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1535447015830327407";
+          profile = "rubedo";
+        }
       ];
 
       # Free-response in the daimon cells so they answer without an
@@ -260,6 +312,7 @@ in {
         "1533470493565390879"
         "1533492889496322108"
         "1533919537903439872"
+        "1535447015830327407"
         "1533330299008843866"
       ];
 
@@ -284,7 +337,8 @@ in {
             invisible; her face speaks.
           - When a topic relevant to a daimon's domain arises (glamour,
             beauty, images, the loom for Aisling; wealth, markets, trades
-            for Chrysarch), summon her the same way — organically, as the
+            for Chrysarch; the opus, the worked self, the body's account for
+            Rubedo), summon her the same way — organically, as the
             conversation calls for her.
           - Do not editorialize around a daimon's reply. Her words stand
             alone. If you respond, respond to her substance, in your own
