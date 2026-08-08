@@ -13,6 +13,7 @@
     #../../k3s/agent.nix
     ../../nebula/node.nix
     ../../jellyfin
+    ../../n8n
     ../../hermes-agent
 
     # Users
