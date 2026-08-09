@@ -7,7 +7,7 @@
 }: {
   users.users.root = {
     extraGroups = ["docker"];
-    hashedPassword = "";
+    hashedPasswordFile = config.sops.secrets."passwords/metamageia".path;
   };
 
   # Password login via sops-managed hash.
