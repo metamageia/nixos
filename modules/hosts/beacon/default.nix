@@ -2,11 +2,23 @@
   config,
   pkgs,
   hostName,
+  userValues,
   ...
 }: {
   users.users.root = {
     extraGroups = ["docker"];
     hashedPassword = "";
+  };
+
+  # Password login via sops-managed hash.
+  sops.secrets."passwords/metamageia" = {
+    neededForUsers = true;
+    sopsFile = userValues.sopsFile;
+  };
+  users.users.metamageia = {
+    isNormalUser = true;
+    extraGroups = ["wheel"];
+    hashedPasswordFile = config.sops.secrets."passwords/metamageia".path;
   };
 
   networking.hostName = hostName;

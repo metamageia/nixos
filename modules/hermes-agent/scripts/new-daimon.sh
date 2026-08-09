@@ -10,10 +10,11 @@ desc="${2:-}"
 
 echo "Binding a new daimon: $names"
 
-# Preferred: clone the living golden copy (Aisling). It holds the registered,
-# correct vessel state — empty SOUL, name-only memory, five op skills, working
-# config/.env — and stays in sync as the template evolves.
-hermes profile create "$names" --clone-from aisling
+# Preferred: clone the canonical empty vessel (profile `template`). It holds
+# the blank state — empty SOUL, name-only memory, five op skills, shared
+# DISCORD_*/.env only, no pfp — so a new daimon inherits nothing but the name.
+# (Previously cloned Aisling and purged; the live daimon is never a source.)
+hermes profile create "$names" --clone-from template
 
 # If a role description was given, record it so the kanban orchestrator knows
 # what this daimon is for (routing hint, not a personality).

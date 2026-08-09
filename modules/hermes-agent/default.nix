@@ -230,7 +230,8 @@ in {
       };
       display = {
         show_reasoning = false;
-        skin = "hermes";
+        # Per-daimon skin: ~/.hermes/skins/dante.yaml (keeper of the vault).
+        skin = "dante";
         # Nous Portal credits notices ("You've used $X of your $Y cap") are
         # sticky status lines fired at session start; Metamageia finds them
         # noise. False disables the whole notice pipeline (run_agent.py reads
