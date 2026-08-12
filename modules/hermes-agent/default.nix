@@ -103,12 +103,14 @@ in {
     # Daimon webhook tokens (mnemosyne unified config, secret:<name> refs).
     # Decrypt to /run/secrets/<name>; the plugin falls back to
     # $HERMES_HOME/secrets/ until the switch lands.
-    "daimon-aisling-webhook" = {
-      sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
-      owner = "metamageia";
-      group = "hermes";
-      mode = "0440";
-    };
+    # aisling webhook secret ARCHIVED 2026-08-12 (profile retired);
+    # re-enable only if she returns from archive/aisling-profile-20260812.tar.gz
+    # "daimon-aisling-webhook" = {
+    #   sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
+    #   owner = "metamageia";
+    #   group = "hermes";
+    #   mode = "0440";
+    # };
     "daimon-chrysarch-webhook" = {
       sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
       owner = "metamageia";
@@ -122,6 +124,12 @@ in {
       mode = "0440";
     };
     "daimon-rubedo-webhook" = {
+      sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
+      owner = "metamageia";
+      group = "hermes";
+      mode = "0440";
+    };
+    "daimon-kyunesnare-webhook" = {
       sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
       owner = "metamageia";
       group = "hermes";
@@ -256,6 +264,12 @@ in {
         use_gateway = true;
       };
       image_gen.use_gateway = true;
+      # video/video_gen are default-off toolsets; name them explicitly next to
+      # the platform composite so the expansion keeps the default set.
+      platform_toolsets = {
+        cli = ["hermes-cli" "video" "video_gen"];
+        discord = ["hermes-discord" "video" "video_gen"];
+      };
       approvals.destructive_slash_confirm = false;
 
       # Orchestrator subagents may spawn their own workers, capped at two
@@ -282,17 +296,19 @@ in {
       # SOUL/memory/skills rather than the default profile's.
       gateway.multiplex_profiles = true;
 
-      # Route #aisling, #chrysarch, #forma, #rubedo (guild The Arcanum) to
-      # their daimon profiles. See gateway/profile_routing.py for matching
+      # Route #chrysarch, #forma, #kyunesnare (guild The Arcanum) to
+      # their daimon profiles. (#aisling retired/archived 2026-08-12.)
+      # See gateway/profile_routing.py for matching
       # (most-specific wins).
       gateway.profile_routes = [
-        {
-          name = "aisling-channel";
-          platform = "discord";
-          guild_id = "1345013449272459366";
-          chat_id = "1533470493565390879";
-          profile = "aisling";
-        }
+        # aisling-channel ARCHIVED 2026-08-12 (profile retired)
+        # {
+        #   name = "aisling-channel";
+        #   platform = "discord";
+        #   guild_id = "1345013449272459366";
+        #   chat_id = "1533470493565390879";
+        #   profile = "aisling";
+        # }
         {
           name = "chrysarch-channel";
           platform = "discord";
@@ -308,11 +324,11 @@ in {
           profile = "forma";
         }
         {
-          name = "rubedo-channel";
+          name = "kyunesnare-channel";
           platform = "discord";
           guild_id = "1345013449272459366";
-          chat_id = "1535447015830327407";
-          profile = "rubedo";
+          chat_id = "1535998391568306186";
+          profile = "kyunesnare";
         }
       ];
 
@@ -325,7 +341,7 @@ in {
         "1533470493565390879"
         "1533492889496322108"
         "1533919537903439872"
-        "1535447015830327407"
+        "1535998391568306186"
         "1533330299008843866"
       ];
 
@@ -350,8 +366,7 @@ in {
             invisible; her face speaks.
           - When a topic relevant to a daimon's domain arises (glamour,
             beauty, images, the loom for Aisling; wealth, markets, trades
-            for Chrysarch; the opus, the worked self, the body's account for
-            Rubedo), summon her the same way — organically, as the
+            for Chrysarch), summon her the same way — organically, as the
             conversation calls for her.
           - Do not editorialize around a daimon's reply. Her words stand
             alone. If you respond, respond to her substance, in your own
