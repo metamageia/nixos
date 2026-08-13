@@ -5,7 +5,7 @@
   ...
 }: {
   imports = [
-    ../../comin
+    #../../comin
   ];
   environment.packages = with pkgs; [
     git

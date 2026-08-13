@@ -103,14 +103,14 @@ in {
     # Daimon webhook tokens (mnemosyne unified config, secret:<name> refs).
     # Decrypt to /run/secrets/<name>; the plugin falls back to
     # $HERMES_HOME/secrets/ until the switch lands.
-    # aisling webhook secret ARCHIVED 2026-08-12 (profile retired);
-    # re-enable only if she returns from archive/aisling-profile-20260812.tar.gz
-    # "daimon-aisling-webhook" = {
-    #   sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
-    #   owner = "metamageia";
-    #   group = "hermes";
-    #   mode = "0440";
-    # };
+    # aisling webhook secret (re-enabled 2026-08-12 from
+    # archive/aisling-profile-20260812.tar.gz).
+    "daimon-aisling-webhook" = {
+      sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
+      owner = "metamageia";
+      group = "hermes";
+      mode = "0440";
+    };
     "daimon-chrysarch-webhook" = {
       sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
       owner = "metamageia";
@@ -296,19 +296,18 @@ in {
       # SOUL/memory/skills rather than the default profile's.
       gateway.multiplex_profiles = true;
 
-      # Route #chrysarch, #forma, #kyunesnare (guild The Arcanum) to
-      # their daimon profiles. (#aisling retired/archived 2026-08-12.)
+      # Route #aisling, #chrysarch, #forma, #kyunesnare, #rubedo (guild
+      # The Arcanum) to their daimon profiles.
       # See gateway/profile_routing.py for matching
       # (most-specific wins).
       gateway.profile_routes = [
-        # aisling-channel ARCHIVED 2026-08-12 (profile retired)
-        # {
-        #   name = "aisling-channel";
-        #   platform = "discord";
-        #   guild_id = "1345013449272459366";
-        #   chat_id = "1533470493565390879";
-        #   profile = "aisling";
-        # }
+        {
+          name = "aisling-channel";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1537265129475809340";
+          profile = "aisling";
+        }
         {
           name = "chrysarch-channel";
           platform = "discord";
@@ -330,6 +329,13 @@ in {
           chat_id = "1535998391568306186";
           profile = "kyunesnare";
         }
+        {
+          name = "rubedo-channel";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1537265194739433482";
+          profile = "rubedo";
+        }
       ];
 
       # Free-response in the daimon cells so they answer without an
@@ -338,10 +344,11 @@ in {
       # and participant, so every message there reaches him (no @mention
       # needed) per Metamageia's standing order (2026-08-02).
       discord.free_response_channels = [
-        "1533470493565390879"
+        "1537265129475809340"
         "1533492889496322108"
         "1533919537903439872"
         "1535998391568306186"
+        "1537265194739433482"
         "1533330299008843866"
       ];
 
