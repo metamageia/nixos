@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  nebulaIP,
   ...
 }: {
   imports = [

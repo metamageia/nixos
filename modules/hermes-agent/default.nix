@@ -100,7 +100,7 @@ in {
       mode = "0440";
       path = "/var/lib/hermes/.hermes/google_client_secret.json";
     };
-    # Daimon webhook tokens (mnemosyne unified config, secret:<name> refs).
+    # Daimon webhook tokens (daimon-webhook-plugin, secret:<name> refs).
     # Decrypt to /run/secrets/<name>; the plugin falls back to
     # $HERMES_HOME/secrets/ until the switch lands.
     # aisling webhook secret (re-enabled 2026-08-12 from
@@ -218,9 +218,10 @@ in {
         base_url = "https://inference-api.nousresearch.com/v1";
       };
 
-      # Mnemosyne banks per daimon (bank_id_template hermes-<profile> in
-      # memory/config.json); declared here so rebuild regenerates config.yaml.
-      memory.provider = "mnemosyne";
+      # Mnemosyne graph memory is DISABLED (2026-08-18); daimons run on
+      # built-in MEMORY.md/USER.md. No memory.provider pin — the absent key
+      # resolves to built-in memory.
+      #memory.provider = "mnemosyne";
 
       # Main model is text-only; route image analysis (vision_analyze /
       # browser_vision) to a vision-capable portal model via the aux slot.
@@ -282,12 +283,13 @@ in {
       # (job_id: ...) / ----- / To stop or manage this job..." header/footer.
       cron.wrap_response = false;
 
-      # ── Daimon council: merged mnemosyne plugin ---------------------------
-      # The mnemosyne plugin now registers BOTH the memory provider (via
-      # memory.provider) and the webhook-face Discord platform (via the
-      # general plugin path). One plugin, one config (daimons.yaml).
+      # ── Daimon council: webhook face + memory (split 2026-08-18) ----------
+      # The webhook-face Discord platform lives in its own plugin
+      # (daimon-webhook-plugin); the graph memory provider (mnemosyne) is
+      # DISABLED — daimons run on built-in memory. Only the webhook identity
+      # surface stays enabled.
       plugins.enabled = [
-        "mnemosyne"
+        "daimon-webhook-plugin"
         "deepseek-503-retry"
       ];
 
@@ -350,6 +352,7 @@ in {
         "1535998391568306186"
         "1537265194739433482"
         "1533330299008843866"
+        "1538282405985652860"
       ];
 
       # Council-room conduct for #convocatory. channel_prompts APPEND to the
