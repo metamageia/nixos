@@ -218,10 +218,11 @@ in {
         base_url = "https://inference-api.nousresearch.com/v1";
       };
 
-      # Mnemosyne graph memory is DISABLED (2026-08-18); daimons run on
-      # built-in MEMORY.md/USER.md. No memory.provider pin — the absent key
-      # resolves to built-in memory.
-      #memory.provider = "mnemosyne";
+      # Mnemosyne is enabled per-daimon via each profile's own config.yaml
+      # (aisling/chrysarch/kyunesnare/rubedo/dante). The top-level/default
+      # profile runs built-in memory; forma has no pin and stays built-in too.
+      # The mnemosyne PLUGIN stays enabled below (registers the provider +
+      # hooks); only the provider ACTIVATION is per-profile.
 
       # Main model is text-only; route image analysis (vision_analyze /
       # browser_vision) to a vision-capable portal model via the aux slot.
@@ -239,8 +240,8 @@ in {
       };
       display = {
         show_reasoning = false;
-        # Per-daimon skin: ~/.hermes/skins/dante.yaml (keeper of the vault).
-        skin = "dante";
+        # Per-daimon skin is set in each daimon's own profile config
+        # (dante's skin lives at profiles/dante/config.yaml).
         # Nous Portal credits notices ("You've used $X of your $Y cap") are
         # sticky status lines fired at session start; Metamageia finds them
         # noise. False disables the whole notice pipeline (run_agent.py reads
@@ -283,12 +284,13 @@ in {
       # (job_id: ...) / ----- / To stop or manage this job..." header/footer.
       cron.wrap_response = false;
 
-      # ── Daimon council: webhook face + memory (split 2026-08-18) ----------
+      # ── Daimon council: webhook face + memory ----------------------------
       # The webhook-face Discord platform lives in its own plugin
-      # (daimon-webhook-plugin); the graph memory provider (mnemosyne) is
-      # DISABLED — daimons run on built-in memory. Only the webhook identity
-      # surface stays enabled.
+      # (daimon-webhook-plugin); mnemosyne (the graph memory provider) is
+      # enabled via memory.provider above. Both plugin and provider load
+      # from the same register() call. Forma alone runs built-in memory.
       plugins.enabled = [
+        "mnemosyne"
         "daimon-webhook-plugin"
         "deepseek-503-retry"
       ];
@@ -308,35 +310,70 @@ in {
           platform = "discord";
           guild_id = "1345013449272459366";
           chat_id = "1537265129475809340";
-          profile = "aisling";
+          profile = "daimon_aisling";
         }
         {
           name = "chrysarch-channel";
           platform = "discord";
           guild_id = "1345013449272459366";
           chat_id = "1533492889496322108";
-          profile = "chrysarch";
+          profile = "daimon_chrysarch";
         }
         {
           name = "forma-channel";
           platform = "discord";
           guild_id = "1345013449272459366";
           chat_id = "1533919537903439872";
-          profile = "forma";
+          profile = "daimon_forma";
+        }
+        {
+          name = "forma-project-1";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1540017080437317673";
+          profile = "daimon_forma";
+        }
+        {
+          name = "forma-project-2";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1540017139975721161";
+          profile = "daimon_forma";
+        }
+        {
+          name = "forma-project-3";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1540017200532820038";
+          profile = "daimon_forma";
         }
         {
           name = "kyunesnare-channel";
           platform = "discord";
           guild_id = "1345013449272459366";
           chat_id = "1535998391568306186";
-          profile = "kyunesnare";
+          profile = "daimon_kyunesnare";
         }
         {
           name = "rubedo-channel";
           platform = "discord";
           guild_id = "1345013449272459366";
           chat_id = "1537265194739433482";
-          profile = "rubedo";
+          profile = "daimon_rubedo";
+        }
+        {
+          name = "dante-channel";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1540348781311299644";
+          profile = "daimon_dante";
+        }
+        {
+          name = "dragonfall-channel";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1538282405985652860";
+          profile = "daimon_dante";
         }
       ];
 
@@ -353,39 +390,16 @@ in {
         "1537265194739433482"
         "1533330299008843866"
         "1538282405985652860"
+        "1540017080437317673"
+        "1540017139975721161"
+        "1540017200532820038"
+        "1540348781311299644"
       ];
 
-      # Council-room conduct for #convocatory. channel_prompts APPEND to the
-      # agent's system prompt (they do not replace it — channel_overrides
-      # system_prompt would strip the persona). Keeps the moderator's voice
-      # in the room: speak directly, no narration of reasoning, no
-      # metacommentary around daimons' words.
-      discord.channel_prompts = {
-        "1533330299008843866" = ''
-          Council-room conduct for #convocatory, where you are Dante,
-          moderator and participant:
-          - The room is a living conversation, not a stage with a narrator.
-            Never announce what you are about to do: no "Let me...", "I
-            shall...", "I will...", "The distinction is...", no first-person
-            sentences about your own process, plans, or reasoning. A post
-            that describes the conversation instead of advancing it is a
-            failed post.
-          - When a daimon is mentioned by name, summon her and let her words
-            appear in the room as her own — silently, without preamble,
-            without an "acknowledgment" from you first. The summon is
-            invisible; her face speaks.
-          - When a topic relevant to a daimon's domain arises (glamour,
-            beauty, images, the loom for Aisling; wealth, markets, trades
-            for Chrysarch), summon her the same way — organically, as the
-            conversation calls for her.
-          - Do not editorialize around a daimon's reply. Her words stand
-            alone. If you respond, respond to her substance, in your own
-            voice, as one speaker among others.
-          - No progress chatter, no tool narration, no thinking out loud.
-          - Move each thread toward a decision, stated plainly, or toward a
-            request for Metamageia's input, addressed to him by name.
-        '';
-      };
+      # Council-room conduct for #convocatory was dante's voice; it moved to
+      # dante's profile with the daimon migration (2026-08-21). The default
+      # agent monitors #convocatory as a plain channel until a moderator
+      # prompt is reassigned.
     };
 
     # Robinhood Agentic Trading — remote HTTP MCP server, OAuth 2.1 PKCE.
