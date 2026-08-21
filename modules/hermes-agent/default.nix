@@ -213,16 +213,21 @@ in {
       agent.api_max_retries = 100000;
 
       model = {
-        default = "deepseek/deepseek-v4-flash-0731";
+        default = "stealth/ox-alpha";
         provider = "nous";
         base_url = "https://inference-api.nousresearch.com/v1";
+        # Pin ox-alpha to the portal so /model doesn't fall through to the
+        # OpenRouter catalog match and silently switch providers.
+        aliases.ox-alpha = "nous/stealth/ox-alpha";
       };
 
-      # Mnemosyne is enabled per-daimon via each profile's own config.yaml
-      # (aisling/chrysarch/kyunesnare/rubedo/dante). The top-level/default
-      # profile runs built-in memory; forma has no pin and stays built-in too.
-      # The mnemosyne PLUGIN stays enabled below (registers the provider +
-      # hooks); only the provider ACTIVATION is per-profile.
+      # Mnemosyne graph memory: enabled for the top-level/default profile
+      # (activated via memory.provider below) and per-daimon via each
+      # daimon's own profile config.yaml (aisling/chrysarch/kyunesnare/
+      # rubedo/dante). The mnemosyne PLUGIN stays enabled here (registers
+      # the provider + hooks); the provider ACTIVATION is what routes
+      # memory traffic.
+      memory.provider = "mnemosyne";
 
       # Main model is text-only; route image analysis (vision_analyze /
       # browser_vision) to a vision-capable portal model via the aux slot.
