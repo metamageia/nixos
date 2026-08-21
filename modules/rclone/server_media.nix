@@ -29,6 +29,7 @@
     fsType = "rclone";
     options = [
       "nofail"
+      "rw"
       "allow_other"
       "args2env"
       "config=${config.sops.templates."rclone.conf".path}"
