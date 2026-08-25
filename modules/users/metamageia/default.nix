@@ -72,7 +72,53 @@
           command = "/run/current-system/sw/bin/env */nix/store/*/bin/switch-to-configuration *";
           options = [ "NOPASSWD" ];
         }
+        # Self-heal for recurring ext4 ro-flips on /: allows ONLY a
+        # remount,rw of /. Consumed by the ro-root-heal user timer below.
+        {
+          command = "/run/current-system/sw/bin/mount -o remount,rw /";
+          options = [ "NOPASSWD" ];
+        }
       ];
     }
   ];
+
+  # User-level watchdog (runs as metamageia, ordered only after
+  # local-fs.target and pulled in by timers.target — cannot affect
+  # boot/display ordering). Every 5 min: if / is mounted read-only,
+  # remount it rw via the scoped NOPASSWD rule above.
+  systemd.user.services.ro-root-heal = {
+    description = "Remount / read-write if ext4 dropped it to ro";
+    serviceConfig = {
+      Type = "oneshot";
+      ExecStart = let
+        heal = pkgs.writeShellScript "ro-root-heal" ''
+          opts="$(${pkgs.util-linux}/bin/findmnt -no OPTIONS /)"
+          case "$opts" in
+            ro,*|ro)
+              echo "root is read-only (opts: $opts); attempting remount,rw"
+              if /run/wrappers/bin/sudo -n /run/current-system/sw/bin/mount -o remount,rw /; then
+                ${pkgs.systemd}/bin/systemd-cat -p warning -t ro-root-heal <<<"remounted / rw successfully"
+              else
+                echo "remount REFUSED - filesystem likely has persistent errors." \
+                     "Boot offline media and run: e2fsck -f /dev/disk/by-uuid/57f8245f-9b41-4836-b465-88df6c23c5f7" | \
+                  ${pkgs.systemd}/bin/systemd-cat -p err -t ro-root-heal
+                exit 1
+              fi
+              ;;
+            *)
+              exit 0
+              ;;
+          esac
+        '';
+      in "${heal}";
+    };
+  };
+  systemd.user.timers.ro-root-heal = {
+    description = "Periodic ro-root check";
+    timerConfig = {
+      OnBootSec = "2min";
+      OnUnitActiveSec = "5min";
+    };
+    wantedBy = ["timers.target"];
+  };
 }
