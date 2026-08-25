@@ -4,7 +4,14 @@
   inputs,
   userValues,
   ...
-}: {
+}: let
+  # The remount itself lives in a tiny script; the NOPASSWD sudo rule below
+  # grants ONLY this store path, with no arguments, so sudoers stays valid
+  # (a bare "/" argument cannot be expressed as a fully-qualified path).
+  ro-root-heal-remount = pkgs.writeShellScriptBin "ro-root-heal-remount" ''
+    exec ${pkgs.util-linux}/bin/mount -o remount,rw /
+  '';
+in {
   imports = [
     ../../home-manager
     ../../syncthing
@@ -72,10 +79,12 @@
           command = "/run/current-system/sw/bin/env */nix/store/*/bin/switch-to-configuration *";
           options = [ "NOPASSWD" ];
         }
-        # Self-heal for recurring ext4 ro-flips on /: allows ONLY a
-        # remount,rw of /. Consumed by the ro-root-heal user timer below.
+        # Self-heal for recurring ext4 ro-flips on /. The ro-root-heal USER
+        # service calls this script via NOPASSWD; the script performs the
+        # remount itself so sudoers never needs argument matching (a bare
+        # "/" arg is not expressible as a fully-qualified path in sudoers).
         {
-          command = "/run/current-system/sw/bin/mount -o remount,rw /";
+          command = "${ro-root-heal-remount}/bin/ro-root-heal-remount";
           options = [ "NOPASSWD" ];
         }
       ];
@@ -96,7 +105,7 @@
           case "$opts" in
             ro,*|ro)
               echo "root is read-only (opts: $opts); attempting remount,rw"
-              if /run/wrappers/bin/sudo -n /run/current-system/sw/bin/mount -o remount,rw /; then
+              if /run/wrappers/bin/sudo -n ${ro-root-heal-remount}/bin/ro-root-heal-remount; then
                 ${pkgs.systemd}/bin/systemd-cat -p warning -t ro-root-heal <<<"remounted / rw successfully"
               else
                 echo "remount REFUSED - filesystem likely has persistent errors." \
