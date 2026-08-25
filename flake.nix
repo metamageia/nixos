@@ -38,6 +38,9 @@
     # Intentionally not following nixpkgs: the package is built with uv2nix,
     # which resolves Python deps against upstream's locked nixpkgs.
     hermes-agent.url = "github:NousResearch/hermes-agent";
+
+    aagl.url = "github:ezKEa/aagl-gtk-on-nix";
+    aagl.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {

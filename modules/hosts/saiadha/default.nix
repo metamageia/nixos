@@ -19,6 +19,8 @@
     # Users
     ../../users/metamageia
 
+    ../../aagl
+
   ];
 
   hardware.graphics.enable32Bit = true;

@@ -100,6 +100,16 @@ in {
       mode = "0440";
       path = "/var/lib/hermes/.hermes/google_client_secret.json";
     };
+    # Tripo3D API key (text/image-to-3D service). Decrypt to a stable path
+    # agents read directly; ~/.secrets/tripo3d.key is the interim copy until
+    # this lands via rebuild.
+    "tripo3d-api" = {
+      sopsFile = "${userValues.secretsDir}/personal.secrets.yaml";
+      owner = "metamageia";
+      group = "hermes";
+      mode = "0440";
+      path = "/var/lib/hermes/.hermes/tripo3d.key";
+    };
     # Daimon webhook tokens (daimon-webhook-plugin, secret:<name> refs).
     # Decrypt to /run/secrets/<name>; the plugin falls back to
     # $HERMES_HOME/secrets/ until the switch lands.
@@ -205,21 +215,23 @@ in {
       # workingDirectory, whose tmpfiles rule would chmod 2770 / chgrp the home.
       terminal.cwd = "/home/metamageia";
 
-      # DeepSeek capacity 503s are short waves; the deepseek-503-retry plugin
-      # zeroes the main-turn retry backoff so retries re-fire instantly. The
-      # ceiling is effectively unbounded: keep retrying until the provider
-      # answers. Only retryable errors (503/429/transport) consume attempts;
-      # genuine failures (4xx, billing) still surface immediately.
-      agent.api_max_retries = 100000;
+      # DeepSeek fallback machinery removed 08-25 (deepseek-503-retry plugin
+      # disabled + fallback_providers emptied). Default retry ceiling restored:
+      # genuine failures surface immediately instead of retrying forever.
+      agent.api_max_retries = 10;
 
       model = {
-        default = "stealth/ox-alpha";
+        # Top-level profile runs DeepSeek v4 Flash (0731) as of 08-25;
+        # worker/daimon profiles override with ox-alpha in their own configs.
+        default = "deepseek/deepseek-v4-flash-0731";
         provider = "nous";
         base_url = "https://inference-api.nousresearch.com/v1";
-        # Pin ox-alpha to the portal so /model doesn't fall through to the
-        # OpenRouter catalog match and silently switch providers.
-        aliases.ox-alpha = "nous/stealth/ox-alpha";
       };
+
+      # Explicitly empty: live config.yaml had a deepseek fallback entry here;
+      # nix deep-merge would keep it unless overridden. No failover wanted —
+      # failures surface directly.
+      fallback_providers = [];
 
       # Mnemosyne graph memory: enabled for the top-level/default profile
       # (activated via memory.provider below) and per-daimon via each
@@ -297,7 +309,6 @@ in {
       plugins.enabled = [
         "mnemosyne"
         "daimon-webhook-plugin"
-        "deepseek-503-retry"
       ];
 
       # Multi-profile multiplexing: let a single gateway route specific
@@ -380,6 +391,37 @@ in {
           chat_id = "1538282405985652860";
           profile = "daimon_dante";
         }
+        # Project channels (per-project dev workspaces, routed to the `dev` worker).
+        # Added 2026-08-21: Gage contains dev projects one-per-channel.
+        {
+          name = "prosopon-project-channel";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1540534948933664838";
+          profile = "dev";
+        }
+        {
+          name = "mnemosyne-project-channel";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1540535088284962896";
+          profile = "dev";
+        }
+        {
+          name = "daw-project-channel";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1540535194908500098";
+          profile = "dev";
+        }
+        # Added 2026-08-23: JAVELIN project channel.
+        {
+          name = "project-javelin";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1541265265994760302";
+          profile = "dev";
+        }
       ];
 
       # Free-response in the daimon cells so they answer without an
@@ -399,6 +441,10 @@ in {
         "1540017139975721161"
         "1540017200532820038"
         "1540348781311299644"
+        "1540534948933664838"
+        "1540535088284962896"
+        "1540535194908500098"
+        "1541265265994760302"
       ];
 
       # Council-room conduct for #convocatory was dante's voice; it moved to
