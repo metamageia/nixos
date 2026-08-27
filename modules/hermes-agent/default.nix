@@ -232,11 +232,10 @@ in {
       # failures surface directly.
       fallback_providers = [];
 
-      # Memory provider: default (built-in). Mnemosyne graph memory retired
-      # for the top-level/default profile. Per-daimon configs updated
-      # separately. The mnemosyne plugin is removed from plugins.enabled;
-      # the daimon webhook faces live in daimon-webhook-plugin and stay.
-      # memory.provider = "mnemosyne";
+      # Memory provider: Mnemosyne graph memory (SQLite, Nous embeddings).
+      # Re-enabled 2026-08-27. The mnemosyne plugin provides the provider
+      # and loads from the same register() call as the webhook plugin.
+      memory.provider = "mnemosyne";
 
       # Main model is text-only; route image analysis (vision_analyze /
       # browser_vision) to a vision-capable portal model via the aux slot.
@@ -308,6 +307,7 @@ in {
       # from the same register() call. Forma alone runs built-in memory.
       plugins.enabled = [
         "daimon-webhook-plugin"
+        "mnemosyne"
       ];
 
       # Multi-profile multiplexing: let a single gateway route specific
@@ -450,4 +450,14 @@ in {
       };
     };
   };
+
+  # Hermes desktop app (Electron GUI) for this pinned hermes-agent rev
+  # (03fa32c…). At this pin it is exposed ONLY as a flake package —
+  # inputs.hermes-agent.packages.<system>.desktop — with no services/programs
+  # option. It is distinct from the CLI that services.hermes-agent.addToSystemPackages
+  # installs, so we add it to the system environment directly to get
+  # `hermes-desktop` and its .desktop entry / icon.
+  environment.systemPackages = [
+    inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.desktop
+  ];
 }
