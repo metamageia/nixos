@@ -221,8 +221,7 @@ in {
       agent.api_max_retries = 10;
 
       model = {
-        # Top-level profile runs DeepSeek v4 Flash (0731) as of 08-25;
-        # worker/daimon profiles override with ox-alpha in their own configs.
+        # Top-level profile runs DeepSeek v4 Flash (0731) as of 08-25.
         default = "deepseek/deepseek-v4-flash-0731";
         provider = "nous";
         base_url = "https://inference-api.nousresearch.com/v1";
@@ -233,13 +232,11 @@ in {
       # failures surface directly.
       fallback_providers = [];
 
-      # Mnemosyne graph memory: enabled for the top-level/default profile
-      # (activated via memory.provider below) and per-daimon via each
-      # daimon's own profile config.yaml (aisling/chrysarch/kyunesnare/
-      # rubedo/dante). The mnemosyne PLUGIN stays enabled here (registers
-      # the provider + hooks); the provider ACTIVATION is what routes
-      # memory traffic.
-      memory.provider = "mnemosyne";
+      # Memory provider: default (built-in). Mnemosyne graph memory retired
+      # for the top-level/default profile. Per-daimon configs updated
+      # separately. The mnemosyne plugin is removed from plugins.enabled;
+      # the daimon webhook faces live in daimon-webhook-plugin and stay.
+      # memory.provider = "mnemosyne";
 
       # Main model is text-only; route image analysis (vision_analyze /
       # browser_vision) to a vision-capable portal model via the aux slot.
@@ -291,11 +288,14 @@ in {
       };
       approvals.destructive_slash_confirm = false;
 
-      # Orchestrator subagents may spawn their own workers, capped at two
-      # delegation hops below the main agent (depth: main → orchestrator
-      # child → leaf grandchild). max_spawn_depth 1 = flat; 3 would allow a
-      # fourth level. Deeper trees multiply spend, so keep it at 2.
-      delegation.max_spawn_depth = 2;
+      # Subagent delegation model: Tencent Hy3 (295B MoE) for delegated
+      # workers. Free via Nous Portal (tencent/hy3:free) for a two-week
+      # window starting 08-27; re-assess when the window closes. The main
+      # model stays deepseek-v4-flash-0731.
+      delegation.model = "tencent/hy3:free";
+      # Flat delegation: orchestrator children cannot spawn their own
+      # workers (1 = main → leaf only). Chosen 08-27 to cap spend.
+      delegation.max_spawn_depth = 1;
 
       # Deliver cron output cleanly without the "Cronjob Response: <name>
       # (job_id: ...) / ----- / To stop or manage this job..." header/footer.
@@ -307,7 +307,6 @@ in {
       # enabled via memory.provider above. Both plugin and provider load
       # from the same register() call. Forma alone runs built-in memory.
       plugins.enabled = [
-        "mnemosyne"
         "daimon-webhook-plugin"
       ];
 
@@ -424,28 +423,16 @@ in {
         }
       ];
 
-      # Free-response in the daimon cells so they answer without an
-      # @mention — each is the sole voice in their own cell.
-      # #convocatory is also free-response: Dante is the room's moderator
-      # and participant, so every message there reaches him (no @mention
-      # needed) per Metamageia's standing order (2026-08-02).
-      discord.free_response_channels = [
-        "1537265129475809340"
-        "1533492889496322108"
-        "1533919537903439872"
-        "1535998391568306186"
-        "1537265194739433482"
-        "1533330299008843866"
-        "1538282405985652860"
-        "1540017080437317673"
-        "1540017139975721161"
-        "1540017200532820038"
-        "1540348781311299644"
-        "1540534948933664838"
-        "1540535088284962896"
-        "1540535194908500098"
-        "1541265265994760302"
-      ];
+      # Global mention-free (Metamageia, 08-25): the bot responds in every
+      # channel its role can see without an @mention. The Discord category
+      # role now does the boundary work the per-channel list used to, so the
+      # free_response allowlist is gone — create a channel, the bot is already
+      # there, no config edit, no restart.
+      discord.require_mention = false;
+      # Reply inline in the channel, never spawn a thread (Metamageia, 08-25;
+      # he dislikes threads). This restores the behavior the free_response
+      # list used to provide, now globally.
+      discord.auto_thread = false;
 
       # Council-room conduct for #convocatory was dante's voice; it moved to
       # dante's profile with the daimon migration (2026-08-21). The default

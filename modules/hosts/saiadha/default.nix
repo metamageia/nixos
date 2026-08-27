@@ -15,6 +15,7 @@
     ../../jellyfin
     ../../n8n
     ../../hermes-agent
+    #../../inference
 
     # Users
     ../../users/metamageia
