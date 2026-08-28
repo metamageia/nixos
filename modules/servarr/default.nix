@@ -32,7 +32,7 @@
   # placeholder with `blkid -s UUID -o value /dev/sdb1`, then re-run
   # `nixos-rebuild build` and switch. (All-zero UUID marks it as a placeholder;
   # the build will succeed but the real device will not mount until set.)
-  mediaPoolUUID = "00000000-0000-0000-0000-000000000000";
+  mediaPoolUUID = "8fd464fb-a385-4c8a-88d8-f25344c5942a";
 in {
   imports = [
     ./generated.nix
