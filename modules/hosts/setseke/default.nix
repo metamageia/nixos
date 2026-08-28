@@ -7,6 +7,9 @@
   imports = [
     ./hardware-configuration.nix
 
+    ../../desktop-presets/niri
+    ../../nebula/node.nix
+
     # Users
     ../../users/metamageia
   ];
