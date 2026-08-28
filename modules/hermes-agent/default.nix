@@ -100,6 +100,16 @@ in {
       mode = "0440";
       path = "/var/lib/hermes/.hermes/google_client_secret.json";
     };
+    # Tripo3D API key (text/image-to-3D service). Decrypt to a stable path
+    # agents read directly; ~/.secrets/tripo3d.key is the interim copy until
+    # this lands via rebuild.
+    "tripo3d-api" = {
+      sopsFile = "${userValues.secretsDir}/personal.secrets.yaml";
+      owner = "metamageia";
+      group = "hermes";
+      mode = "0440";
+      path = "/var/lib/hermes/.hermes/tripo3d.key";
+    };
     # Daimon webhook tokens (daimon-webhook-plugin, secret:<name> refs).
     # Decrypt to /run/secrets/<name>; the plugin falls back to
     # $HERMES_HOME/secrets/ until the switch lands.
@@ -205,24 +215,27 @@ in {
       # workingDirectory, whose tmpfiles rule would chmod 2770 / chgrp the home.
       terminal.cwd = "/home/metamageia";
 
-      # DeepSeek capacity 503s are short waves; the deepseek-503-retry plugin
-      # zeroes the main-turn retry backoff so retries re-fire instantly. The
-      # ceiling is effectively unbounded: keep retrying until the provider
-      # answers. Only retryable errors (503/429/transport) consume attempts;
-      # genuine failures (4xx, billing) still surface immediately.
-      agent.api_max_retries = 100000;
+      # DeepSeek fallback machinery removed 08-25 (deepseek-503-retry plugin
+      # disabled + fallback_providers emptied). Default retry ceiling restored:
+      # genuine failures surface immediately instead of retrying forever.
+      agent.api_max_retries = 10;
 
       model = {
+        # Top-level profile runs DeepSeek v4 Flash (0731) as of 08-25.
         default = "deepseek/deepseek-v4-flash-0731";
         provider = "nous";
         base_url = "https://inference-api.nousresearch.com/v1";
       };
 
-      # Mnemosyne is enabled per-daimon via each profile's own config.yaml
-      # (aisling/chrysarch/kyunesnare/rubedo/dante). The top-level/default
-      # profile runs built-in memory; forma has no pin and stays built-in too.
-      # The mnemosyne PLUGIN stays enabled below (registers the provider +
-      # hooks); only the provider ACTIVATION is per-profile.
+      # Explicitly empty: live config.yaml had a deepseek fallback entry here;
+      # nix deep-merge would keep it unless overridden. No failover wanted —
+      # failures surface directly.
+      fallback_providers = [];
+
+      # Memory provider: Mnemosyne graph memory (SQLite, Nous embeddings).
+      # Re-enabled 2026-08-27. The mnemosyne plugin provides the provider
+      # and loads from the same register() call as the webhook plugin.
+      memory.provider = "mnemosyne";
 
       # Main model is text-only; route image analysis (vision_analyze /
       # browser_vision) to a vision-capable portal model via the aux slot.
@@ -274,11 +287,14 @@ in {
       };
       approvals.destructive_slash_confirm = false;
 
-      # Orchestrator subagents may spawn their own workers, capped at two
-      # delegation hops below the main agent (depth: main → orchestrator
-      # child → leaf grandchild). max_spawn_depth 1 = flat; 3 would allow a
-      # fourth level. Deeper trees multiply spend, so keep it at 2.
-      delegation.max_spawn_depth = 2;
+      # Subagent delegation model: Tencent Hy3 (295B MoE) for delegated
+      # workers. Free via Nous Portal (tencent/hy3:free) for a two-week
+      # window starting 08-27; re-assess when the window closes. The main
+      # model stays deepseek-v4-flash-0731.
+      delegation.model = "tencent/hy3:free";
+      # Flat delegation: orchestrator children cannot spawn their own
+      # workers (1 = main → leaf only). Chosen 08-27 to cap spend.
+      delegation.max_spawn_depth = 1;
 
       # Deliver cron output cleanly without the "Cronjob Response: <name>
       # (job_id: ...) / ----- / To stop or manage this job..." header/footer.
@@ -290,9 +306,8 @@ in {
       # enabled via memory.provider above. Both plugin and provider load
       # from the same register() call. Forma alone runs built-in memory.
       plugins.enabled = [
-        "mnemosyne"
         "daimon-webhook-plugin"
-        "deepseek-503-retry"
+        "mnemosyne"
       ];
 
       # Multi-profile multiplexing: let a single gateway route specific
@@ -375,26 +390,42 @@ in {
           chat_id = "1538282405985652860";
           profile = "daimon_dante";
         }
+        # Project channels (per-project dev workspaces, routed to the `dev` worker).
+        # Added 2026-08-21: Gage contains dev projects one-per-channel.
+        {
+          name = "prosopon-project-channel";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1540534948933664838";
+          profile = "dev";
+        }
+        {
+          name = "daw-project-channel";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1540535194908500098";
+          profile = "dev";
+        }
+        # Added 2026-08-23: JAVELIN project channel.
+        {
+          name = "project-javelin";
+          platform = "discord";
+          guild_id = "1345013449272459366";
+          chat_id = "1541265265994760302";
+          profile = "dev";
+        }
       ];
 
-      # Free-response in the daimon cells so they answer without an
-      # @mention — each is the sole voice in their own cell.
-      # #convocatory is also free-response: Dante is the room's moderator
-      # and participant, so every message there reaches him (no @mention
-      # needed) per Metamageia's standing order (2026-08-02).
-      discord.free_response_channels = [
-        "1537265129475809340"
-        "1533492889496322108"
-        "1533919537903439872"
-        "1535998391568306186"
-        "1537265194739433482"
-        "1533330299008843866"
-        "1538282405985652860"
-        "1540017080437317673"
-        "1540017139975721161"
-        "1540017200532820038"
-        "1540348781311299644"
-      ];
+      # Global mention-free (Metamageia, 08-25): the bot responds in every
+      # channel its role can see without an @mention. The Discord category
+      # role now does the boundary work the per-channel list used to, so the
+      # free_response allowlist is gone — create a channel, the bot is already
+      # there, no config edit, no restart.
+      discord.require_mention = false;
+      # Reply inline in the channel, never spawn a thread (Metamageia, 08-25;
+      # he dislikes threads). This restores the behavior the free_response
+      # list used to provide, now globally.
+      discord.auto_thread = false;
 
       # Council-room conduct for #convocatory was dante's voice; it moved to
       # dante's profile with the daimon migration (2026-08-21). The default
@@ -412,4 +443,14 @@ in {
       };
     };
   };
+
+  # Hermes desktop app (Electron GUI) for this pinned hermes-agent rev
+  # (03fa32c…). At this pin it is exposed ONLY as a flake package —
+  # inputs.hermes-agent.packages.<system>.desktop — with no services/programs
+  # option. It is distinct from the CLI that services.hermes-agent.addToSystemPackages
+  # installs, so we add it to the system environment directly to get
+  # `hermes-desktop` and its .desktop entry / icon.
+  environment.systemPackages = [
+    inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.desktop
+  ];
 }
