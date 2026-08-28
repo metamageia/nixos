@@ -78,16 +78,16 @@
     };
   in {
     nixosConfigurations = {
-      argosy = lib.nixosSystem {
+      setseke = lib.nixosSystem {
         inherit system;
         inherit pkgs;
         specialArgs = {
-          hostName = "argosy";
+          hostName = "setseke";
           inherit inputs;
           inherit userValues;
         };
         modules = [
-          ./modules/hosts/argosy
+          ./modules/hosts/setseke
           ./modules/common.nix
         ];
       };
