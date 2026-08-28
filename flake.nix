@@ -67,6 +67,9 @@
     pkgs = import inputs.nixpkgs {
       inherit system;
       config.allowUnfree = true;
+      config.permittedInsecurePackages = [
+      "broadcom-sta-6.30.223.271-59-6.18.24"
+    ];
     };
 
     userValues = {
@@ -119,6 +122,21 @@
           openclaw.nixosModules.default
           {nixpkgs.overlays = [openclaw.overlays.default];}
         ];
+      };
+      setseke = lib.nixosSystem {
+        inherit system;
+        inherit pkgs;
+        specialArgs = {
+          hostName = "setseke";
+          nebulaIP = "192.168.100.4";
+          inherit inputs;
+          inherit userValues;
+        };
+        modules = [
+          ./modules/hosts/setseke
+          ./modules/common.nix
+        ];
+
       };
       beacon = nixpkgs.lib.nixosSystem {
         inherit system;
