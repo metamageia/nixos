@@ -10,11 +10,15 @@
   ];
 
   environment.systemPackages = with pkgs; [
-    # Standalone wifi GUI, launchable from fuzzel (full window, no tray).
-    # Talks to iwd directly, which is the NetworkManager wifi backend here, so
-    # it sees the same connections NetworkManager manages. (nm-applet is the
-    # tray-only alternative; iwgtk fits the current no-tray fuzzel workflow.)
-    iwgtk
+    # Windowed NetworkManager connection GUI, launchable from fuzzel (no tray).
+    # iwgtk was removed: it talks to iwd directly, but this stack runs iwd as
+    # NetworkManager's backend — NM owns the iwd agent/netdev, so iwgtk's connect
+    # stalls (no agent answers its credential prompt) and falls back to the list.
+    # networkmanagerapplet ships BOTH `nm-applet` (the tray applet — for the
+    # upcoming re-rice) and `nm-connection-editor` (a windowed editor, launch
+    # from fuzzel as "nm-connection-editor"). NM-native, so it works with the
+    # NM-on-iwd backend here.
+    networkmanagerapplet
   ];
 
   networking = {
