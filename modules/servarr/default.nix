@@ -26,6 +26,13 @@
   # matching the rclone mount uid and the PUID/PGID used by the containers.
   owner = "1000";
   group = "100";
+
+  # UUID of the single ext4 "media-pool" partition on the dedicated 7.3 TB
+  # disk (/dev/sdb) AFTER the operator's interactive wipe+format. Replace this
+  # placeholder with `blkid -s UUID -o value /dev/sdb1`, then re-run
+  # `nixos-rebuild build` and switch. (All-zero UUID marks it as a placeholder;
+  # the build will succeed but the real device will not mount until set.)
+  mediaPoolUUID = "00000000-0000-0000-0000-000000000000";
 in {
   imports = [
     ./generated.nix
@@ -54,6 +61,29 @@ in {
     "d /srv/servarr/jellyseerr/config 0775 ${owner} ${group} - -"
     "d /srv/servarr/qbittorrent/config 0775 ${owner} ${group} - -"
   ];
+
+  # ---------------------------------------------------------------------------
+  # LOCAL MEDIA POOL — dedicated 7.3 TB disk mounted at /srv.
+  #
+  # Mounting at /srv (not /srv/media) puts /srv/media, /srv/downloads, and
+  # /srv/servarr on the SAME filesystem, which is required for sonarr/radarr
+  # hardlinks between the download dir and the library.
+  #
+  # Keyed by UUID so the mount follows the disk, not a kernel name. `nofail`
+  # guarantees boot never hangs or fails if the pool is absent — it's media,
+  # not a boot-critical volume. Ownership of the tree is set at mkfs time via
+  # `mke2fs -E root_owner=1000:100`, so the pool root is already owned by
+  # metamageia; the tmpfiles rules below then create the subdirs under it.
+  fileSystems."/srv" = {
+    device = "/dev/disk/by-uuid/${mediaPoolUUID}";
+    fsType = "ext4";
+    options = [
+      "nofail"
+      "defaults"
+      # Don't block boot waiting on the device; give up after 30s.
+      "x-systemd.device-timeout=30"
+    ];
+  };
 
   # Firewall holes for the *arr web UIs / qBittorrent. Ports match
   # docker-compose.yaml. (Service ports; the containers run on the bridge net.)
