@@ -19,6 +19,12 @@
     # from fuzzel as "nm-connection-editor"). NM-native, so it works with the
     # NM-on-iwd backend here.
     networkmanagerapplet
+
+    # rofi-based NetworkManager frontend with FULL wifi discovery (live scan of
+    # nearby networks + connect + passphrase prompt). Launch from fuzzel as
+    # `networkmanager_dmenu`; no tray. The primary answer to "nm-connection-
+    # editor has no discovery." (rofi-network-manager is a near-twin.)
+    networkmanager_dmenu
   ];
 
   networking = {
