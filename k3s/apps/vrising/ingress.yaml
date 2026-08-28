@@ -5,7 +5,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-    - host: vrising.auriga.gagelara.com
+    - host: vrising.arcanum.gagelara.com
       http:
         paths:
           - path: /

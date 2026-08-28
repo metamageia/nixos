@@ -7,7 +7,18 @@
 }: {
   users.users.root = {
     extraGroups = ["docker"];
-    hashedPassword = "";
+    hashedPasswordFile = config.sops.secrets."passwords/metamageia".path;
+  };
+
+  # Password login via sops-managed hash.
+  sops.secrets."passwords/metamageia" = {
+    neededForUsers = true;
+    sopsFile = userValues.sopsFile;
+  };
+  users.users.metamageia = {
+    isNormalUser = true;
+    extraGroups = ["wheel"];
+    hashedPasswordFile = config.sops.secrets."passwords/metamageia".path;
   };
 
   networking.hostName = hostName;
@@ -15,7 +26,6 @@
   nix.settings.experimental-features = ["nix-command" "flakes"];
 
   imports = [
-    ../../common.nix
     #../../comin
     #../../k3s/initServer.nix
     ../../nebula/lighthouse.nix
@@ -43,7 +53,7 @@
     virtualHosts.":8096".extraConfig = ''
       reverse_proxy 192.168.100.2:8096
     '';
-    virtualHosts."http://jellyfin.auriga.gagelara.com:80".extraConfig = ''
+    virtualHosts."http://jellyfin.arcanum.gagelara.com:80".extraConfig = ''
       reverse_proxy 192.168.100.2:8096
     '';
   };
@@ -55,7 +65,8 @@
       table ip nat {
         chain prerouting {
           type nat hook prerouting priority dstnat; policy accept;
-          iifname "ens3" ip daddr 167.99.123.140 udp dport 9876 \
+          # Public traffic on ens3, matched without naming the droplet IP.
+          iifname "ens3" ip daddr != 10.0.0.0/8 udp dport 9876 \
             dnat to 192.168.100.3:9876
         }
         chain postrouting {

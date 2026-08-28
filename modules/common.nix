@@ -7,8 +7,6 @@
   imports = [
     ./networking
     ./locale
-
-    # Custom modules to import
     ./cachix
     ./sops
   ];
@@ -17,7 +15,7 @@
     wget
     unzip
     unrar
-    git
+    claude-code
   ];
 
   nix.optimise.automatic = true;

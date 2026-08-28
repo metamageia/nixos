@@ -25,9 +25,6 @@
     alejandra.url = "github:kamadorueda/alejandra/4.0.0";
     alejandra.inputs.nixpkgs.follows = "nixpkgs";
 
-    nixos-generators.url = "github:nix-community/nixos-generators";
-    nixos-generators.inputs.nixpkgs.follows = "nixpkgs";
-
     compose2nix.url = "github:aksiksi/compose2nix";
     compose2nix.inputs.nixpkgs.follows = "nixpkgs";
 
@@ -38,10 +35,9 @@
 
     claude-code.url = "github:sadjow/claude-code-nix";
 
-    opencode-flake.url = "github:aodhanhayter/opencode-flake";
-
-    openclaw.url = "github:Scout-DJ/openclaw-nix";
-    openclaw.inputs.nixpkgs.follows = "nixpkgs";
+    # Intentionally not following nixpkgs: the package is built with uv2nix,
+    # which resolves Python deps against upstream's locked nixpkgs.
+    hermes-agent.url = "github:NousResearch/hermes-agent";
   };
 
   outputs = {
@@ -52,13 +48,10 @@
     home-manager,
     sops-nix,
     alejandra,
-    nixos-generators,
     compose2nix,
     nix-on-droid,
     affinity-nix,
     claude-code,
-    opencode-flake,
-    openclaw,
     ...
   } @ inputs: let
     system = "x86_64-linux";
@@ -73,8 +66,10 @@
     };
 
     userValues = {
-      wallpaper = ./wallpapers/mary-01.png;
+      wallpaper = ./wallpapers/warframe-entrati-01.jpg;
       repoUrl = "https://github.com/metamageia/nixos.git";
+      # DNS name for the lighthouse; its A record in Route 53 owns the public IP.
+      publicHost = "arcanum.gagelara.com";
       sopsFile = ./secrets/homelab.secrets.yaml;
       secretsDir = "${self}/secrets";
     };
@@ -119,8 +114,6 @@
         modules = [
           ./modules/hosts/saiadha
           ./modules/common.nix
-          openclaw.nixosModules.default
-          {nixpkgs.overlays = [openclaw.overlays.default];}
         ];
       };
       setseke = lib.nixosSystem {
@@ -187,20 +180,6 @@
 
         echo "Welcome to the Homeserver development environment!"
       '';
-    };
-    packages.x86_64-linux = {
-      do = nixos-generators.nixosGenerate {
-        system = "x86_64-linux";
-        specialArgs = {
-          hostName = "beacon";
-          inherit inputs;
-          inherit userValues;
-        };
-        modules = [
-          ./modules/hosts/digitalocean
-        ];
-        format = "do";
-      };
     };
   };
 }

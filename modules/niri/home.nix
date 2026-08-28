@@ -1,17 +1,26 @@
 {
   config,
   pkgs,
-  inputs,
   ...
-}: {
+}: let
+  # Built here so the Mod+S bind references a store path, not the session PATH.
+  fuzzel-search = pkgs.writeShellScriptBin "fuzzel-search" (builtins.readFile ../fuzzel/fuzzel-search.sh);
+in {
   programs.niri = {
     settings = {
+      clipboard.disable-primary = true;
       environment = {
         DISPLAY = ":0";
       };
       spawn-at-startup = [
         {command = ["xwayland-satellite"];}
       ];
+      layout = {
+        gaps = 12;
+        focus-ring = {
+          width = 3;
+        };
+      };
       window-rules = [
         # Geometry Rules
         {
@@ -19,17 +28,20 @@
           draw-border-with-background = false;
           clip-to-geometry = true;
           geometry-corner-radius = {
-            top-left = 12.0;
-            top-right = 12.0;
-            bottom-right = 12.0;
-            bottom-left = 12.0;
+            top-left = 10.0;
+            top-right = 10.0;
+            bottom-right = 10.0;
+            bottom-left = 10.0;
+          };
+          border = {
+            width = 2;
           };
         }
         # Opacity Rules
         {
           matches = [{}];
           excludes = [{app-id = "zen";}];
-          opacity = 0.95;
+          opacity = 0.93;
         }
       ];
       binds = with config.lib.niri.actions; {
@@ -39,9 +51,9 @@
 
         # Hotkeys
         "Mod+D".action.spawn = "fuzzel";
-        "Mod+S".action.spawn = ["~/.dotfiles/modules/fuzzel/fuzzel-search.sh"];
+        "Mod+S".action.spawn = ["${fuzzel-search}/bin/fuzzel-search"];
         "Mod+T".action.spawn = "alacritty";
-        "Mod+P".action = screenshot;
+        "Mod+P".action.screenshot = {};
 
         # Audio
         "XF86AudioRaiseVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
@@ -51,8 +63,8 @@
         "Mod+Q".action = close-window;
 
         "Mod+Left".action = focus-column-left;
-        "Mod+Down".action = focus-workspace-down;
-        "Mod+Up".action = focus-workspace-up;
+        "Mod+Down".action = focus-window-down;
+        "Mod+Up".action = focus-window-up;
         "Mod+Right".action = focus-column-right;
 
         "Mod+H".action = focus-column-left;
@@ -61,8 +73,8 @@
         "Mod+L".action = focus-column-right;
 
         "Mod+Ctrl+Left".action = move-column-left;
-        "Mod+Ctrl+Down".action = move-column-to-workspace-down;
-        "Mod+Ctrl+Up".action = move-column-to-workspace-up;
+        "Mod+Ctrl+Down".action = move-window-down;
+        "Mod+Ctrl+Up".action = move-window-up;
         "Mod+Ctrl+Right".action = move-column-right;
         "Mod+Ctrl+H".action = move-column-left;
         "Mod+Ctrl+J".action = move-window-down;

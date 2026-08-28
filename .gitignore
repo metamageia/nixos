@@ -14,3 +14,4 @@ secret.yaml
 secrets/sops
 
 docker-compose.yml
+auth.json

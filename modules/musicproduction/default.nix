@@ -23,13 +23,13 @@
       libxkbcommon
       alsa-lib
       pulseaudio
-      xorg.libX11
-      xorg.libXcursor
-      xorg.libXi
-      xorg.libXrandr
-      xorg.libXrender
-      xorg.libXext
-      xorg.libXfixes
+       libX11
+       libXcursor
+       libXi
+       libXrandr
+       libXrender
+       libXext
+       libXfixes
       fontconfig
       freetype
       dbus
@@ -43,13 +43,13 @@
       alsa-lib
       pulseaudio
       pipewire
-      xorg.libX11
-      xorg.libXcursor
-      xorg.libXi
-      xorg.libXrandr
-      xorg.libXrender
-      xorg.libXext
-      xorg.libXfixes
+       libX11
+       libXcursor
+       libXi
+       libXrandr
+       libXrender
+       libXext
+       libXfixes
       wayland
       libdecor
       dbus
@@ -146,7 +146,7 @@ in {
     mda_lv2
     x42-plugins
     carla
-    soundfont-generaluser
+     soundfont-generaluser-gs
     infamousPlugins
     talentedhack
     lsp-plugins

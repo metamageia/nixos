@@ -65,7 +65,7 @@ metadata:
 spec:
   ingressClassName: traefik
   rules:
-  - host: test.auriga.gagelara.com
+  - host: test.arcanum.gagelara.com
     http:
       paths:
       - path: /

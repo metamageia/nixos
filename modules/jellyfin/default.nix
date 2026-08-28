@@ -1,7 +1,6 @@
 {
   config,
   pkgs,
-  nebulaIP,
   ...
 }: {
   imports = [
@@ -14,6 +13,7 @@
     jellyfin
     jellyfin-web
     jellyfin-ffmpeg
+    vlc
   ];
   services.jellyfin = {
     enable = true;
