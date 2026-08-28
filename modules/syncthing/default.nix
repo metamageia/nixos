@@ -15,11 +15,12 @@
           "saiadha" = {id = "ZNJWRIH-L6ESQMU-NS2I3SE-IK237ML-IKKEJRW-L5PXLX3-7BYBFIG-EFYSGAO";};
           "pixel 2xl" = {id = "4PRXCDI-UKGADIJ-INQKWXL-WOUF3P3-JKH4WET-4EEQ5TP-YXR4AED-THF7WAA";};
           "pixel 8" = {id = "UVRIGUQ-547I3BL-WKLTYAY-7SJPE73-VOL6S2M-4PGHGMB-7X3WN6R-2H52LAI";};
+          "setseke" = {id = "AM7CPQZ-AQRM3CE-YPROH73-KEOZLFU-YHKGDBN-BOWPHQI-5LNN2R5-OBC7YA3";};
         };
         folders = {
           "Obsidian" = {
             path = "/home/metamageia/Sync/Obsidian";
-            devices = ["saiadha" "auriga" "pixel 2xl" "pixel 8"];
+            devices = ["saiadha" "auriga" "pixel 2xl" "pixel 8" "setseke"];
           };
           "Desktop" = {
             path = "/home/metamageia/Sync/Desktop";

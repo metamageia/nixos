@@ -78,19 +78,6 @@
     };
   in {
     nixosConfigurations = {
-      setseke = lib.nixosSystem {
-        inherit system;
-        inherit pkgs;
-        specialArgs = {
-          hostName = "setseke";
-          inherit inputs;
-          inherit userValues;
-        };
-        modules = [
-          ./modules/hosts/setseke
-          ./modules/common.nix
-        ];
-      };
       auriga = lib.nixosSystem {
         inherit system;
         inherit pkgs;
