@@ -63,9 +63,15 @@
     pkgs = import inputs.nixpkgs {
       inherit system;
       config.allowUnfree = true;
+      # setseke's hardware-configuration.nix enables the Broadcom STA wifi driver
+      # (boot.kernelModules = [ "wl" ]), which nixpkgs marks insecure (CVE-2019-9501/
+      # 9502). The nixpkgs instance is created here (externally), so the permit must
+      # live on this import, not in a host module (a module nixpkgs.config throws the
+      # "externally created instance" assertion). The version string embeds the kernel
+      # (…-6.18.41); keep it in lockstep with the pinned nixpkgs/kernel.
       config.permittedInsecurePackages = [
-      "broadcom-sta-6.30.223.271-59-6.18.24"
-    ];
+        "broadcom-sta-6.30.223.271-63-6.18.41"
+      ];
     };
 
     userValues = {
