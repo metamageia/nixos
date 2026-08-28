@@ -99,6 +99,43 @@ in {
     6881 # qbittorrent BT UDP
   ];
 
+  # ---------------------------------------------------------------------------
+  # ORDERING FIX — create + own the per-container /config dirs AFTER the pool
+  # mounts at /srv.
+  #
+  # systemd-tmpfiles-setup.service runs very early (Before=local-fs.target order
+  # is pre-/srv-mount), so its `d /srv/servarr/<svc>/config` rules either create
+  # the dirs on the hidden rootfs (shadowed once /srv mounts) or never create
+  # them because /srv doesn't exist yet. Result: the running *arr containers
+  # either bind to a hidden rootfs path or docker auto-creates root:root dirs on
+  # the pool that uid 1000 (PUID/PGID) cannot write. This oneshot runs
+  # After=srv.mount and materialises all five config dirs with correct
+  # ownership, idempotently. (Companion to the one-time
+  #   systemd-tmpfiles --create   # as root, current boot
+  # but this survives reboots.)
+  systemd.services.servarr-mkconfig = {
+    description = "Create servarr container /config dirs on the media pool";
+    after = [ "srv.mount" "systemd-tmpfiles-setup.service" ];
+    requires = [ "srv.mount" ];
+    wantedBy = [ "multi-user.target" ];
+    serviceConfig = {
+      Type = "oneshot";
+      RemainAfterExit = true;
+    };
+    script = ''
+      install -d -o ${owner} -g ${group} -m 0775 \
+        /srv/servarr/prowlarr/config \
+        /srv/servarr/sonarr/config \
+        /srv/servarr/radarr/config \
+        /srv/servarr/jellyseerr/config \
+        /srv/servarr/qbittorrent/config
+      # qbittorrent/config (and /srv/servarr itself) may have been auto-created
+      # root:root by docker before this ran; fix ownership so PUID/PGID 1000/100
+      # can write. Idempotent.
+      chown -R ${owner}:${group} /srv/servarr
+    '';
+  };
+
   # Convenience: ship compose2nix + docker-compose in the system closure so the
   # generated units can be regenerated on-box.
   environment.systemPackages = with pkgs; [

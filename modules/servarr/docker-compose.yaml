@@ -56,7 +56,9 @@ services:
     restart: unless-stopped
 
   jellyseerr:
-    image: lscr.io/linuxserver/jellyseerr:latest
+    # linuxserver.io does NOT publish a jellyseerr image (pull fails: "error
+    # from registry: denied"). Official upstream image is fallenbagel/jellyseerr.
+    image: fallenbagel/jellyseerr:latest
     container_name: jellyseerr
     environment:
       PUID: "1000"

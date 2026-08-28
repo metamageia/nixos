@@ -6,7 +6,7 @@
 
   # Containers
   virtualisation.oci-containers.containers."jellyseerr" = {
-    image = "lscr.io/linuxserver/jellyseerr:latest";
+    image = "fallenbagel/jellyseerr:latest";
     environment = {
       "PGID" = "100";
       "PUID" = "1000";
