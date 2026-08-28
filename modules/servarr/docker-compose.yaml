@@ -1,0 +1,85 @@
+# Servarr *arr stack for saiadha — LOCAL-FIRST media automation.
+# New media lands on local disk (/srv/media, /srv/downloads);
+# Google Drive is a BACKUP SYNC target handled by a separate follow-up.
+#
+# This compose file is consumed by compose2nix (flake input, installed via
+# modules/docker) to emit NixOS-managed systemd units. Run:
+#   compose2nix --compose-file modules/servarr/docker-compose.yaml \
+#     --out modules/servarr/generated.nix --project servarr
+# whenever you change the stack, then re-import generated.nix.
+#
+# PUID/GID 1000/100 = metamageia/users (matches rclone mount uid).
+# TZ mirrors modules/locale (America/Chicago).
+
+services:
+  prowlarr:
+    image: lscr.io/linuxserver/prowlarr:latest
+    container_name: prowlarr
+    environment:
+      PUID: "1000"
+      PGID: "100"
+      TZ: America/Chicago
+    volumes:
+      - /srv/servarr/prowlarr/config:/config
+    ports:
+      - 9696:9696
+    restart: unless-stopped
+
+  sonarr:
+    image: lscr.io/linuxserver/sonarr:latest
+    container_name: sonarr
+    environment:
+      PUID: "1000"
+      PGID: "100"
+      TZ: America/Chicago
+    volumes:
+      - /srv/servarr/sonarr/config:/config
+      - /srv/media/TV:/tv
+      - /srv/downloads:/downloads
+    ports:
+      - 8989:8989
+    restart: unless-stopped
+
+  radarr:
+    image: lscr.io/linuxserver/radarr:latest
+    container_name: radarr
+    environment:
+      PUID: "1000"
+      PGID: "100"
+      TZ: America/Chicago
+    volumes:
+      - /srv/servarr/radarr/config:/config
+      - /srv/media/Movies:/movies
+      - /srv/downloads:/downloads
+    ports:
+      - 7878:7878
+    restart: unless-stopped
+
+  jellyseerr:
+    image: lscr.io/linuxserver/jellyseerr:latest
+    container_name: jellyseerr
+    environment:
+      PUID: "1000"
+      PGID: "100"
+      TZ: America/Chicago
+    volumes:
+      - /srv/servarr/jellyseerr/config:/config
+    ports:
+      - 5055:5055
+    restart: unless-stopped
+
+  qbittorrent:
+    image: lscr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    environment:
+      PUID: "1000"
+      PGID: "100"
+      TZ: America/Chicago
+    volumes:
+      - /srv/servarr/qbittorrent/config:/config
+      - /srv/downloads:/downloads
+    ports:
+      - 8080:8080
+      - 6881:6881
+      - 6881:6881/udp
+    restart: unless-stopped

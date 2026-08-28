@@ -13,14 +13,15 @@
     #../../k3s/agent.nix
     ../../nebula/node.nix
     ../../jellyfin
+    ../../servarr
     ../../n8n
     ../../hermes-agent
-    #../../inference
+    ../../inference
 
     # Users
     ../../users/metamageia
 
-    ../../aagl
+    #../../aagl
 
   ];
 

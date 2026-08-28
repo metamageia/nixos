@@ -400,13 +400,6 @@ in {
           profile = "dev";
         }
         {
-          name = "mnemosyne-project-channel";
-          platform = "discord";
-          guild_id = "1345013449272459366";
-          chat_id = "1540535088284962896";
-          profile = "dev";
-        }
-        {
           name = "daw-project-channel";
           platform = "discord";
           guild_id = "1345013449272459366";
