@@ -1,13 +1,17 @@
 # Servarr *arr stack for saiadha — LOCAL-FIRST media automation.
 #
-# This module sets up the local library + download directories and wires the
-# *arr docker-compose stack (prowlarr, sonarr, radarr, jellyseerr, qbittorrent)
-# through compose2nix so each container is a NixOS-managed systemd unit.
+# This module sets up the local library + download directories, enables the
+# docker runtime, and wires the *arr docker-compose stack (prowlarr, sonarr,
+# radarr, jellyseerr, qbittorrent) through compose2nix so each container is a
+# NixOS-managed systemd unit.
 #
-# IMPORTANT: this module does NOT enable the containers itself. compose2nix
-# generates the actual oci-containers/systemd units (referenced below). Enable
-# the generated file by uncommenting the `imports` line once generated.nix
-# exists (run compose2nix from modules/servarr; see docker-compose.yaml header).
+# The container/systemd units themselves live in ./generated.nix — produced by
+# compose2nix from ./docker-compose.yaml. Regenerate after editing the compose
+# file with:
+#   nix run github:aksiksi/compose2nix -- \
+#     -inputs modules/servarr/docker-compose.yaml \
+#     -output modules/servarr/generated.nix \
+#     -project servarr -runtime docker -write_nix_setup=false
 #
 # Deliberately out of scope for THIS run:
 #   - services.jellyfin / the rclone "drive:Server_Media" mount are untouched.
@@ -23,8 +27,17 @@
   owner = "1000";
   group = "100";
 in {
-  # NOTE: once you run compose2nix, uncomment to pull in the generated units:
-  # imports = [ ./generated.nix ];
+  imports = [
+    ./generated.nix
+  ];
+
+  # Runtime for the generated oci-containers (docker, matching pihole/vrising
+  # modules). compose2nix -write_nix_setup=false leaves this to us.
+  virtualisation.docker = {
+    enable = true;
+    autoPrune.enable = true;
+  };
+  virtualisation.oci-containers.backend = "docker";
 
   # Local media library + download paths. Created at boot via tmpfiles with
   # correct ownership so the *arr containers (PUID/PGID 1000/100) can write.
@@ -50,14 +63,14 @@ in {
     7878 # radarr
     5055 # jellyseerr
     8080 # qbittorrent web UI
-    6881 # qbittorrent TCP
+    6881 # qbittorrent BT TCP
   ];
   networking.firewall.allowedUDPPorts = [
-    6881 # qbittorrent UDP
+    6881 # qbittorrent BT UDP
   ];
 
-  # Convenience: ship the compose file + compose2nix in the system closure and
-  # expose a one-shot to regenerate the NixOS units.
+  # Convenience: ship compose2nix + docker-compose in the system closure so the
+  # generated units can be regenerated on-box.
   environment.systemPackages = with pkgs; [
     compose2nix
     docker-compose
