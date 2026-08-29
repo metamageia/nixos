@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
@@ -17,10 +18,26 @@ import Niri
 //
 // NO calendar / NO date-click (per Gage).
 //
-// Theme: every color is driven by the wallust palette (keys bg/fg/accent/gold/
-// muted/urgent/green/blue) via the FileView + centralized palette props below
-// — NO hex literals. Opacity 0.93 matches niri's window-rule opacity (a style
-// constant, not a theme color).
+// Theme: every color — including the SVG icon tints — is driven by the wallust
+// palette (keys bg/fg/accent/gold/muted/urgent/green/blue) via the FileView +
+// centralized palette props below — NO hex literals. Opacity 0.93 matches
+// niri's window-rule opacity (a style constant, not a theme color).
+//
+// Typography: smooth UI sans "Inter" for ALL text (clock, workspace numbers,
+// volume %, wifi label). The Iosevka Nerd Font Mono glyphs were replaced with
+// monochrome themeable SVG icons (Phase 4c).
+//
+// Icons (Phase 4c): clean monochrome SVGs under ./icons/, tinted to a palette
+// color at runtime via Qt5Compat.GraphicalEffects.ColorOverlay. ColorOverlay
+// multiplies source pixels by `color`, so the SVGs are authored WHITE on
+// transparent and tinted to barXxx. The tint binding is a `root.barXxx` property
+// that the staged crossfade (4a) re-adopts on theme change, so Mod+W recolors
+// every icon. No font-glyph / Nerd Font icons remain anywhere in the bar.
+//
+// Icon path resolution: the QML ships both in the nix store derivation and at
+// ~/.config/quickshell/bar. Resolve ./icons/<name>.svg against the directory
+// the running config is loaded from via Quickshell.shellRoot, so it works in
+// both locations without a hardcoded store path.
 //
 // Crossfade: on a palette change the whole bar surface fades out (opacity), the
 // pending palette is adopted into every color prop, then it fades back in.
@@ -30,6 +47,11 @@ import Niri
 // NOTE (checked against QuickShell 0.3.0 typeinfo): PanelWindow does NOT have
 // an `opacity` property (WindowInterface -> Reloadable -> QObject, not Item),
 // so the fade animates the inner Rectangle (a real QQuickItem).
+//
+// NOTE (checked against QuickShell 0.3.0 qt5compat closure): ColorOverlay lives
+// in Qt5Compat.GraphicalEffects, which is NOT in QuickShell's default QML import
+// path. The launcher wrapper (default.nix) appends qt5compat's qml dir to
+// QML2_IMPORT_PATH so `import Qt5Compat.GraphicalEffects` resolves.
 ShellRoot {
   id: root
 
@@ -40,13 +62,16 @@ ShellRoot {
         ? Quickshell.env("XDG_CONFIG_HOME") + "/quickshell/wallust-palette.json"
         : Quickshell.env("HOME") + "/.config/quickshell/wallust-palette.json")
 
-  // Nerd Font family for the bar's glyphs. Verified installed on this host:
-  // `Iosevka Nerd Font Mono` (nerd-fonts.iosevka) covers every glyph used here
-  // (wifi f1eb, volume f028/f026, clock f017, workspaces f108, tray f169).
-  readonly property string nerdFont: "Iosevka Nerd Font Mono"
+  // Smooth UI sans for all text. Verified installed: `Inter` / `Inter Variable`.
+  readonly property string uiFont: "Inter"
 
-  // Live mute state, driven by the volume poll. Lets the volume text/icon color
-  // bind to a palette key (so the 4a crossfade still recolors it on theme change).
+  // Directory the running config is loaded from — used to resolve the local
+  // ./icons/*.svg set (works in both the nix store derivation and
+  // ~/.config/quickshell/bar).
+  readonly property string iconDir: Quickshell.shellRoot + "/icons"
+
+  // Live mute state, driven by the volume poll. Lets the volume icon tint bind
+  // to a palette key (so the 4a crossfade still recolors it on theme change).
   property bool volMuted: false
 
   // Current (visible) theme colors — all from the wallust palette. NO literals.
@@ -119,6 +144,31 @@ ShellRoot {
     }
   }
 
+  // Reusable monochrome icon: a white SVG tinted to the palette via ColorOverlay.
+  // tint is a `root.barXxx` binding so the staged crossfade recolors it.
+  component ThemeIcon: Item {
+    property string source
+    property color tint
+    property int size: 14
+    width: size
+    height: size
+
+    Image {
+      id: ic
+      anchors.fill: parent
+      source: "file://" + root.iconDir + "/" + source
+      sourceSize.width: size
+      sourceSize.height: size
+      fillMode: Image.PreserveAspectFit
+      visible: false
+    }
+    ColorOverlay {
+      anchors.fill: ic
+      source: ic
+      color: tint
+    }
+  }
+
   PanelWindow {
     id: bar
     anchors {
@@ -148,11 +198,10 @@ ShellRoot {
           leftMargin: 8
           verticalCenter: parent.verticalCenter
         }
-        Text {
-          text: "\uf00a"
-          color: root.barMuted
-          font.family: root.nerdFont
-          font.pixelSize: 13
+        ThemeIcon {
+          source: "workspace.svg"
+          tint: root.barMuted
+          size: 13
         }
         Repeater {
           model: niri.workspaces
@@ -169,6 +218,7 @@ ShellRoot {
               anchors.centerIn: parent
               text: model.name !== "" ? model.name : (model.index + 1)
               color: (model.isFocused || model.isActive) ? root.barBg : root.barMuted
+              font.family: root.uiFont
               font.pixelSize: 11
               font.bold: true
             }
@@ -189,15 +239,25 @@ ShellRoot {
           horizontalCenter: parent.horizontalCenter
           verticalCenter: parent.verticalCenter
         }
-        text: "\uf017 " + Qt.formatDateTime(new Date(), "ddd HH:mm:ss")
+        text: Qt.formatDateTime(new Date(), "ddd HH:mm:ss")
         color: root.barAccent
-        font.family: root.nerdFont
+        font.family: root.uiFont
         font.pixelSize: 13
         Timer {
           interval: 1000
           running: true
           repeat: true
-          onTriggered: clock.text = "\uf017 " + Qt.formatDateTime(new Date(), "ddd HH:mm:ss")
+          onTriggered: clock.text = Qt.formatDateTime(new Date(), "ddd HH:mm:ss")
+        }
+      }
+      ThemeIcon {
+        source: "clock.svg"
+        tint: root.barAccent
+        size: 13
+        anchors {
+          right: clock.left
+          rightMargin: 5
+          verticalCenter: parent.verticalCenter
         }
       }
 
@@ -217,14 +277,20 @@ ShellRoot {
         Text {
           id: wifi
           color: root.barGreen
-          font.family: root.nerdFont
+          font.family: root.uiFont
           font.pixelSize: 13
-          text: "\uf1eb net --"
+          text: "net --"
           MouseArea {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
             onClicked: Quickshell.execDetached(["networkmanager_dmenu"])
           }
+        }
+        ThemeIcon {
+          source: "wifi.svg"
+          tint: root.barGreen
+          size: 14
+          anchors.verticalCenter: parent.verticalCenter
         }
         Process {
           id: wifiProc
@@ -238,7 +304,7 @@ ShellRoot {
                 const p = l.split(":")
                 if (p[0] === "yes" && p[1]) { ssid = p[1]; break }
               }
-              wifi.text = ssid ? ("\uf1eb net " + ssid) : "\uf1eb net off"
+              wifi.text = ssid ? ("net " + ssid) : "net off"
             }
           }
         }
@@ -251,14 +317,14 @@ ShellRoot {
 
         // volume via PipeWire/wireplumber `wpctl`. Scroll = step volume by 5%,
         // click = toggle mute. Both fired through Quickshell.execDetached (a
-        // detached shell command). Numeric % + mute state kept visible; color
-        // binds to the palette so the 4a crossfade still recolors it.
+        // detached shell command). Numeric % + mute state kept visible; the icon
+        // + color bind to the palette so the 4a crossfade still recolors them.
         Text {
           id: vol
           color: root.volMuted ? root.barUrgent : root.barBlue
-          font.family: root.nerdFont
+          font.family: root.uiFont
           font.pixelSize: 13
-          text: "\uf028 vol --"
+          text: "vol --"
           MouseArea {
             anchors.fill: parent
             cursorShape: Qt.PointingHandCursor
@@ -273,6 +339,13 @@ ShellRoot {
             }
           }
         }
+        ThemeIcon {
+          id: volIcon
+          source: "volume.svg"
+          tint: root.volMuted ? root.barUrgent : root.barBlue
+          size: 14
+          anchors.verticalCenter: parent.verticalCenter
+        }
         Process {
           id: volProc
           command: ["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"]
@@ -285,10 +358,10 @@ ShellRoot {
               root.volMuted = muted
               if (m) {
                 const pct = Math.round(parseFloat(m[1]) * 100)
-                const glyph = muted ? "\uf026" : "\uf028"
-                vol.text = glyph + " " + (muted ? "MUTE " : "") + pct + "%"
+                vol.text = (muted ? "MUTE " : "") + pct + "%"
+                volIcon.source = muted ? "volume-muted.svg" : "volume.svg"
               } else {
-                vol.text = "\uf028 vol ?"
+                vol.text = "vol ?"
               }
             }
           }
@@ -300,13 +373,8 @@ ShellRoot {
           onTriggered: volProc.running = true
         }
 
-        // system tray via QuickShell's built-in SystemTray.
-        Text {
-          text: "\uf01c"
-          color: root.barMuted
-          font.family: root.nerdFont
-          font.pixelSize: 13
-        }
+        // System tray via QuickShell's built-in SystemTray. The real app images
+        // already show tray content, so no decorative glyph is added (Phase 4c).
         Repeater {
           model: SystemTray.items
           Image {

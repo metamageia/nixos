@@ -10,6 +10,12 @@
 # module in nixpkgs (verified pkgs.quickshell is a package only). The bar is pure
 # QML launched by niri's `spawn-at-startup` (see desktop-presets/niri wiring).
 #
+# The bar's icons are monochrome SVGs tinted at runtime via
+# Qt5Compat.GraphicalEffects.ColorOverlay (Phase 4c). That module is NOT in
+# QuickShell's default QML import path, so the launcher wrapper below prepends
+# qt5compat's qml dir to QML2_IMPORT_PATH. Without it, `import
+# Qt5Compat.GraphicalEffects` fails to resolve and the bar won't start.
+#
 # qml-niri (imiric/qml-niri) is a Qt6 QML plugin exposing niri IPC to QuickShell.
 # It is NOT in nixpkgs, so it's a flake input (qml-niri.url = github:imiric/qml-niri)
 # and its QML plugin dir is appended to QML2_IMPORT_PATH so QuickShell can `import Niri`.
@@ -57,9 +63,9 @@ let
     # `set -u` the bare "$QML2_IMPORT_PATH" would abort with "unbound variable".
     # Guard it so the wrapper always launches.
     if [ -z "''${QML2_IMPORT_PATH:-}" ]; then
-      export QML2_IMPORT_PATH="${inputs.qml-niri.packages.${pkgs.stdenv.hostPlatform.system}.default}/lib/qt-6/qml"
+      export QML2_IMPORT_PATH="${inputs.qml-niri.packages.${pkgs.stdenv.hostPlatform.system}.default}/lib/qt-6/qml:${pkgs.qt6.qt5compat}/lib/qt-6/qml"
     else
-      export QML2_IMPORT_PATH="${inputs.qml-niri.packages.${pkgs.stdenv.hostPlatform.system}.default}/lib/qt-6/qml:$QML2_IMPORT_PATH"
+      export QML2_IMPORT_PATH="${inputs.qml-niri.packages.${pkgs.stdenv.hostPlatform.system}.default}/lib/qt-6/qml:${pkgs.qt6.qt5compat}/lib/qt-6/qml:$QML2_IMPORT_PATH"
     fi
     export QUICKSHELL_WALLUST_PALETTE="${palettePath}"
     exec ${pkgs.quickshell}/bin/quickshell --config "${barConfig}"
