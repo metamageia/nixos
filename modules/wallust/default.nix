@@ -105,11 +105,18 @@ let
     cat >> "$STYLE" <<KEYFRAMES
 /* wallust-switch: one-shot crossfade from previous palette (re-runs on reload) */
 @keyframes theme-crossfade {
-  from { background-color: alpha($OLD_BG, 0.85); border-color: alpha($OLD_BD, 0.3); }
-  to   { background-color: alpha($NEW_BG, 0.85); border-color: alpha($NEW_BD, 0.3); }
+  from { background-color: alpha($OLD_BG, 0.85); border-color: alpha($OLD_BD, 0.3); opacity: 0.4; }
+  to   { background-color: alpha($NEW_BG, 0.85); border-color: alpha($NEW_BD, 0.3); opacity: 1; }
 }
-window#waybar {
-  animation: theme-crossfade 450ms ease-out 1;
+window#waybar,
+window#waybar #workspaces button,
+window#waybar #workspaces button.active,
+window#waybar #clock,
+window#waybar #pulseaudio,
+window#waybar #cpu,
+window#waybar #memory,
+window#waybar #network {
+  animation: theme-crossfade 800ms ease-out 1;
 }
 KEYFRAMES
 
