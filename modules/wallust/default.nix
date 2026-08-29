@@ -29,11 +29,12 @@
 #     the fuzzel package + deps (jq/wl-clipboard/xdg-utils/coreutils) via modules/fuzzel.
 #   - alacritty: HM writes alacritty.toml ONLY when settings != {} (empty), so wallust
 #     writes ~/.config/alacritty/alacritty.toml directly (live_config_reload=true).
-#   - niri: niri-flake writes ~/.config/niri/config.kdl (strict `settings` submodule, no
-#     room for an `include`). niri DOES support `include` directives, so we override that
-#     file's source (mkForce) to append `include optional=true "colors.kdl"`, where
-#     colors.kdl is wallust-generated. All binds/window-rules/gaps survive via
-#     finalConfig. No edit to modules/niri/home.nix required.
+#   - niri: the nixpkgs home-manager `wayland.windowManager.niri` module writes
+#     ~/.config/niri/config.kdl from `settings`. niri 26.04 DOES support `include`
+#     directives, so once this is re-enabled we append `include optional=true
+#     "colors.kdl"` (colors.kdl is wallust-generated) via extraConfig/extraConfigEarly
+#     rather than mkForce. All binds/window-rules/gaps survive via `settings`.
+#     No edit to modules/niri/home.nix is required for the include itself.
 #
 # NIRI RUNTIME NOTE (honest limitation)
 #   niri reads config.kdl only at session (compositor) start; there is no live reload
@@ -228,19 +229,14 @@ in
   # HM keeps programs.waybar.settings (config.json, untouched by wallust).
   programs.waybar.style = lib.mkForce null;
 
-  # ---- niri colors: build-time only on niri 25.08 (no include, no runtime theme) ----
-  # niri 25.08 (the pinned niri-flake version) does NOT support `include`, so a
-  # wallust-generated colors.kdl cannot be pulled into config.kdl, and the config
-  # itself is a read-only store symlink (wallust cannot rewrite it). Therefore niri
-  # colors are set at BUILD time from the declared wallpaper,
-  # matching the persistent awww background. wallust re-themes waybar/fuzzel/
-  # alacritty live; niri colors update on the next rebuild. To get runtime niri
-  # theming, bump the niri-flake to a version with `include` (>= v26) and revisit.
-  # (Earlier attempts to append `include optional=true "colors.kdl"` FAILED: niri
-  # 25.08 rejects `include` as an unexpected node — verified with `niri validate`
-  # against the pinned 25.08 binary.)
-  # Leave config.kdl as niri-flake generates it (no override at all) — this was the
-  # root of two build breaks. niri-flake owns the file; wallust does not touch it.
+  # ---- niri colors: deferred (Phase 1b) ----
+  # The flake now uses nixpkgs' niri 26.04, which DOES support `include`
+  # directives. So the build-time-only limitation described below no longer
+  # applies: a wallust-generated colors.kdl CAN be pulled in at runtime via
+  # `include optional=true "colors.kdl"`. Re-enabling runtime niri theming is
+  # Phase 1b (separate), not part of this niri-flake -> nixpkgs migration.
+  # Until then, niri colors come from its defaults; wallust re-themes
+  # waybar/fuzzel/alacritty live.
 
   # ---- persistent background: handled by modules/awww systemd services ----
   # modules/awww starts `awww-daemon` (systemd user service `awww`) and sets the

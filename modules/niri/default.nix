@@ -1,11 +1,12 @@
 {
   pkgs,
   config,
-  inputs,
   ...
 }: {
-  imports = [inputs.niri-flake.nixosModules.niri];
-
+  # nixpkgs' nixos/modules/programs/wayland/niri.nix provides `programs.niri`
+  # (enable/package/useNautilus) — no explicit import needed, it ships with
+  # nixpkgs. The home-manager `wayland.windowManager.niri` (settings/binds) is
+  # wired in modules/niri/home.nix, imported via desktop-presets/niri.
   programs.niri.enable = true;
 
   environment.systemPackages = with pkgs; [
