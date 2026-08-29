@@ -38,6 +38,11 @@ ShellRoot {
     path: palettePath
     watchChanges: true
 
+    // watchChanges only emits the signal; the file is not re-read unless we
+    // explicitly reload here. Without this the bar themes once at startup and
+    // then freezes when wallust rewrites the palette (Super+W).
+    onFileChanged: palette.reload()
+
     onLoaded: {
       try {
         const p = JSON.parse(text());
