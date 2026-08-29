@@ -247,7 +247,7 @@ in
       config.programs.niri.finalConfig
       + ''
 
-    # Wallust-generated colors (include is optional so a missing file is harmless).
+    // Wallust-generated colors (include is optional so a missing file is harmless).
     include optional=true "colors.kdl"
     ''
     )
