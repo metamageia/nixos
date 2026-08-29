@@ -78,10 +78,11 @@ let
     # Re-theme: apply palette + render all templates (waybar/fuzzel/alacritty).
     ${pkgs.wallust}/bin/wallust run --config-dir "$CONFIG_DIR" "$wp"
 
-    # Set the live desktop background with a smooth fade transition (awww is a
-    # daemon — no kill-flash; the daemon persists from spawn-at-startup).
-    ${pkgs.awww}/bin/awww img "$wp" --transition-type fade --transition-duration 0.8 2>/dev/null || \
-      (${pkgs.procps}/bin/pkill -x awww-daemon 2>/dev/null || true; sleep 0.2; ${pkgs.awww}/bin/awww-daemon & sleep 0.5; ${pkgs.awww}/bin/awww img "$wp" --transition-type fade 2>/dev/null || true)
+    # Set the live desktop background with a smooth fade transition. awww-daemon
+    # persists from spawn-at-startup; we NEVER pkill it (killing it would drop the
+    # background / break the socket). If awww img fails, surface the error.
+    export WAYLAND_DISPLAY="wayland-1"
+    ${pkgs.awww}/bin/awww img "$wp" --transition-type fade --transition-duration 0.8
 
     # waybar reloads its CSS on SIGUSR2.
     ${pkgs.procps}/bin/pkill -u "$USER" -USR2 waybar 2>/dev/null || true
