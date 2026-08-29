@@ -234,11 +234,15 @@ in
   programs.waybar.style = lib.mkForce null;
 
   # ---- niri: append the wallust include to the generated config.kdl ----
-  # niri-flake writes xdg.configFile."niri/config.kdl" from finalConfig. We override
-  # its source (mkForce) to append an optional include of wallust's colors.kdl, keeping
-  # the full rendered config (all binds/window-rules/gaps) intact. No edit to
-  # modules/niri/home.nix. niri re-reads this only at session start.
-  xdg.configFile."niri/config.kdl".source = lib.mkForce (
+  # niri-flake writes xdg.configFile.niri-config (target="niri/config.kdl") from
+  # programs.niri.finalConfig. We override THAT named entry's source (mkForce) to
+  # append an optional include of wallust's colors.kdl, keeping the full rendered
+  # config (all binds/window-rules/gaps) intact. We MUST override the named
+  # `niri-config` entry — declaring a fresh `xdg.configFile."niri/config.kdl"` would
+  # duplicate the managed target and home-manager refuses ("Conflicting managed
+  # target files"). No edit to modules/niri/home.nix. niri re-reads only at session
+  # start, so colors apply on next login (no live IPC).
+  xdg.configFile.niri-config.source = lib.mkForce (
     pkgs.writeText "niri-config.kdl" (
       config.programs.niri.finalConfig
       + ''
