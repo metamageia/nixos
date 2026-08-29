@@ -109,7 +109,6 @@ in
     waybar = { template = "waybar.tmpl", target = "${config.xdg.configHome}/waybar/style.css" }
     fuzzel = { template = "fuzzel.tmpl", target = "${config.xdg.configHome}/fuzzel/fuzzel.ini" }
     alacritty = { template = "alacritty.tmpl", target = "${config.xdg.configHome}/alacritty/alacritty.toml" }
-    niri = { template = "niri.tmpl", target = "${config.xdg.configHome}/niri/colors.kdl" }
   '';
 
   home.file.".config/wallust/templates/waybar.tmpl".text = ''
@@ -216,42 +215,23 @@ in
     white="{{color15}}"
   '';
 
-  home.file.".config/wallust/templates/niri.tmpl".text = ''
-    # Wallust-generated niri colors, included by ~/.config/niri/config.kdl
-    # (include optional=true "colors.kdl"). Applied on next niri/session start.
-    layout {
-      background-color "{{background}}"
-    }
-
-    focus-ring {
-      width 3
-      color "{{color5}}"
-    }
-  '';
-
   # ---- hand ownership to wallust: drop HM-written style.css that would collide ----
   # HM keeps programs.waybar.settings (config.json, untouched by wallust).
   programs.waybar.style = lib.mkForce null;
 
-  # ---- niri: append the wallust include to the generated config.kdl ----
-  # niri-flake writes xdg.configFile.niri-config (target="niri/config.kdl") from
-  # programs.niri.finalConfig. We override THAT named entry's source (mkForce) to
-  # append an optional include of wallust's colors.kdl, keeping the full rendered
-  # config (all binds/window-rules/gaps) intact. We MUST override the named
-  # `niri-config` entry — declaring a fresh `xdg.configFile."niri/config.kdl"` would
-  # duplicate the managed target and home-manager refuses ("Conflicting managed
-  # target files"). No edit to modules/niri/home.nix. niri re-reads only at session
-  # start, so colors apply on next login (no live IPC).
-  xdg.configFile.niri-config.source = lib.mkForce (
-    pkgs.writeText "niri-config.kdl" (
-      config.programs.niri.finalConfig
-      + ''
-
-    // Wallust-generated colors (include is optional so a missing file is harmless).
-    include optional=true "colors.kdl"
-    ''
-    )
-  );
+  # ---- niri colors: build-time only on niri 25.08 (no include, no runtime theme) ----
+  # niri 25.08 (the pinned niri-flake version) does NOT support `include`, so a
+  # wallust-generated colors.kdl cannot be pulled into config.kdl, and the config
+  # itself is a read-only store symlink (wallust cannot rewrite it). Therefore niri
+  # colors are set at BUILD time from the declared wallpaper (userValues.wallpaper),
+  # matching the persistent swaybg background. wallust re-themes waybar/fuzzel/
+  # alacritty live; niri colors update on the next rebuild. To get runtime niri
+  # theming, bump the niri-flake to a version with `include` (>= v26) and revisit.
+  # (Earlier attempts to append `include optional=true "colors.kdl"` FAILED: niri
+  # 25.08 rejects `include` as an unexpected node — verified with `niri validate`
+  # against the pinned 25.08 binary.)
+  # Leave config.kdl as niri-flake generates it (no override at all) — this was the
+  # root of two build breaks. niri-flake owns the file; wallust does not touch it.
 
   # ---- persistent background at session start (swaybg daemon via niri) ----
   # niri-flake writes ~/.config/niri/config.kdl from programs.niri.settings. We add a
