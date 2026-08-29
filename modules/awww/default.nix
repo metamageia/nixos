@@ -33,10 +33,10 @@ in {
       Wants = ["awww.service"];
     };
     Service = {
-      # Restore the last wallpaper chosen via wallust-switch (state file) if it
-      # exists, else fall back to the declared default. This stops a rebuild/login
-      # from resetting the wallpaper to the hardcoded default.
-      ExecStart = "${pkgs.bash}/bin/bash -c 'if [ -f \"${wallustStateFile}\" ]; then ${pkgs.awww}/bin/awww img \"$(cat \"${wallustStateFile}\")\" --transition-type center; else ${pkgs.awww}/bin/awww img \"${userValues.wallpaper}\" --transition-type center; fi'";
+      # Restore the last wallpaper chosen via wallust-switch (state file). No
+      # hardcoded default — the old hardcoded wallpaper was removed (old rice).
+      # If no choice is saved yet, awww simply keeps whatever it last displayed.
+      ExecStart = "${pkgs.bash}/bin/bash -c 'if [ -f \"${wallustStateFile}\" ]; then ${pkgs.awww}/bin/awww img \"$(cat \"${wallustStateFile}\")\" --transition-type center; fi'";
       Restart = "on-failure";
     };
     Install = {

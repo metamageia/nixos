@@ -75,7 +75,6 @@
     };
 
     userValues = {
-      wallpaper = ./wallpapers/warframe-entrati-01.jpg;
       # Git-tracked wallpaper set; read-only store path at build time, used by the
       # wallust switcher at runtime (modules/wallust). Add a wallpaper => commit + rebuild.
       wallpapersDir = ./wallpapers;

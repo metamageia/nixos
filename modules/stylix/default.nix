@@ -18,7 +18,8 @@
   stylix = {
     enable = false;
     homeManagerIntegration.autoImport = true;
-    image = userValues.wallpaper;
+    # image removed — the hardcoded wallpaper (old rice) was deleted; wallust
+    # (modules/wallust) now owns wallpaper selection at runtime.
   };
 
   #stylix.targets.fuzzel.enable = true;
