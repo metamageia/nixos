@@ -124,14 +124,19 @@ in
     * {
       font-family: "Inter", "EB Garamond", sans-serif;
       font-size: 13px;
-      /* Smooth the color change on wallust re-theme (SIGUSR2 reload) — animate
-         color/background/border instead of a hard flash. */
-      transition: background 0.6s ease, color 0.6s ease, border-color 0.6s ease;
+    }
+    /* Fade the whole bar in on style reload (SIGUSR2 after wallust re-theme),
+       softening the color change. Keyframes animate more reliably than a CSS
+       `transition` across a stylesheet reload in GTK. */
+    @keyframes waybar-fade {
+      from { opacity: 0; }
+      to   { opacity: 1; }
     }
     window#waybar {
       background: alpha({{background}}, 0.85);
       border: 1px solid alpha({{color5}}, 0.3);
       border-radius: 12px;
+      animation: waybar-fade 0.4s ease;
     }
     #workspaces button {
       color: {{color8}};
