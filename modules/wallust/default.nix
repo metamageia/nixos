@@ -30,11 +30,13 @@
 #   - alacritty: HM writes alacritty.toml ONLY when settings != {} (empty), so wallust
 #     writes ~/.config/alacritty/alacritty.toml directly (live_config_reload=true).
 #   - niri: the nixpkgs home-manager `wayland.windowManager.niri` module writes
-#     ~/.config/niri/config.kdl from `settings`. niri 26.04 DOES support `include`
-#     directives, so once this is re-enabled we append `include optional=true
-#     "colors.kdl"` (colors.kdl is wallust-generated) via extraConfig/extraConfigEarly
-#     rather than mkForce. All binds/window-rules/gaps survive via `settings`.
-#     No edit to modules/niri/home.nix is required for the include itself.
+#     ~/.config/niri/config.kdl from `settings` via the NAMED entry
+#     `xdg.configFile."niri/config.kdl"`. niri 26.04 DOES support `include`
+#     directives, so we append `include optional=true "colors.kdl"` (colors.kdl
+#     is wallust-generated from niri.tmpl) by using the module's own
+#     `extraConfig` hook — NOT a fresh xdg.configFile target (that collides).
+#     All binds/window-rules/gaps survive via `settings`; the include is added
+#     at the END of the generated config. Enabled (Phase 1b).
 #
 # NIRI RUNTIME NOTE (honest limitation)
 #   niri reads config.kdl only at session (compositor) start; there is no live reload
@@ -119,6 +121,7 @@ in
     waybar = { template = "waybar.tmpl", target = "${config.xdg.configHome}/waybar/style.css" }
     fuzzel = { template = "fuzzel.tmpl", target = "${config.xdg.configHome}/fuzzel/fuzzel.ini" }
     alacritty = { template = "alacritty.tmpl", target = "${config.xdg.configHome}/alacritty/alacritty.toml" }
+    niri = { template = "niri.tmpl", target = "${config.xdg.configHome}/niri/colors.kdl" }
   '';
 
   home.file.".config/wallust/templates/waybar.tmpl".text = ''
@@ -225,18 +228,35 @@ in
     white="{{color15}}"
   '';
 
+  home.file.".config/wallust/templates/niri.tmpl".text = ''
+layout {
+    background-color "{{background}}"
+}
+focus-ring {
+    color "{{color5}}"
+}
+  '';
+
   # ---- hand ownership to wallust: drop HM-written style.css that would collide ----
   # HM keeps programs.waybar.settings (config.json, untouched by wallust).
   programs.waybar.style = lib.mkForce null;
 
-  # ---- niri colors: deferred (Phase 1b) ----
-  # The flake now uses nixpkgs' niri 26.04, which DOES support `include`
-  # directives. So the build-time-only limitation described below no longer
-  # applies: a wallust-generated colors.kdl CAN be pulled in at runtime via
-  # `include optional=true "colors.kdl"`. Re-enabling runtime niri theming is
-  # Phase 1b (separate), not part of this niri-flake -> nixpkgs migration.
-  # Until then, niri colors come from its defaults; wallust re-themes
-  # waybar/fuzzel/alacritty live.
+  # ---- niri colors: ENABLED via include (nixpkgs niri 26.04) ----
+  # nixpkgs' `wayland.windowManager.niri` renders ~/.config/niri/config.kdl from
+  # its `settings` via the NAMED home-manager entry `xdg.configFile."niri/config.kdl"
+  # (verified in the home-manager source:
+  #  modules/services/window-managers/niri.nix -> xdg.configFile."niri/config.kdl",
+  #  built from cfg.extraConfigEarly + cfg.settings + cfg.extraConfig).
+  # We must NOT re-declare xdg.configFile."niri/config.kdl" (that triggers
+  # "Conflicting managed target files"); instead we use the module's own
+  # `extraConfig` hook, which appends to the END of that named entry's source.
+  # The appended line pulls in wallust's runtime-generated colors.kdl.
+  # `include optional=true` keeps a missing colors.kdl (pre-first-wallust-run)
+  # from breaking niri startup. mkAfter ensures it lands last even if other
+  # extraConfig is added elsewhere.
+  wayland.windowManager.niri.extraConfig = lib.mkAfter ''
+    include optional=true "colors.kdl"
+  '';
 
   # ---- persistent background: handled by modules/awww systemd services ----
   # modules/awww starts `awww-daemon` (systemd user service `awww`) and sets the
