@@ -28,10 +28,12 @@ ShellRoot {
 
   readonly property string fallbackBg: "#0d0d14"
   readonly property string fallbackFg: "#e8e8f0"
+  readonly property string fallbackAccent: "#7b68ab"
 
   // Live theme colors. Start at fallbacks; overwritten once the palette loads.
   property string barBg: fallbackBg
   property string barFg: fallbackFg
+  property string barAccent: fallbackAccent
 
   FileView {
     id: palette
@@ -48,6 +50,7 @@ ShellRoot {
         const p = JSON.parse(text());
         if (p.bg) barBg = p.bg;
         if (p.fg) barFg = p.fg;
+        if (p.accent) barAccent = p.accent;
       } catch (e) {
         // Leave fallbacks if the JSON is unreadable / malformed.
       }
@@ -78,7 +81,7 @@ ShellRoot {
           verticalCenter: parent.verticalCenter
         }
         text: Qt.formatDateTime(new Date(), "ddd HH:mm:ss")
-        color: barFg
+        color: barAccent
         font.family: "monospace"
         font.pixelSize: 13
 
