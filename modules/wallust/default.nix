@@ -75,8 +75,43 @@ let
 
     wp="$WP_DIR/$choice"
 
+    STYLE="${config.xdg.configHome}/waybar/style.css"
+
+    # Capture the CURRENT palette (old colors) for the crossfade keyframe, before
+    # wallust overwrites style.css. GTK3 animates `background-color`/`color`/
+    # `border-color` but NOT via a `transition` across a stylesheet reload — a
+    # `@keyframes` re-runs from frame 0 on the SIGUSR2 reload, so we generate a
+    # one-shot crossfade from the old palette to the new.
+    OLD_BG=$("${pkgs.gnused}/bin/sed" -n '/^[[:space:]]*window#waybar/,/^[[:space:]]*}/p' "$STYLE" 2>/dev/null \
+      | "${pkgs.gnused}/bin/sed" -n 's/.*background: alpha(\(#[0-9A-Fa-f]*\).*/\1/p' | head -1)
+    OLD_BD=$("${pkgs.gnused}/bin/sed" -n '/^[[:space:]]*window#waybar/,/^[[:space:]]*}/p' "$STYLE" 2>/dev/null \
+      | "${pkgs.gnused}/bin/sed" -n 's/.*border: 1px solid alpha(\(#[0-9A-Fa-f]*\).*/\1/p' | head -1)
+    [ -n "$OLD_BG" ] || OLD_BG="#000000"
+    [ -n "$OLD_BD" ] || OLD_BD="#000000"
+
     # Re-theme: apply palette + render all templates (waybar/fuzzel/alacritty).
     ${pkgs.wallust}/bin/wallust run --config-dir "$CONFIG_DIR" "$wp"
+
+    # Read the NEW palette wallust just wrote, then append a one-shot crossfade
+    # keyframe from the old palette to the new. SIGUSR2 re-applies the CSS and the
+    # animation replays from frame 0, giving a real color morph instead of a snap.
+    NEW_BG=$("${pkgs.gnused}/bin/sed" -n '/^[[:space:]]*window#waybar/,/^[[:space:]]*}/p' "$STYLE" 2>/dev/null \
+      | "${pkgs.gnused}/bin/sed" -n 's/.*background: alpha(\(#[0-9A-Fa-f]*\).*/\1/p' | head -1)
+    NEW_BD=$("${pkgs.gnused}/bin/sed" -n '/^[[:space:]]*window#waybar/,/^[[:space:]]*}/p' "$STYLE" 2>/dev/null \
+      | "${pkgs.gnused}/bin/sed" -n 's/.*border: 1px solid alpha(\(#[0-9A-Fa-f]*\).*/\1/p' | head -1)
+    [ -n "$NEW_BG" ] || NEW_BG="#000000"
+    [ -n "$NEW_BD" ] || NEW_BD="#000000"
+
+    cat >> "$STYLE" <<KEYFRAMES
+/* wallust-switch: one-shot crossfade from previous palette (re-runs on reload) */
+@keyframes theme-crossfade {
+  from { background-color: alpha($OLD_BG, 0.85); border-color: alpha($OLD_BD, 0.3); }
+  to   { background-color: alpha($NEW_BG, 0.85); border-color: alpha($NEW_BD, 0.3); }
+}
+window#waybar {
+  animation: theme-crossfade 450ms ease-out 1;
+}
+KEYFRAMES
 
     # Set the live desktop background with a wipe transition (left-to-right).
     # awww-daemon persists from spawn-at-startup; we NEVER pkill it (killing it
@@ -89,7 +124,7 @@ let
     # systemd service) instead of resetting to the hardcoded default.
     echo "$wp" > "${wallustCfgDir}/last-wallpaper"
 
-    # waybar reloads its CSS on SIGUSR2.
+    # waybar reloads its CSS on SIGUSR2 (re-runs the crossfade keyframe).
     ${pkgs.procps}/bin/pkill -u "$USER" -USR2 waybar 2>/dev/null || true
 
     ${pkgs.libnotify}/bin/notify-send "wallust" "Themed from $choice" 2>/dev/null || true
@@ -125,18 +160,11 @@ in
       font-family: "Inter", "EB Garamond", sans-serif;
       font-size: 13px;
     }
-    /* Fade the whole bar in on style reload (SIGUSR2 after wallust re-theme),
-       softening the color change. Keyframes animate more reliably than a CSS
-       `transition` across a stylesheet reload in GTK. */
-    @keyframes waybar-fade {
-      from { opacity: 0; }
-      to   { opacity: 1; }
-    }
     window#waybar {
       background: alpha({{background}}, 0.85);
       border: 1px solid alpha({{color5}}, 0.3);
       border-radius: 12px;
-      animation: waybar-fade 0.4s ease;
+      /* Crossfade is injected by wallust-switch (theme-crossfade keyframe). */
     }
     #workspaces button {
       color: {{color8}};
