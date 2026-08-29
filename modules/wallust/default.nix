@@ -124,6 +124,9 @@ in
     * {
       font-family: "Inter", "EB Garamond", sans-serif;
       font-size: 13px;
+      /* Smooth the color change on wallust re-theme (SIGUSR2 reload) — animate
+         color/background/border instead of a hard flash. */
+      transition: background 0.6s ease, color 0.6s ease, border-color 0.6s ease;
     }
     window#waybar {
       background: alpha({{background}}, 0.85);
