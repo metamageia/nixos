@@ -5,7 +5,7 @@
 #     daemon; niri has NO native wallpaper-image support). awww gives smooth
 #     fade/wipe/grow transitions between wallpapers — no screen flash.
 #   - Ships ~/.config/wallust/wallust.toml + its `templates/` dir. wallust reads
-#     colors from a chosen wallpaper and renders templates for waybar, fuzzel,
+#     colors from a chosen wallpaper and renders templates for fuzzel,
 #     and alacritty.
 #   - Ships `wallust-switch`: a fuzzel-dmenu launcher that lists wallpapers from
 #     the repo wallpapers dir, applies the chosen one with `wallust run ...`, and
@@ -20,10 +20,6 @@
 #   absolute runtime path wallust writes.
 #
 # CONFIG-OWNERSHIP STRATEGY (wallust owns colors; HM keeps structure)
-#   - waybar: keep `programs.waybar.settings` (HM writes config.json — wallust never
-#     touches it). Drop `programs.waybar.style` with mkForce (HM would otherwise write
-#     ~/.config/waybar/style.css); wallust writes style.css instead. Shortcuts/widgets
-#     in settings are preserved.
 #   - fuzzel: HM writes fuzzel.ini ONLY when settings != {} (it is empty here), so no
 #     conflict — wallust writes ~/.config/fuzzel/fuzzel.ini directly. HM still provides
 #     the fuzzel package + deps (jq/wl-clipboard/xdg-utils/coreutils) via modules/fuzzel.
@@ -42,8 +38,8 @@
 #   niri reads config.kdl only at session (compositor) start; there is no live reload
 #   IPC. So wallust regenerating niri/colors.kdl takes visual effect on niri after the
 #   NEXT login / niri restart — NOT immediately. The switcher therefore does NOT kill
-#   niri (that would end the session). waybar/fuzzel/alacritty pick up their new files
-#   live (waybar via SIGUSR2; fuzzel/alacritty on next launch). `include optional=true`
+#   niri (that would end the session). fuzzel/alacritty pick up their new files
+#   live (fuzzel/alacritty on next launch). `include optional=true`
 #   keeps a missing colors.kdl (pre-first-run) from breaking niri startup.
 #
 # KEYBIND (recommended — add to modules/niri/home.nix `binds`, out of scope here)
@@ -61,7 +57,7 @@ let
 
   wallustCfgDir = "${config.xdg.configHome}/wallust";
 
-  # fuzzel-dmenu launcher: pick wallpaper -> wallust run -> awww img -> reload waybar.
+  # fuzzel-dmenu launcher: pick wallpaper -> wallust run -> awww img.
   wallust-switch = pkgs.writeShellScriptBin "wallust-switch" ''
     #!${pkgs.bash}/bin/bash
     set -euo pipefail
@@ -78,7 +74,7 @@ let
 
     wp="$WP_DIR/$choice"
 
-    # Re-theme: apply palette + render all templates (waybar/fuzzel/alacritty).
+    # Re-theme: apply palette + render all templates (fuzzel/alacritty).
     ${pkgs.wallust}/bin/wallust run --config-dir "$CONFIG_DIR" "$wp"
 
     # Set the live desktop background with a wipe transition (left-to-right).
@@ -92,8 +88,6 @@ let
     # systemd service) instead of resetting to the hardcoded default.
     echo "$wp" > "${wallustCfgDir}/last-wallpaper"
 
-    # waybar reloads its CSS on SIGUSR2.
-    ${pkgs.procps}/bin/pkill -u "$USER" -USR2 waybar 2>/dev/null || true
 
     ${pkgs.libnotify}/bin/notify-send "wallust" "Themed from $choice" 2>/dev/null || true
   '';
@@ -118,7 +112,6 @@ in
     # {{cursor}}, {{alpha}}. (Verified: accent/wallpaper do NOT resolve.)
 
     [templates]
-    waybar = { template = "waybar.tmpl", target = "${config.xdg.configHome}/waybar/style.css" }
     fuzzel = { template = "fuzzel.tmpl", target = "${config.xdg.configHome}/fuzzel/fuzzel.ini" }
     alacritty = { template = "alacritty.tmpl", target = "${config.xdg.configHome}/alacritty/alacritty.toml" }
     niri = { template = "niri.tmpl", target = "${config.xdg.configHome}/niri/colors.kdl" }
@@ -126,49 +119,6 @@ in
     # crossfades via ColorAnimation/Behavior. Lives next to the bar config dir so
     # the path always exists; wallust owns it, HM never writes it.
     quickshell = { template = "quickshell.tmpl", target = "${config.xdg.configHome}/quickshell/wallust-palette.json" }
-  '';
-
-  home.file.".config/wallust/templates/waybar.tmpl".text = ''
-    * {
-      font-family: "Inter", "EB Garamond", sans-serif;
-      font-size: 13px;
-    }
-    window#waybar {
-      background: alpha({{background}}, 0.85);
-      border: 1px solid alpha({{color5}}, 0.3);
-      border-radius: 12px;
-    }
-    #workspaces button {
-      color: {{color8}};
-      padding: 0 8px;
-      margin: 4px 2px;
-    }
-    #workspaces button.active {
-      color: {{color3}};
-      background: alpha({{color5}}, 0.2);
-      border: 1px solid {{color3}};
-      border-radius: 6px;
-    }
-    #clock {
-      color: {{color4}};
-      font-weight: bold;
-      padding: 0 16px;
-      margin: 4px 2px;
-      background: alpha({{color1}}, 0.5);
-      border-radius: 6px;
-    }
-    #pulseaudio {
-      color: {{color6}};
-    }
-    #cpu {
-      color: {{color1}};
-    }
-    #memory {
-      color: {{color2}};
-    }
-    #network {
-      color: {{color5}};
-    }
   '';
 
   home.file.".config/wallust/templates/fuzzel.tmpl".text = ''
@@ -253,10 +203,6 @@ focus-ring {
       "blue": "{{color4}}"
     }
   '';
-
-  # ---- hand ownership to wallust: drop HM-written style.css that would collide ----
-  # HM keeps programs.waybar.settings (config.json, untouched by wallust).
-  programs.waybar.style = lib.mkForce null;
 
   # ---- niri colors: ENABLED via include (nixpkgs niri 26.04) ----
   # nixpkgs' `wayland.windowManager.niri` renders ~/.config/niri/config.kdl from

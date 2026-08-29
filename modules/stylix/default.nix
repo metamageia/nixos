@@ -23,6 +23,5 @@
   };
 
   #stylix.targets.fuzzel.enable = true;
-  #stylix.targets.waybar.enable = true;
   #stylix.targets.niri.enable = true;
 }

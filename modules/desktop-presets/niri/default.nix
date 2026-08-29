@@ -8,7 +8,6 @@
 
   home-manager.sharedModules = [
     ../../niri/home.nix
-    ../../waybar
     ../../fuzzel
   ];
 }

@@ -168,16 +168,16 @@ in {
             {opacity = 0.93;}
           ];
         }
-        # Spawn the QuickShell bar at session start (replaces waybar, Phase 3).
-        # nixpkgs niri 26.04 accepts repeated `spawn-at-startup` nodes, each a bare
-        # command. xwayland-satellite is emitted from `settings` above; this appends
-        # a second node for quickshell-bar (wrapper that sets QML2_IMPORT_PATH for
-        # the qml-niri plugin and execs quickshell). _children emits top-level KDL
-        # nodes (same mechanism as the window-rules above).
-        {
-          "spawn-at-startup" = "quickshell-bar";
-        }
       ];
     };
+
+    # Spawn the QuickShell bar at session start (replaces waybar, Phase 3).
+    # Emitted via extraConfig (not settings._children) because the nixpkgs
+    # home-manager KDL generator drops a bare `{"spawn-at-startup" = …}` _children
+    # entry; raw extraConfig nodes are preserved verbatim. Window-rules above stay
+    # in _children (they render fine); only the bare spawn node was skipped.
+    extraConfig = ''
+      spawn-at-startup "quickshell-bar"
+    '';
   };
 }
