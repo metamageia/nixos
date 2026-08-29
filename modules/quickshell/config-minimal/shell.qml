@@ -40,6 +40,15 @@ ShellRoot {
         ? Quickshell.env("XDG_CONFIG_HOME") + "/quickshell/wallust-palette.json"
         : Quickshell.env("HOME") + "/.config/quickshell/wallust-palette.json")
 
+  // Nerd Font family for the bar's glyphs. Verified installed on this host:
+  // `Iosevka Nerd Font Mono` (nerd-fonts.iosevka) covers every glyph used here
+  // (wifi f1eb, volume f028/f026, clock f017, workspaces f108, tray f169).
+  readonly property string nerdFont: "Iosevka Nerd Font Mono"
+
+  // Live mute state, driven by the volume poll. Lets the volume text/icon color
+  // bind to a palette key (so the 4a crossfade still recolors it on theme change).
+  property bool volMuted: false
+
   // Current (visible) theme colors — all from the wallust palette. NO literals.
   property string barBg: "#0d0d14"
   property string barFg: "#e8e6f0"
@@ -139,6 +148,12 @@ ShellRoot {
           leftMargin: 8
           verticalCenter: parent.verticalCenter
         }
+        Text {
+          text: "\uf00a"
+          color: root.barMuted
+          font.family: root.nerdFont
+          font.pixelSize: 13
+        }
         Repeater {
           model: niri.workspaces
           Rectangle {
@@ -174,15 +189,15 @@ ShellRoot {
           horizontalCenter: parent.horizontalCenter
           verticalCenter: parent.verticalCenter
         }
-        text: Qt.formatDateTime(new Date(), "ddd HH:mm:ss")
+        text: "\uf017 " + Qt.formatDateTime(new Date(), "ddd HH:mm:ss")
         color: root.barAccent
-        font.family: "monospace"
+        font.family: root.nerdFont
         font.pixelSize: 13
         Timer {
           interval: 1000
           running: true
           repeat: true
-          onTriggered: clock.text = Qt.formatDateTime(new Date(), "ddd HH:mm:ss")
+          onTriggered: clock.text = "\uf017 " + Qt.formatDateTime(new Date(), "ddd HH:mm:ss")
         }
       }
 
@@ -197,11 +212,19 @@ ShellRoot {
         }
 
         // wifi via NetworkManager `nmcli` (no compositor dependency).
+        // Click opens networkmanager_dmenu — the existing fuzzel/rofi picker
+        // already in the package set (modules/networking). No new picker built.
         Text {
           id: wifi
           color: root.barGreen
+          font.family: root.nerdFont
           font.pixelSize: 13
-          text: "net --"
+          text: "\uf1eb net --"
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: Quickshell.execDetached(["networkmanager_dmenu"])
+          }
         }
         Process {
           id: wifiProc
@@ -215,7 +238,7 @@ ShellRoot {
                 const p = l.split(":")
                 if (p[0] === "yes" && p[1]) { ssid = p[1]; break }
               }
-              wifi.text = ssid ? ("net " + ssid) : "net off"
+              wifi.text = ssid ? ("\uf1eb net " + ssid) : "\uf1eb net off"
             }
           }
         }
@@ -226,12 +249,29 @@ ShellRoot {
           onTriggered: wifiProc.running = true
         }
 
-        // volume via PipeWire/wireplumber `wpctl`.
+        // volume via PipeWire/wireplumber `wpctl`. Scroll = step volume by 5%,
+        // click = toggle mute. Both fired through Quickshell.execDetached (a
+        // detached shell command). Numeric % + mute state kept visible; color
+        // binds to the palette so the 4a crossfade still recolors it.
         Text {
           id: vol
-          color: root.barBlue
+          color: root.volMuted ? root.barUrgent : root.barBlue
+          font.family: root.nerdFont
           font.pixelSize: 13
-          text: "vol --"
+          text: "\uf028 vol --"
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: {
+              Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
+              volProc.running = true
+            }
+            onWheel: (wheel) => {
+              const step = wheel.angleDelta.y > 0 ? "5%+" : "5%-"
+              Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", step])
+              volProc.running = true
+            }
+          }
         }
         Process {
           id: volProc
@@ -242,11 +282,13 @@ ShellRoot {
               const t = this.text.trim()
               const m = t.match(/Volume:\s*([\d.]+)/)
               const muted = /MUTED/.test(t)
+              root.volMuted = muted
               if (m) {
                 const pct = Math.round(parseFloat(m[1]) * 100)
-                vol.text = (muted ? "mute " : "vol ") + pct + "%"
+                const glyph = muted ? "\uf026" : "\uf028"
+                vol.text = glyph + " " + (muted ? "MUTE " : "") + pct + "%"
               } else {
-                vol.text = "vol ?"
+                vol.text = "\uf028 vol ?"
               }
             }
           }
@@ -259,6 +301,12 @@ ShellRoot {
         }
 
         // system tray via QuickShell's built-in SystemTray.
+        Text {
+          text: "\uf01c"
+          color: root.barMuted
+          font.family: root.nerdFont
+          font.pixelSize: 13
+        }
         Repeater {
           model: SystemTray.items
           Image {
