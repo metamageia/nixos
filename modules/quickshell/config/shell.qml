@@ -22,6 +22,22 @@ ShellRoot {
   // type being lowercase `colors` colliding with the id.
   Colors { id: colors }
 
+  // Watch the wallust-generated palette file and re-apply colours on change.
+  // Lives here (not inside Colors.qml) because ShellRoot holds child objects
+  // cleanly; Colors.qml stays pure data. `onLoaded`/`onFileChanged` fire when
+  // wallust rewrites the file (Mod+W), triggering the crossfade Behaviours.
+  FileView {
+    id: paletteFile
+    path: colors.palettePath
+    watchChanges: true
+    onFileChanged: this.reload()
+    onLoaded: {
+      var text = this.text()
+      try { colors.applyPalette(JSON.parse(text)) }
+      catch (e) { /* corrupt/unparseable — keep current colours */ }
+    }
+  }
+
   Niri {
     id: niri
     Component.onCompleted: connect()

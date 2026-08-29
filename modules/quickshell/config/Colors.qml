@@ -1,39 +1,18 @@
 import QtQuick
-import Quickshell
-import Quickshell.Io
 
-// Centralised palette for the bar, wired to wallust (Phase 2b).
-//
-// wallust renders a small JSON palette
-// (~/.config/quickshell/wallust-palette.json) from the active wallpaper — see
-// modules/wallust default.nix -> [templates].quickshell. This object watches that
-// file (FileView.watchChanges) and re-applies the colours whenever wallust rewrites
-// it. Every Behaviour below crossfades the change over ~400ms, so a re-theme
-// (Mod+W / wallust-switch) makes the bar colours MORPH smoothly instead of snapping
-// — the whole payoff over GTK waybar.
-//
-// Because all widgets bind `color: colors.<x>`, animating the source property here
-// propagates the tween to every consumer with zero per-widget edits.
-
+// Centralised palette for the bar. Pure DATA (no child objects): a plain QtObject
+// exposing the colour properties the bar's widgets bind to (`colors.<x>`), plus a
+// crossfade Behaviour on each so a wallust re-theme morphs instead of snapping.
+// The FileView that watches the wallust palette file lives in shell.qml (a proper
+// ShellRoot that holds child objects cleanly) and calls applyPalette() here.
 QtObject {
   id: root
 
-  // Path to the wallust-generated palette. Set explicitly by the launcher
-  // (quickshell-bar wrapper -> QUICKSHELL_WALLUST_PALETTE) so the bar and wallust
-  // always agree on one path; falls back to the standard config location.
+  // Path to the wallust-generated palette. Set by the launcher (quickshell-bar
+  // wrapper -> QUICKSHELL_WALLUST_PALETTE); falls back to the standard config
+  // location. The FileView in shell.qml reads this.
   readonly property string palettePath: Quickshell.env("QUICKSHELL_WALLUST_PALETTE") ||
     ((Quickshell.env("XDG_CONFIG_HOME") || "~/.config") + "/quickshell/wallust-palette.json")
-
-  FileView {
-    id: paletteFile
-    path: root.palettePath
-    watchChanges: true
-    // No blockLoading: before wallust has run the file may not exist; we keep the
-    // static defaults instead of blocking. wallust creating/rewriting the file
-    // fires onLoaded/onFileChanged -> applyPalette.
-    onFileChanged: this.reload()
-    onLoaded: root.applyPalette()
-  }
 
   // Static defaults mirror the repo's purple/gold waybar theme so the swap is
   // visually continuous before wallust has run (or if the palette is unreadable).
@@ -46,21 +25,18 @@ QtObject {
   property color green: "#5e7a5e"
   property color blue: "#6b8e9f"
 
-  // Re-apply the wallust palette. A corrupt/missing file is ignored so the bar
-  // keeps its last good colours instead of snapping back to the defaults.
-  function applyPalette() {
-    var j
-    try { j = JSON.parse(paletteFile.text()) }
-    catch (e) { return }
-    if (!j) return
-    if (typeof j.bg === "string") root.bg = j.bg
-    if (typeof j.fg === "string") root.fg = j.fg
-    if (typeof j.accent === "string") root.accent = j.accent
-    if (typeof j.gold === "string") root.gold = j.gold
-    if (typeof j.muted === "string") root.muted = j.muted
-    if (typeof j.urgent === "string") root.urgent = j.urgent
-    if (typeof j.green === "string") root.green = j.green
-    if (typeof j.blue === "string") root.blue = j.blue
+  // Apply a palette object (from the JSON file read in shell.qml). A corrupt or
+  // missing value is ignored so the bar keeps its last good colours.
+  function applyPalette(paletteObj) {
+    if (!paletteObj) return
+    if (typeof paletteObj.bg === "string") root.bg = paletteObj.bg
+    if (typeof paletteObj.fg === "string") root.fg = paletteObj.fg
+    if (typeof paletteObj.accent === "string") root.accent = paletteObj.accent
+    if (typeof paletteObj.gold === "string") root.gold = paletteObj.gold
+    if (typeof paletteObj.muted === "string") root.muted = paletteObj.muted
+    if (typeof paletteObj.urgent === "string") root.urgent = paletteObj.urgent
+    if (typeof paletteObj.green === "string") root.green = paletteObj.green
+    if (typeof paletteObj.blue === "string") root.blue = paletteObj.blue
   }
 
   // Smooth crossfade on every palette colour. Centralised here = one place, and
