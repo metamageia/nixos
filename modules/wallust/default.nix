@@ -92,9 +92,11 @@ let
 in
 {
   # ---- packages ----
+  # awww-daemon is provided by modules/awww (systemd user services `awww` +
+  # `awww-wallpaper`). We do NOT add awww here or spawn our own daemon — the
+  # switcher below calls the systemd-managed daemon.
   home.packages = with pkgs; [
     wallust        # v3.5.x dynamic theming engine
-    awww           # animated wallpaper daemon (fade/wipe/grow transitions, no flash)
     libnotify      # notify-send from the switcher
     wallust-switch # fuzzel launcher defined above
   ];
@@ -235,22 +237,10 @@ in
   # Leave config.kdl as niri-flake generates it (no override at all) — this was the
   # root of two build breaks. niri-flake owns the file; wallust does not touch it.
 
-  # ---- persistent background at session start (awww-daemon via niri) ----
-  # awww-daemon draws the wallpaper image (niri has no native wallpaper image). On
-  # session start we launch the daemon then set the declared wallpaper (userValues
-  # .wallpaper); wallust-switch then swaps images live with a fade via `awww img`.
-  programs.niri.settings.spawn-at-startup = [
-    {
-      command = [
-        (let
-          awww-init = pkgs.writeShellScript "awww-init" ''
-            ${pkgs.awww}/bin/awww-daemon &
-            sleep 0.6
-            ${pkgs.awww}/bin/awww img "${userValues.wallpaper}" --transition-type simple 2>/dev/null || true
-          '';
-        in
-          "${awww-init}")
-      ];
-    }
-  ];
+  # ---- persistent background: handled by modules/awww systemd services ----
+  # modules/awww starts `awww-daemon` (systemd user service `awww`) and sets the
+  # initial wallpaper (`awww-wallpaper`). We deliberately do NOT spawn a second
+  # daemon here — two daemons fight over the same socket and the switcher's
+  # `awww img` then targets the wrong one. The switcher below just calls `awww
+  # img` against the systemd-managed daemon.
 }
