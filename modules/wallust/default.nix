@@ -75,21 +75,8 @@ let
 
     wp="$WP_DIR/$choice"
 
-    # Two-step waybar fade (fade out -> re-theme -> fade in). We keep two style
-    # files: style-hidden.css (opacity 0) and style.css (the wallust-themed one),
-    # and swap ~/.config/waybar/style.css between them via a symlink. Both carry a
-    # `transition: opacity 1.5s` so the SIGUSR2 reload animates the fade.
-    # 1. Fade OUT: point style.css at the hidden (opacity-0) style, reload.
-    ln -sf "${wallustCfgDir}/templates/style-hidden.css" "${config.xdg.configHome}/waybar/style.css"
-    ${pkgs.procps}/bin/pkill -u "$USER" -USR2 waybar 2>/dev/null || true
-    ${pkgs.coreutils}/bin/sleep 1.5
-
-    # 2. Re-theme (wallust re-renders style.css from the themed template).
+    # Re-theme: apply palette + render all templates (waybar/fuzzel/alacritty).
     ${pkgs.wallust}/bin/wallust run --config-dir "$CONFIG_DIR" "$wp"
-
-    # 3. Fade IN: point style.css back at the themed (opacity-1) style, reload.
-    ln -sf "${config.xdg.configHome}/waybar/style.themed.css" "${config.xdg.configHome}/waybar/style.css"
-    ${pkgs.procps}/bin/pkill -u "$USER" -USR2 waybar 2>/dev/null || true
 
     # Set the live desktop background with a wipe transition (left-to-right).
     # awww-daemon persists from spawn-at-startup; we NEVER pkill it (killing it
@@ -101,6 +88,9 @@ let
     # Persist the choice so a rebuild/login restores it (read by awww-wallpaper
     # systemd service) instead of resetting to the hardcoded default.
     echo "$wp" > "${wallustCfgDir}/last-wallpaper"
+
+    # waybar reloads its CSS on SIGUSR2.
+    ${pkgs.procps}/bin/pkill -u "$USER" -USR2 waybar 2>/dev/null || true
 
     ${pkgs.libnotify}/bin/notify-send "wallust" "Themed from $choice" 2>/dev/null || true
   '';
@@ -125,10 +115,7 @@ in
     # {{cursor}}, {{alpha}}. (Verified: accent/wallpaper do NOT resolve.)
 
     [templates]
-    # waybar writes to style.themed.css (NOT style.css): style.css is a symlink the
-    # switcher swaps between style-hidden.css (opacity 0) and style.themed.css to do
-    # the two-step fade. See wallust-switch.
-    waybar = { template = "waybar.tmpl", target = "${config.xdg.configHome}/waybar/style.themed.css" }
+    waybar = { template = "waybar.tmpl", target = "${config.xdg.configHome}/waybar/style.css" }
     fuzzel = { template = "fuzzel.tmpl", target = "${config.xdg.configHome}/fuzzel/fuzzel.ini" }
     alacritty = { template = "alacritty.tmpl", target = "${config.xdg.configHome}/alacritty/alacritty.toml" }
   '';
@@ -137,14 +124,19 @@ in
     * {
       font-family: "Inter", "EB Garamond", sans-serif;
       font-size: 13px;
-      /* Animate opacity for the two-step fade (wallust-switch swaps between
-         style-hidden.css and style.themed.css via a symlink + SIGUSR2). */
-      transition: opacity 1.5s ease;
+    }
+    /* Fade the whole bar in on style reload (SIGUSR2 after wallust re-theme),
+       softening the color change. Keyframes animate more reliably than a CSS
+       `transition` across a stylesheet reload in GTK. */
+    @keyframes waybar-fade {
+      from { opacity: 0; }
+      to   { opacity: 1; }
     }
     window#waybar {
       background: alpha({{background}}, 0.85);
       border: 1px solid alpha({{color5}}, 0.3);
       border-radius: 12px;
+      animation: waybar-fade 0.4s ease;
     }
     #workspaces button {
       color: {{color8}};
@@ -176,18 +168,6 @@ in
     }
     #network {
       color: {{color5}};
-    }
-  '';
-
-  # Hidden style for the two-step fade: identical to the themed style but with the
-  # whole bar at opacity 0. wallust-switch symlinks ~/.config/waybar/style.css to
-  # this during the fade-out phase, then back to style.themed.css for the fade-in.
-  home.file.".config/wallust/templates/style-hidden.css".text = ''
-    * {
-      font-family: "Inter", "EB Garamond", sans-serif;
-      font-size: 13px;
-      opacity: 0;
-      transition: opacity 1.5s ease;
     }
   '';
 
