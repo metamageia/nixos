@@ -122,6 +122,6 @@ ShellRoot {
   // Mirror themeRevision locally so the handler fires where it's declared.
   onThemeRevisionChanged: {
     if (root.firstLoad) return;
-    surface.fadeSeq.restart();
+    fadeSeq.restart();
   }
 }
