@@ -78,11 +78,12 @@ let
     # Re-theme: apply palette + render all templates (waybar/fuzzel/alacritty).
     ${pkgs.wallust}/bin/wallust run --config-dir "$CONFIG_DIR" "$wp"
 
-    # Set the live desktop background with a horizontal swipe transition. awww-daemon
-    # persists from spawn-at-startup; we NEVER pkill it (killing it would drop the
-    # background / break the socket). If awww img fails, surface the error.
+    # Set the live desktop background with a wipe transition (left-to-right).
+    # awww-daemon persists from spawn-at-startup; we NEVER pkill it (killing it
+    # would drop the background / break the socket). If awww img fails, surface
+    # the error.
     export WAYLAND_DISPLAY="wayland-1"
-    ${pkgs.awww}/bin/awww img "$wp" --transition-type left --transition-duration 0.8
+    ${pkgs.awww}/bin/awww img "$wp" --transition-type wipe --transition-angle 45 --transition-duration 0.8
 
     # waybar reloads its CSS on SIGUSR2.
     ${pkgs.procps}/bin/pkill -u "$USER" -USR2 waybar 2>/dev/null || true
