@@ -80,11 +80,14 @@ ShellRoot {
     implicitHeight: 34
     color: "transparent"
 
-    // Fire the wipe whenever a new theme is staged.
+    // Fire the wipe whenever a new theme is staged. themeRevision lives on the
+    // ShellRoot (root); mirror it here so this PanelWindow has the property and
+    // its on<Property>Changed signal fires locally.
+    property int themeRevision: root.themeRevision
     property int lastRevision: 0
     onThemeRevisionChanged: {
-      if (root.themeRevision === lastRevision) return;
-      lastRevision = root.themeRevision;
+      if (themeRevision === lastRevision) return;
+      lastRevision = themeRevision;
       pendingLayer.visible = true;
       wipeOverlay.visible = true;
       wipeAnim.restart();
