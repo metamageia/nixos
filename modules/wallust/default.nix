@@ -1,15 +1,15 @@
 # Wallust dynamic theming — self-contained home-manager module.
 #
 # WHAT IT DOES
-#   - Installs `wallust` (v3.5.x) and `swaybg` (the Wayland background setter;
-#     niri has NO native wallpaper-image support — only a solid `background-color`,
-#     equivalent to `swaybg -c`).
+#   - Installs `wallust` (v3.5.x) and `awww` (the animated Wayland wallpaper
+#     daemon; niri has NO native wallpaper-image support). awww gives smooth
+#     fade/wipe/grow transitions between wallpapers — no screen flash.
 #   - Ships ~/.config/wallust/wallust.toml + its `templates/` dir. wallust reads
 #     colors from a chosen wallpaper and renders templates for waybar, fuzzel,
-#     alacritty and niri.
+#     and alacritty.
 #   - Ships `wallust-switch`: a fuzzel-dmenu launcher that lists wallpapers from
 #     the repo wallpapers dir, applies the chosen one with `wallust run ...`, and
-#     sets it as the live desktop background with `swaybg`.
+#     sets it as the live desktop background with `awww img --transition-type fade`.
 #
 # VERIFIED EMPIRICALLY (nix shell nixpkgs#wallust, run against the warframe wp):
 #   CLI:  wallust run --config-dir <DIR> <IMAGE>      # image is a POSITIONAL arg
@@ -75,24 +75,25 @@ let
 
     wp="$WP_DIR/$choice"
 
-    # Re-theme: apply palette + render all templates (waybar/fuzzel/alacritty/niri).
+    # Re-theme: apply palette + render all templates (waybar/fuzzel/alacritty).
     ${pkgs.wallust}/bin/wallust run --config-dir "$CONFIG_DIR" "$wp"
 
-    # Set the live desktop background immediately (niri has no native wallpaper image).
-    ${pkgs.procps}/bin/pkill -x swaybg 2>/dev/null || true
-    ${pkgs.swaybg}/bin/swaybg -o '*' -i "$wp" -m fill &
+    # Set the live desktop background with a smooth fade transition (awww is a
+    # daemon — no kill-flash; the daemon persists from spawn-at-startup).
+    ${pkgs.awww}/bin/awww img "$wp" --transition-type fade --transition-duration 0.8 2>/dev/null || \
+      (${pkgs.procps}/bin/pkill -x awww-daemon 2>/dev/null || true; sleep 0.2; ${pkgs.awww}/bin/awww-daemon & sleep 0.5; ${pkgs.awww}/bin/awww img "$wp" --transition-type fade 2>/dev/null || true)
 
     # waybar reloads its CSS on SIGUSR2.
     ${pkgs.procps}/bin/pkill -u "$USER" -USR2 waybar 2>/dev/null || true
 
-    ${pkgs.libnotify}/bin/notify-send "wallust" "Themed from $choice (niri colors apply on next login)" 2>/dev/null || true
+    ${pkgs.libnotify}/bin/notify-send "wallust" "Themed from $choice" 2>/dev/null || true
   '';
 in
 {
   # ---- packages ----
   home.packages = with pkgs; [
     wallust        # v3.5.x dynamic theming engine
-    swaybg         # Wayland background image setter (niri has no native image bg)
+    awww           # animated wallpaper daemon (fade/wipe/grow transitions, no flash)
     libnotify      # notify-send from the switcher
     wallust-switch # fuzzel launcher defined above
   ];
@@ -233,17 +234,21 @@ in
   # Leave config.kdl as niri-flake generates it (no override at all) — this was the
   # root of two build breaks. niri-flake owns the file; wallust does not touch it.
 
-  # ---- persistent background at session start (swaybg daemon via niri) ----
-  # niri-flake writes ~/.config/niri/config.kdl from programs.niri.settings. We add a
-  # spawn-at-startup running swaybg against the default wallpaper (userValues.wallpaper).
-  # This guarantees a wallpaper image on login; wallust-switch swaps it live thereafter.
+  # ---- persistent background at session start (awww-daemon via niri) ----
+  # awww-daemon draws the wallpaper image (niri has no native wallpaper image). On
+  # session start we launch the daemon then set the declared wallpaper (userValues
+  # .wallpaper); wallust-switch then swaps images live with a fade via `awww img`.
   programs.niri.settings.spawn-at-startup = [
     {
       command = [
-        "${pkgs.swaybg}/bin/swaybg"
-        "-o" "*"
-        "-i" "${userValues.wallpaper}"
-        "-m" "fill"
+        (let
+          awww-init = pkgs.writeShellScript "awww-init" ''
+            ${pkgs.awww}/bin/awww-daemon &
+            sleep 0.6
+            ${pkgs.awww}/bin/awww img "${userValues.wallpaper}" --transition-type simple 2>/dev/null || true
+          '';
+        in
+          "${awww-init}")
       ];
     }
   ];
