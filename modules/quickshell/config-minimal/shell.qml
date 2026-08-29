@@ -4,22 +4,15 @@ import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
 
-// Bare-minimum QuickShell bar, themed from wallust's generated palette.
-//
-// The palette is written by wallust (modules/wallust default.nix, template
-// `quickshell.tmpl`) to ~/.config/quickshell/wallust-palette.json — the same
-// palette that themes fuzzel / alacritty / niri, so the bar matches the rest
-// of the system. We read it with Quickshell.Io/FileView (NOT the base
-// `Quickshell` import — FileView lives in Quickshell.Io, which is exactly the
-// `FileView is not a type` trap the old animated bar hit). watchChanges:true
-// makes the bar follow wallpaper re-themes live, with no reload.
-//
-// Fallback colors stay as the old fixed values so the bar still renders before
-// wallust has run once (or if the file is missing).
+// QuickShell bar themed from wallust, with a hard 45° diagonal wipe between
+// themes (matches the awww wallpaper wipe: --transition-angle 45, no color
+// tween/fade). On a palette change we stage the next theme as a second layer
+// and a ShaderEffect composites old-over-new behind a 45° boundary whose
+// position sweeps linearly; at the end the new theme is committed as the base.
 ShellRoot {
-  // Resolve the palette path. The launcher (quickshell-bar wrapper) exports
-  // QUICKSHELL_WALLUST_PALETTE; if absent, fall back to the canonical XDG
-  // location so a manual `quickshell --path` run still finds it.
+  id: root
+
+  // Resolve the palette path (launcher exports QUICKSHELL_WALLUST_PALETTE).
   readonly property string palettePath: (Quickshell.env("QUICKSHELL_WALLUST_PALETTE") || "").length > 0
     ? Quickshell.env("QUICKSHELL_WALLUST_PALETTE")
     : ((Quickshell.env("XDG_CONFIG_HOME") || "").length > 0
@@ -27,32 +20,52 @@ ShellRoot {
         : Quickshell.env("HOME") + "/.config/quickshell/wallust-palette.json")
 
   readonly property string fallbackBg: "#0d0d14"
-  readonly property string fallbackFg: "#e8e8f0"
   readonly property string fallbackAccent: "#7b68ab"
 
-  // Live theme colors. Start at fallbacks; overwritten once the palette loads.
+  // Current (visible) theme colors.
   property string barBg: fallbackBg
-  property string barFg: fallbackFg
   property string barAccent: fallbackAccent
+
+  // Pending (next) theme colors — the wipe reveals these over the current ones.
+  property string pendingBg: fallbackBg
+  property string pendingAccent: fallbackAccent
+
+  // Skip the wipe on the very first load (no previous theme to wipe from).
+  property bool firstLoad: true
+
+  // Bumped on each staged theme change; the bar wipes when it changes.
+  property int themeRevision: 0
+
+  // One clock string shared by both layers so they tick in lockstep.
+  property string clockText: Qt.formatDateTime(new Date(), "ddd HH:mm:ss")
+  Timer {
+    interval: 1000
+    running: true
+    repeat: true
+    onTriggered: root.clockText = Qt.formatDateTime(new Date(), "ddd HH:mm:ss")
+  }
 
   FileView {
     id: palette
     path: palettePath
     watchChanges: true
-
-    // watchChanges only emits the signal; the file is not re-read unless we
-    // explicitly reload here. Without this the bar themes once at startup and
-    // then freezes when wallust rewrites the palette (Super+W).
     onFileChanged: palette.reload()
-
     onLoaded: {
       try {
         const p = JSON.parse(text());
-        if (p.bg) barBg = p.bg;
-        if (p.fg) barFg = p.fg;
-        if (p.accent) barAccent = p.accent;
+        if (root.firstLoad) {
+          // Adopt the first palette immediately — no wipe to run.
+          if (p.bg) root.barBg = p.bg;
+          if (p.accent) root.barAccent = p.accent;
+          root.firstLoad = false;
+        } else {
+          // Stage the next theme and let the bar wipe old -> new.
+          root.pendingBg = p.bg || root.barBg;
+          root.pendingAccent = p.accent || root.barAccent;
+          root.themeRevision++;
+        }
       } catch (e) {
-        // Leave fallbacks if the JSON is unreadable / malformed.
+        // Keep current colors if the JSON is unreadable / malformed.
       }
     }
   }
@@ -67,30 +80,104 @@ ShellRoot {
     implicitHeight: 34
     color: "transparent"
 
-    Rectangle {
+    // Fire the wipe whenever a new theme is staged.
+    property int lastRevision: 0
+    onThemeRevisionChanged: {
+      if (root.themeRevision === lastRevision) return;
+      lastRevision = root.themeRevision;
+      pendingLayer.visible = true;
+      wipeOverlay.visible = true;
+      wipeAnim.restart();
+    }
+
+    // Layer 0 — the current theme (the normal bar).
+    Item {
+      id: currentLayer
       anchors.fill: parent
-      color: barBg
-      opacity: 0.88
-      radius: 10
-
-      Text {
-        id: clock
-        anchors {
-          right: parent.right
-          rightMargin: 12
-          verticalCenter: parent.verticalCenter
+      Rectangle {
+        anchors.fill: parent
+        color: root.barBg
+        opacity: 0.88
+        radius: 10
+        Text {
+          anchors {
+            right: parent.right
+            rightMargin: 12
+            verticalCenter: parent.verticalCenter
+          }
+          text: root.clockText
+          color: root.barAccent
+          font.family: "monospace"
+          font.pixelSize: 13
         }
-        text: Qt.formatDateTime(new Date(), "ddd HH:mm:ss")
-        color: barAccent
-        font.family: "monospace"
-        font.pixelSize: 13
+      }
+    }
 
-        // Tick the clock once a second using only built-in QtQuick types.
-        Timer {
-          interval: 1000
-          running: true
-          repeat: true
-          onTriggered: clock.text = Qt.formatDateTime(new Date(), "ddd HH:mm:ss")
+    // Layer 1 — the pending theme, revealed by the wipe shader.
+    Item {
+      id: pendingLayer
+      anchors.fill: parent
+      visible: false
+      Rectangle {
+        anchors.fill: parent
+        color: root.pendingBg
+        opacity: 0.88
+        radius: 10
+        Text {
+          anchors {
+            right: parent.right
+            rightMargin: 12
+            verticalCenter: parent.verticalCenter
+          }
+          text: root.clockText
+          color: root.pendingAccent
+          font.family: "monospace"
+          font.pixelSize: 13
+        }
+      }
+    }
+
+    // Wipe overlay: composites current + pending behind a hard 45° edge.
+    // Edge is the line (x - y) = split; sweeping split -2..2 moves it across.
+    ShaderEffect {
+      id: wipeOverlay
+      anchors.fill: parent
+      visible: false
+      property real progress: 0.0
+      property variant source: currentLayer
+      property variant newSource: pendingLayer
+      fragmentShader: "
+        varying vec2 qt_TexCoord0;
+        uniform float progress;
+        uniform sampler2D source;
+        uniform sampler2D newSource;
+        void main() {
+          vec4 cur = texture2D(source, qt_TexCoord0);
+          vec4 neu = texture2D(newSource, qt_TexCoord0);
+          float b = qt_TexCoord0.x - qt_TexCoord0.y;
+          float split = mix(-2.0, 2.0, progress);
+          gl_FragColor = (b < split) ? neu : cur;
+        }
+      "
+    }
+
+    // 45° wipe, hard edge, ~0.8s — matches the awww wallpaper wipe duration.
+    NumberAnimation {
+      id: wipeAnim
+      target: wipeOverlay
+      property: "progress"
+      from: 0.0
+      to: 1.0
+      duration: 800
+      easing.type: Easing.Linear
+      onRunningChanged: {
+        if (!running) {
+          // Commit the new theme as the base and hide the wipe machinery.
+          root.barBg = root.pendingBg;
+          root.barAccent = root.pendingAccent;
+          pendingLayer.visible = false;
+          wipeOverlay.visible = false;
+          wipeOverlay.progress = 0.0;
         }
       }
     }
