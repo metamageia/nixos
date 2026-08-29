@@ -23,7 +23,7 @@ let
   # `quickshell --config <name>` (the `quickshell -c` / `--config` flag takes a
   # config *name* under XDG config quickshell dirs, OR a path; we use the path form
   # --config $cfgDir to be unambiguous and store-independent).
-  barSrc = ./config;
+  barSrc = ./config-minimal;
 
   # wallust-generated palette (JSON) the bar watches for live theme crossfades.
   # Must match modules/wallust default.nix [templates].quickshell target exactly.
