@@ -65,7 +65,7 @@ services:
       PGID: "100"
       TZ: America/Chicago
     volumes:
-      - /srv/servarr/jellyseerr/config:/config
+      - /srv/servarr/jellyseerr/config:/app/config
     ports:
       - 5055:5055
     restart: unless-stopped
