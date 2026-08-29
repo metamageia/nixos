@@ -10,6 +10,7 @@
     ../../discord
     ../../zen
     ../../awww
+    ../../wallust
   ];
 
   programs = {

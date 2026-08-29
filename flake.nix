@@ -76,6 +76,9 @@
 
     userValues = {
       wallpaper = ./wallpapers/warframe-entrati-01.jpg;
+      # Git-tracked wallpaper set; read-only store path at build time, used by the
+      # wallust switcher at runtime (modules/wallust). Add a wallpaper => commit + rebuild.
+      wallpapersDir = ./wallpapers;
       repoUrl = "https://github.com/metamageia/nixos.git";
       # DNS name for the lighthouse; its A record in Route 53 owns the public IP.
       publicHost = "arcanum.gagelara.com";

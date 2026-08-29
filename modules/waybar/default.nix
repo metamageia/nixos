@@ -12,7 +12,7 @@
         position = "top";
         height = 36;
 
-        modules-left = ["custom/planetary-hour" "niri/workspaces"];
+        modules-left = ["niri/workspaces"];
         modules-center = ["clock"];
         modules-right = ["pulseaudio" "cpu" "memory" "network" "tray"];
 
@@ -78,15 +78,6 @@
       }
       #network {
         color: #7b68ab;
-      }
-      #custom-planetary-hour {
-        color: #d4a017;
-        font-weight: bold;
-        padding: 0 12px;
-        margin: 4px 2px;
-        background: alpha(#1a1a2e, 0.5);
-        border-radius: 6px;
-        border: 1px solid alpha(#d4a017, 0.3);
       }
     '';
   };
