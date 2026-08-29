@@ -14,7 +14,10 @@ import "./modules/bar/"
 ShellRoot {
   id: root
 
-  Colors { id: colors }
+  // NOTE: the palette type is `colors` (lowercase) because the file is
+  // colors.qml — QML derives the type name from the filename, case-sensitively.
+  // `Colors` (capital) would fail with "Colors is not a type".
+  colors { id: colors }
 
   Niri {
     id: niri
