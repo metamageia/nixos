@@ -5,9 +5,14 @@ import Quickshell.Io
 import Quickshell.Wayland
 
 // QuickShell bar themed from wallust, with a native fade-out / fade-in
-// transition between themes. On a palette change the whole bar fades out,
+// transition between themes. On a palette change the bar surface fades out,
 // the new theme colors are adopted, then it fades back in. Uses only built-in
 // QtQuick (opacity + NumberAnimation) — no shader, no .qsb, no build toolchain.
+//
+// NOTE (checked against Quickshell 0.3.0 typeinfo): PanelWindow does NOT have
+// an `opacity` property (its prototype chain is WindowInterface -> Reloadable
+// -> QObject, not Item). So the fade animates the inner Rectangle, which IS a
+// QQuickItem and has real opacity.
 ShellRoot {
   id: root
 
@@ -18,8 +23,7 @@ ShellRoot {
         ? Quickshell.env("XDG_CONFIG_HOME") + "/quickshell/wallust-palette.json"
         : Quickshell.env("HOME") + "/.config/quickshell/wallust-palette.json")
 
-  // Current (visible) theme colors, owned by the ShellRoot so the FileView and
-  // the bar can both reach them.
+  // Current (visible) theme colors.
   property string barBg: "#0d0d14"
   property string barAccent: "#7b68ab"
 
@@ -77,56 +81,47 @@ ShellRoot {
     implicitHeight: 34
     color: "transparent"
 
-    // Mirror the ShellRoot's theme values onto the bar so its bindings and the
-    // fade sequence can reference them locally, and so onThemeRevisionChanged
-    // fires on this object (a handler needs the property declared here).
-    property string barBg: root.barBg
-    property string barAccent: root.barAccent
-    property string pendingBg: root.pendingBg
-    property string pendingAccent: root.pendingAccent
-    property int themeRevision: root.themeRevision
-    property int lastRevision: 0
-
-    onThemeRevisionChanged: {
-      if (themeRevision === lastRevision) return;
-      lastRevision = themeRevision;
-      // Capture the staged colors, then fade out -> adopt -> fade in.
-      pendingBg = root.pendingBg;
-      pendingAccent = root.pendingAccent;
-      fadeSeq.restart();
-    }
-
-    // The bar's single visual surface. Colors bind to the current theme.
+    // The bar's visual surface. This Rectangle IS a QQuickItem, so it has a
+    // real `opacity` property — the fade targets it, not the PanelWindow.
     Rectangle {
+      id: surface
       anchors.fill: parent
-      color: bar.barBg
+      color: root.barBg
       opacity: 0.88
       radius: 10
+
       Text {
+        id: clock
         anchors {
           right: parent.right
           rightMargin: 12
           verticalCenter: parent.verticalCenter
         }
         text: root.clockText
-        color: bar.barAccent
+        color: root.barAccent
         font.family: "monospace"
         font.pixelSize: 13
       }
-    }
 
-    // Fade the whole bar out, adopt the new theme, fade back in.
-    SequentialAnimation on opacity {
-      id: fadeSeq
-      running: false
-      NumberAnimation { to: 0.0; duration: 200; easing.type: Easing.InOutQuad }
-      ScriptAction {
-        script: {
-          bar.barBg = bar.pendingBg;
-          bar.barAccent = bar.pendingAccent;
+      // Fade out, adopt the new theme, fade back in.
+      SequentialAnimation on opacity {
+        id: fadeSeq
+        running: false
+        NumberAnimation { to: 0.0; duration: 200; easing.type: Easing.InOutQuad }
+        ScriptAction {
+          script: {
+            root.barBg = root.pendingBg;
+            root.barAccent = root.pendingAccent;
+          }
         }
+        NumberAnimation { to: 0.88; duration: 200; easing.type: Easing.InOutQuad }
       }
-      NumberAnimation { to: 1.0; duration: 200; easing.type: Easing.InOutQuad }
     }
+  }
+
+  // Mirror themeRevision locally so the handler fires where it's declared.
+  onThemeRevisionChanged: {
+    if (root.firstLoad) return;
+    surface.fadeSeq.restart();
   }
 }
