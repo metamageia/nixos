@@ -53,7 +53,14 @@ let
   qsWrapper = pkgs.writeShellScriptBin "quickshell-bar" ''
     #!${pkgs.bash}/bin/bash
     set -euo pipefail
-    export QML2_IMPORT_PATH="${inputs.qml-niri.packages.${pkgs.stdenv.hostPlatform.system}.default}/lib/qt-6/qml:$QML2_IMPORT_PATH"
+    # QML2_IMPORT_PATH may be unset at session start (not inherited); under
+    # `set -u` the bare "$QML2_IMPORT_PATH" would abort with "unbound variable".
+    # Guard it so the wrapper always launches.
+    if [ -z "''${QML2_IMPORT_PATH:-}" ]; then
+      export QML2_IMPORT_PATH="${inputs.qml-niri.packages.${pkgs.stdenv.hostPlatform.system}.default}/lib/qt-6/qml"
+    else
+      export QML2_IMPORT_PATH="${inputs.qml-niri.packages.${pkgs.stdenv.hostPlatform.system}.default}/lib/qt-6/qml:$QML2_IMPORT_PATH"
+    fi
     export QUICKSHELL_WALLUST_PALETTE="${palettePath}"
     exec ${pkgs.quickshell}/bin/quickshell --config "${barConfig}"
   '';
