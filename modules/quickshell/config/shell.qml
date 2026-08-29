@@ -14,14 +14,13 @@ import "./modules/bar/"
 ShellRoot {
   id: root
 
-  // NOTE: the palette type is `colors` (lowercase) because the file is
-  // colors.qml — QML derives the type name from the filename, case-sensitively.
-  // `Colors` (capital) would fail with "Colors is not a type". The instance id
-  // is `palette` (distinct from the type name) to avoid the QML id/type
-  // collision; `property alias colors` exposes it under the name the widgets
-  // reference (`colors.<x>`), resolved via dynamic scope.
-  property alias colors: palette
-  colors { id: palette }
+  // The palette type is `Colors` (capital, from Colors.qml). Its instance id is
+  // `colors` — a ShellRoot child, so like `niri` below it is reachable by bare
+  // name (`colors.<x>`) from every component in this config, including the Bar
+  // widgets in modules/bar/ (confirmed pattern: reference quickshell-niri's Bar
+  // accesses `niri.focusedWindow` the same way). Earlier failures came from the
+  // type being lowercase `colors` colliding with the id.
+  Colors { id: colors }
 
   Niri {
     id: niri
