@@ -4,7 +4,6 @@ import Qt5Compat.GraphicalEffects
 import Quickshell
 import Quickshell.Io
 import Quickshell.Wayland
-import Quickshell.Services.SystemTray
 import Niri
 
 // QuickShell bar themed from wallust, with a native fade-out / fade-in
@@ -261,7 +260,7 @@ ShellRoot {
         }
       }
 
-      // RIGHT — wifi, volume, tray
+      // RIGHT — wifi, volume
       RowLayout {
         id: right
         spacing: 12
@@ -371,24 +370,6 @@ ShellRoot {
           running: true
           repeat: true
           onTriggered: volProc.running = true
-        }
-
-        // System tray via QuickShell's built-in SystemTray. The real app images
-        // already show tray content, so no decorative glyph is added (Phase 4c).
-        Repeater {
-          model: SystemTray.items
-          Image {
-            source: modelData.icon
-            width: 16
-            height: 16
-            fillMode: Image.PreserveAspectFit
-
-            MouseArea {
-              anchors.fill: parent
-              cursorShape: Qt.PointingHandCursor
-              onClicked: modelData.activate()
-            }
-          }
         }
       }
 
