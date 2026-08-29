@@ -11,6 +11,7 @@
     ../../zen
     ../../awww
     ../../wallust
+    ../../quickshell
   ];
 
   programs = {

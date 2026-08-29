@@ -38,6 +38,13 @@
 
     aagl.url = "github:ezKEa/aagl-gtk-on-nix";
     aagl.inputs.nixpkgs.follows = "nixpkgs";
+
+    # qml-niri: QML plugin exposing niri IPC to QuickShell (used by the
+    # QuickShell status bar, modules/quickshell). NOT in nixpkgs — flake input.
+    # Its default package installs the plugin to $out/lib/qt-6/qml/Niri/, which
+    # modules/quickshell adds to QML2_IMPORT_PATH so `import Niri` resolves.
+    qml-niri.url = "github:imiric/qml-niri";
+    qml-niri.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {

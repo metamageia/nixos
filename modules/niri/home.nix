@@ -18,6 +18,10 @@ in {
       # nixpkgs home-manager's `wayland.windowManager.niri.settings` is free-form
       # KDL; a Nix *list* renders as KDL list syntax (`spawn-at-startup { - … }`)
       # which niri 26.04 rejects. niri 26.04 wants a bare command arg instead.
+      # QuickShell bar (modules/quickshell) — replaces waybar (Phase 3).
+      # spawn-at-startup is a singular bare-command arg in nixpkgs niri 26.04
+      # (a Nix *list* renders as rejected KDL list syntax). The second spawn
+      # (quickshell-bar) is appended via extraConfig below as a second node.
       spawn-at-startup = "xwayland-satellite";
       layout = {
         gaps = 12;
@@ -166,5 +170,14 @@ in {
         }
       ];
     };
+
+    # Spawn the QuickShell bar at session start (replaces waybar, Phase 3).
+    # nixpkgs niri 26.04 accepts repeated `spawn-at-startup` nodes, each a bare
+    # command. xwayland-satellite is emitted from `settings` above; this appends a
+    # second node for quickshell-bar (the wrapper that sets QML2_IMPORT_PATH for
+    # the qml-niri plugin and execs quickshell). mkAfter keeps it last.
+    wayland.windowManager.niri.extraConfig = lib.mkAfter ''
+      spawn-at-startup "quickshell-bar"
+    '';
   };
 }
