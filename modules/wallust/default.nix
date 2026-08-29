@@ -103,10 +103,16 @@ let
     [ -n "$NEW_BD" ] || NEW_BD="#000000"
 
     cat >> "$STYLE" <<KEYFRAMES
-/* wallust-switch: one-shot crossfade from previous palette (re-runs on reload) */
+/* wallust-switch: opacity-out -> color swap -> opacity-in (hidden at midpoint) */
 @keyframes theme-crossfade {
-  from { background-color: alpha($OLD_BG, 0.85); border-color: alpha($OLD_BD, 0.3); opacity: 0.4; }
-  to   { background-color: alpha($NEW_BG, 0.85); border-color: alpha($NEW_BD, 0.3); opacity: 1; }
+  /* 0%: fully visible, OLD colors */
+  0%   { background-color: alpha($OLD_BG, 0.85); border-color: alpha($OLD_BD, 0.3); opacity: 1; }
+  /* 40%: faded out, still OLD colors (so the swap is invisible) */
+  40%  { background-color: alpha($OLD_BG, 0.85); border-color: alpha($OLD_BD, 0.3); opacity: 0; }
+  /* 50%: the instant we're hidden, swap to NEW colors */
+  50%  { background-color: alpha($NEW_BG, 0.85); border-color: alpha($NEW_BD, 0.3); opacity: 0; }
+  /* 100%: fade back in showing NEW colors */
+  100% { background-color: alpha($NEW_BG, 0.85); border-color: alpha($NEW_BD, 0.3); opacity: 1; }
 }
 window#waybar,
 window#waybar #workspaces button,
@@ -116,7 +122,7 @@ window#waybar #pulseaudio,
 window#waybar #cpu,
 window#waybar #memory,
 window#waybar #network {
-  animation: theme-crossfade 800ms ease-out 1;
+  animation: theme-crossfade 800ms ease-in-out 1;
 }
 KEYFRAMES
 
