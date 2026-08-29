@@ -122,6 +122,10 @@ in
     fuzzel = { template = "fuzzel.tmpl", target = "${config.xdg.configHome}/fuzzel/fuzzel.ini" }
     alacritty = { template = "alacritty.tmpl", target = "${config.xdg.configHome}/alacritty/alacritty.toml" }
     niri = { template = "niri.tmpl", target = "${config.xdg.configHome}/niri/colors.kdl" }
+    # QuickShell bar palette (Phase 2b): a tiny JSON the running bar watches and
+    # crossfades via ColorAnimation/Behavior. Lives next to the bar config dir so
+    # the path always exists; wallust owns it, HM never writes it.
+    quickshell = { template = "quickshell.tmpl", target = "${config.xdg.configHome}/quickshell/wallust-palette.json" }
   '';
 
   home.file.".config/wallust/templates/waybar.tmpl".text = ''
@@ -235,6 +239,19 @@ layout {
 focus-ring {
     color "{{color5}}"
 }
+  '';
+
+  home.file.".config/wallust/templates/quickshell.tmpl".text = ''
+    {
+      "bg": "{{background}}",
+      "fg": "{{foreground}}",
+      "accent": "{{color5}}",
+      "gold": "{{color3}}",
+      "muted": "{{color8}}",
+      "urgent": "{{color9}}",
+      "green": "{{color2}}",
+      "blue": "{{color4}}"
+    }
   '';
 
   # ---- hand ownership to wallust: drop HM-written style.css that would collide ----

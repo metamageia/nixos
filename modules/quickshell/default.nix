@@ -25,6 +25,10 @@ let
   # --config $cfgDir to be unambiguous and store-independent).
   barSrc = ./config;
 
+  # wallust-generated palette (JSON) the bar watches for live theme crossfades.
+  # Must match modules/wallust default.nix [templates].quickshell target exactly.
+  palettePath = "${config.xdg.configHome}/quickshell/wallust-palette.json";
+
   # Wallust-ready palette. Phase 2b will animate these (ColorAnimation/Behavior);
   # for now they are static central bindings the QML reads via `Colors`. Keeping
   # them in ONE file (colors.qml) means Phase 2b only touches this file + adds
@@ -50,6 +54,7 @@ let
     #!${pkgs.bash}/bin/bash
     set -euo pipefail
     export QML2_IMPORT_PATH="${inputs.qml-niri.packages.${pkgs.stdenv.hostPlatform.system}.default}/lib/qt-6/qml:$QML2_IMPORT_PATH"
+    export QUICKSHELL_WALLUST_PALETTE="${palettePath}"
     exec ${pkgs.quickshell}/bin/quickshell --config "${barConfig}"
   '';
 in
