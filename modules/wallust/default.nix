@@ -185,9 +185,9 @@ in
   home.file.".config/wallust/templates/niri.tmpl".text = ''
 layout {
     background-color "{{background}}"
-}
-focus-ring {
-    color "{{color5}}"
+    focus-ring {
+        active-color "{{color5}}"
+    }
 }
   '';
 
