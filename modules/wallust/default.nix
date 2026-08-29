@@ -85,6 +85,10 @@ let
     export WAYLAND_DISPLAY="wayland-1"
     ${pkgs.awww}/bin/awww img "$wp" --transition-type wipe --transition-angle 45 --transition-duration 0.8
 
+    # Persist the choice so a rebuild/login restores it (read by awww-wallpaper
+    # systemd service) instead of resetting to the hardcoded default.
+    echo "$wp" > "${wallustCfgDir}/last-wallpaper"
+
     # waybar reloads its CSS on SIGUSR2.
     ${pkgs.procps}/bin/pkill -u "$USER" -USR2 waybar 2>/dev/null || true
 
