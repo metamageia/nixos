@@ -216,7 +216,7 @@ ShellRoot {
 
             Text {
               anchors.centerIn: parent
-              text: model.name !== "" ? model.name : (model.index + 1)
+              text: model.name !== "" ? model.name : model.id
               color: (model.isFocused || model.isActive) ? root.barBg : root.barMuted
               font.family: root.uiFont
               font.pixelSize: 11
