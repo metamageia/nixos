@@ -54,6 +54,8 @@ in {
         "Mod+S".action.spawn = ["${fuzzel-search}/bin/fuzzel-search"];
         "Mod+T".action.spawn = "alacritty";
         "Mod+P".action.screenshot = {};
+        # Wallust wallpaper/theme switcher (fuzzel menu; see modules/wallust).
+        "Mod+W".action.spawn = "wallust-switch";
 
         # Audio
         "XF86AudioRaiseVolume".action.spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
