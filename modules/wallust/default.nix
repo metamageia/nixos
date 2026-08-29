@@ -58,7 +58,7 @@ let
 
   wallustCfgDir = "${config.xdg.configHome}/wallust";
 
-  # fuzzel-dmenu launcher: pick wallpaper -> wallust run -> swaybg -> reload waybar.
+  # fuzzel-dmenu launcher: pick wallpaper -> wallust run -> awww img -> reload waybar.
   wallust-switch = pkgs.writeShellScriptBin "wallust-switch" ''
     #!${pkgs.bash}/bin/bash
     set -euo pipefail
@@ -228,7 +228,7 @@ in
   # wallust-generated colors.kdl cannot be pulled into config.kdl, and the config
   # itself is a read-only store symlink (wallust cannot rewrite it). Therefore niri
   # colors are set at BUILD time from the declared wallpaper (userValues.wallpaper),
-  # matching the persistent swaybg background. wallust re-themes waybar/fuzzel/
+  # matching the persistent awww background. wallust re-themes waybar/fuzzel/
   # alacritty live; niri colors update on the next rebuild. To get runtime niri
   # theming, bump the niri-flake to a version with `include` (>= v26) and revisit.
   # (Earlier attempts to append `include optional=true "colors.kdl"` FAILED: niri
