@@ -438,7 +438,7 @@ in {
   # settings.json so splashBackground tracks the wallpaper palette — the main
   # window paints this while Discord boots, killing the white flash (Gage
   # 08-30). Pure JSON: wallust writes it verbatim, no comments allowed.
-  home.file."config/wallust/templates/vesktop-settings.tmpl".text = ''
+  home.file.".config/wallust/templates/vesktop-settings.tmpl".text = ''
     {
       "discordBranch": "stable",
       "minimizeToTray": true,
@@ -454,7 +454,7 @@ in {
   # the desktop repaints on a NAME change. wallust-apply bumps the name field
   # to the wallpaper basename after each render so Mod+W live-retemes the
   # desktop. wallust owns the file.
-  home.file."config/wallust/templates/hermes.tmpl".text = ''
+  home.file.".config/wallust/templates/hermes.tmpl".text = ''
     name: wallust
     description: wallust — live wallpaper theme
 
