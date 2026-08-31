@@ -13,7 +13,7 @@
     qt5.qtwayland
     brightnessctl
     wev
-    yazi
+    thunar
     xwayland
     xwayland-satellite
   ];
