@@ -253,6 +253,12 @@ in {
       };
       display = {
         show_reasoning = false;
+        # Active skin = `wallust`, the file wallust renders to
+        # /var/lib/hermes/.hermes/skins/wallust.yaml on every Mod+W. The
+        # gateway's skin watcher polls (name, mtime) and broadcasts
+        # skin.changed; wallust-apply bumps the name field to the wallpaper
+        # basename so the desktop's name-based apply guard repaints live.
+        skin = "wallust";
         # Per-daimon skin is set in each daimon's own profile config
         # (dante's skin lives at profiles/dante/config.yaml).
         # Nous Portal credits notices ("You've used $X of your $Y cap") are

@@ -44,10 +44,13 @@
 #
 # KEYBIND (recommended — add to modules/niri/home.nix `binds`, out of scope here)
 #   "Mod+W".action.spawn = "wallust-switch";
-
-{ config, pkgs, lib, userValues, ... }:
-
-let
+{
+  config,
+  pkgs,
+  lib,
+  userValues,
+  ...
+}: let
   # Canonical, git-tracked wallpapers set. Passed from flake.nix userValues
   # (./wallpapers) and threaded through extraSpecialArgs. It becomes a read-only
   # store path at build time — fully readable at runtime by the switcher. Adding a
@@ -81,6 +84,19 @@ let
     # Re-theme: apply palette + render all templates (fuzzel/kitty).
     ${pkgs.wallust}/bin/wallust run --config-dir "$CONFIG_DIR" "$wp"
 
+    # Hermes desktop live-retheme: the gateway's skin watcher polls
+    # (active skin name, skins/<name>.yaml mtime) and broadcasts skin.changed
+    # on any move, but the desktop's apply guard (backend-sync.ts) is NAME-
+    # based — a same-name in-place recolor won't repaint. So bump the skin's
+    # name field to the wallpaper basename: the gateway re-resolves, the
+    # desktop sees a real name change, and repaints. No flash; display.skin
+    # stays `wallust`. wallust won't create the skins dir, so mkdir it.
+    mkdir -p /var/lib/hermes/.hermes/skins
+    base="$(basename "$wp")"
+    skin_name="$(echo "''${base%.*}" | tr '[:upper:] ' '[:lower:]-' | tr -cd 'a-z0-9-')"
+    skin_name="''${skin_name:-wallust}"
+    sed -i "s/^name:.*/name: $skin_name/" /var/lib/hermes/.hermes/skins/wallust.yaml
+
     # Set the live desktop background with a wipe transition (left-to-right).
     # awww-daemon persists from spawn-at-startup; we NEVER pkill it (killing it
     # would drop the background / break the socket). If awww img fails, surface
@@ -112,16 +128,15 @@ let
 
     exec ${wallust-apply}/bin/wallust-apply "$WP_DIR/$choice"
   '';
-in
-{
+in {
   # ---- packages ----
   # awww-daemon is provided by modules/awww (systemd user services `awww` +
   # `awww-wallpaper`). We do NOT add awww here or spawn our own daemon — the
   # switcher below calls the systemd-managed daemon.
   home.packages = with pkgs; [
-    wallust        # v3.5.x dynamic theming engine
-    libnotify      # notify-send from the switcher
-    wallust-apply  # shared apply logic (fuzzel menu + QuickShell picker)
+    wallust # v3.5.x dynamic theming engine
+    libnotify # notify-send from the switcher
+    wallust-apply # shared apply logic (fuzzel menu + QuickShell picker)
     wallust-switch # fuzzel launcher defined above
   ];
 
@@ -168,6 +183,14 @@ in
     # enableSplashScreen:false lives here too (no splash window). Vesktop
     # rewrites this file at runtime; wallust re-renders it on every Mod+W.
     vesktop-settings = { template = "vesktop-settings.tmpl", target = "${config.xdg.configHome}/vesktop/settings.json" }
+        # Hermes desktop (Electron GUI): a skin YAML in the gateway's skins dir.
+    # The gateway's skin watcher polls (active skin name, skins/<name>.yaml
+    # mtime) and broadcasts skin.changed on any move; the desktop repaints on a
+    # NAME change (backend-sync.ts guard is name-based). wallust-apply bumps the
+    # name field to the wallpaper basename after each render, so Mod+W live-
+    # rethemes the desktop with no flash. display.skin is set to `wallust` in
+    # modules/hermes-agent. wallust owns the file.
+    hermes = { template = "hermes.tmpl", target = "/var/lib/hermes/.hermes/skins/wallust.yaml" }
   '';
 
   # fuzzel launcher theme — mirrors the QuickShell bar's wallust palette
@@ -281,12 +304,12 @@ in
   '';
 
   home.file.".config/wallust/templates/niri.tmpl".text = ''
-layout {
-    background-color "{{background}}"
-    focus-ring {
-        active-color "{{color5}}"
+    layout {
+        background-color "{{background}}"
+        focus-ring {
+            active-color "{{color5}}"
+        }
     }
-}
   '';
 
   home.file.".config/wallust/templates/quickshell.tmpl".text = ''
@@ -423,6 +446,41 @@ layout {
       "enableSplashScreen": false,
       "splashBackground": "{{background}}"
     }
+  '';
+
+  # Hermes desktop skin template. Maps the wallust palette onto the Hermes
+  # skin schema (apps/shared/src/skin.ts). wallust renders this to the
+  # gateway's skins dir; the gateway broadcasts skin.changed on mtime move and
+  # the desktop repaints on a NAME change. wallust-apply bumps the name field
+  # to the wallpaper basename after each render so Mod+W live-retemes the
+  # desktop. wallust owns the file.
+  home.file."config/wallust/templates/hermes.tmpl".text = ''
+    name: wallust
+    description: wallust — live wallpaper theme
+
+    colors:
+      background: "{{background}}"
+      ui_accent: "{{color5}}"
+      banner_accent: "{{color5}}"
+      banner_title: "{{foreground}}"
+      banner_text: "{{foreground}}"
+      ui_text: "{{foreground}}"
+      banner_dim: "{{color8}}"
+      banner_border: "{{color8}}"
+      ui_border: "{{color8}}"
+      ui_ok: "{{color2}}"
+      ui_warn: "{{color3}}"
+      ui_error: "{{color9}}"
+      prompt: "{{foreground}}"
+      input_rule: "{{color5}}"
+      response_border: "{{color5}}"
+      status_bar_bg: "{{color0}}"
+      status_bar_text: "{{foreground}}"
+      status_bar_good: "{{color2}}"
+      status_bar_warn: "{{color3}}"
+      status_bar_critical: "{{color9}}"
+      session_label: "{{color5}}"
+      session_border: "{{color8}}"
   '';
 
   # Zen Browser chrome template. Maps the wallust palette onto Zen's UI chrome
