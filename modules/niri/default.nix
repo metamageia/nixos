@@ -13,7 +13,7 @@
     qt5.qtwayland
     brightnessctl
     wev
-    thunar
+    kdePackages.dolphin
     xwayland
     xwayland-satellite
   ];
