@@ -308,6 +308,11 @@ in {
       plugins.enabled = [
         "daimon-webhook-plugin"
         "mnemosyne"
+        # Ponytail (lazy senior dev) — enabled for the top-level profile;
+        # Gage's operating bible (08-31). Per-profile configs (profiles/*/
+        # config.yaml) are standalone files, NOT managed by this module —
+        # they carry their own plugins.enabled. Daimon personas are excluded.
+        "ponytail"
       ];
 
       # Multi-profile multiplexing: let a single gateway route specific
