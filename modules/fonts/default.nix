@@ -18,6 +18,11 @@
     "Twitter Color Emoji"
     "Noto Color Emoji"
   ];
+  # System default sans-serif = Inter, the same font the QuickShell bar and
+  # fuzzel use, so the whole desktop (system UI, launcher, bar) speaks one face.
+  fonts.fontconfig.defaultFonts.sansSerif = [
+    "Inter"
+  ];
   environment.systemPackages = with pkgs; [
     iosevka
     font-awesome

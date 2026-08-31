@@ -69,6 +69,81 @@ ShellRoot {
   // ~/.config/quickshell/bar).
   readonly property string iconDir: Quickshell.shellRoot + "/icons"
 
+  // Phase 6 — diamond wallpaper picker.
+  // pickerStatePath: the toggle script flips this file open/closed; we watch it
+  //   via FileView and bind the picker window's `visible` to it.
+  // wallpapersDir: git-tracked wallpaper source (exported by the launcher
+  //   wrapper as QUICKSHELL_WALLPAPERS_DIR).
+  // lastWallpaperPath: the current wallpaper (from wallust's last-wallpaper) so
+  //   we can mark the active tile in the hive.
+  readonly property string pickerStatePath: (Quickshell.env("XDG_CONFIG_HOME") || "").length > 0
+    ? Quickshell.env("XDG_CONFIG_HOME") + "/quickshell/picker-state"
+    : Quickshell.env("HOME") + "/.config/quickshell/picker-state"
+  readonly property string wallpapersDir: Quickshell.env("QUICKSHELL_WALLPAPERS_DIR") || ""
+  property bool pickerOpen: false
+  property string lastWallpaperPath: ""
+
+  // Phase 6 — the wallpaper list model for the hive. Filled by the scan Process.
+  ListModel { id: wpModel }
+
+  // Phase 6 — watch the picker state file; flip root.pickerOpen on change.
+  FileView {
+    id: pickerStateView
+    path: root.pickerStatePath
+    watchChanges: true
+    onFileChanged: pickerStateView.reload()
+    onLoaded: {
+      root.pickerOpen = (text().trim() === "open")
+    }
+  }
+
+  // Phase 6 — watch the current wallpaper so the hive can mark the active tile.
+  FileView {
+    id: lastWallpaperView
+    path: (Quickshell.env("XDG_CONFIG_HOME") || "").length > 0
+      ? Quickshell.env("XDG_CONFIG_HOME") + "/wallust/last-wallpaper"
+      : Quickshell.env("HOME") + "/.config/wallust/last-wallpaper"
+    watchChanges: true
+    onFileChanged: lastWallpaperView.reload()
+    onLoaded: root.lastWallpaperPath = text().trim()
+  }
+
+  // Phase 6 — enumerate wallpapers (find | sort) into wpModel, marking the
+  // active one. Re-run on every open so newly committed wallpapers appear.
+  function scanWallpapers() {
+    if (root.wallpapersDir.length === 0) return
+    scanProc.running = true
+  }
+  Process {
+    id: scanProc
+    command: ["/bin/sh", "-c",
+      "find \"$1\" -maxdepth 1 -type f \\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \\) -printf '%f\\n' | sort",
+      "sh", root.wallpapersDir]
+    running: false
+    stdout: StdioCollector {
+      onStreamFinished: {
+        wpModel.clear()
+        const names = this.text.split("\n").filter(function (n) { return n.trim().length > 0 })
+        // DEBUG (diagnose "only one diamond"): how many names did find return,
+        // and how many items did we append?
+        console.log("picker DEBUG: find returned", names.length, "names; first:", names[0])
+        for (const name of names) {
+          const file = root.wallpapersDir + "/" + name
+          wpModel.append({
+            file: file,
+            name: name,
+            isActive: (file === root.lastWallpaperPath)
+          })
+        }
+        console.log("picker DEBUG: wpModel.count =", wpModel.count)
+        // In-place clear+append on a ListModel does NOT fire the model's
+        // onModelChanged, so the hive would never recompute its layout. Call
+        // rebuild() explicitly after the scan populates the model (hit 08-29).
+        hive.rebuild()
+      }
+    }
+  }
+
   // Live mute state, driven by the volume poll. Lets the volume icon tint bind
   // to a palette key (so the 4a crossfade still recolors it on theme change).
   property bool volMuted: false
@@ -170,6 +245,10 @@ ShellRoot {
 
   PanelWindow {
     id: bar
+    // Layer-shell namespace so niri's layer-rule can match this bar for the
+    // drop shadow (see modules/niri/home.nix extraConfig). Must be set before
+    // the window connects; PanelWindow is backed by WlrLayershell.
+    WlrLayershell.namespace: "quickshell-bar"
     anchors {
       top: true
       left: true
@@ -215,7 +294,11 @@ ShellRoot {
 
             Text {
               anchors.centerIn: parent
-              text: model.name !== "" ? model.name : model.id
+              // Show niri's workspace `index` (sequential position on the
+              // output: 1, 2, 3...), NOT `id` — niri keeps workspace ids stable
+              // across shuffling, so id can read 7, 1, 6 while index is always
+              // re-enumerated 1, 2, 3. Fall back to name if one is set.
+              text: model.name !== "" ? model.name : model.index
               color: (model.isFocused || model.isActive) ? root.barBg : root.barMuted
               font.family: root.uiFont
               font.pixelSize: 11
@@ -275,7 +358,7 @@ ShellRoot {
         // already in the package set (modules/networking). No new picker built.
         Text {
           id: wifi
-          color: root.barGreen
+          color: root.barAccent
           font.family: root.uiFont
           font.pixelSize: 13
           text: "net --"
@@ -287,7 +370,7 @@ ShellRoot {
         }
         ThemeIcon {
           source: "wifi.svg"
-          tint: root.barGreen
+          tint: root.barAccent
           size: 14
           anchors.verticalCenter: parent.verticalCenter
         }
@@ -320,7 +403,7 @@ ShellRoot {
         // + color bind to the palette so the 4a crossfade still recolors them.
         Text {
           id: vol
-          color: root.volMuted ? root.barUrgent : root.barBlue
+          color: root.volMuted ? root.barUrgent : root.barAccent
           font.family: root.uiFont
           font.pixelSize: 13
           text: "vol --"
@@ -341,7 +424,7 @@ ShellRoot {
         ThemeIcon {
           id: volIcon
           source: "volume.svg"
-          tint: root.volMuted ? root.barUrgent : root.barBlue
+          tint: root.volMuted ? root.barUrgent : root.barAccent
           size: 14
           anchors.verticalCenter: parent.verticalCenter
         }
@@ -391,6 +474,63 @@ ShellRoot {
           }
         }
         NumberAnimation { to: 0.93; duration: 200; easing.type: Easing.InOutQuad }
+      }
+    }
+  }
+
+  // Phase 6 — the diamond wallpaper picker. A second centered layer-shell window
+  // in the SAME QuickShell process as the bar, so it inherits the palette
+  // FileView + root.barXxx crossfade for free (styles itself to the active
+  // theme, no literals). `visible` is bound to root.pickerOpen — WindowInterface
+  // does expose `visible` (verified in the installed .qmltypes).
+  // The window is TRANSPARENT: only the diamonds paint, so they hover over the
+  // desktop. There is NO background Rectangle / box (Gage, 08-29: "don't want it
+  // in a box"). `color: transparent` on the window is valid (WindowInterface
+  // exposes `color`).
+  PanelWindow {
+    id: picker
+    visible: root.pickerOpen
+    color: "transparent"
+    // focusable so the picker receives keyboard input (ESC closes it).
+    focusable: true
+    WlrLayershell.namespace: "quickshell-wallpaper-picker"
+    // No anchors: a wlr-layer-shell surface with no anchors is centered on the
+    // output. The panel Anchors type only has left/right/top/bottom — there is
+    // NO `center`, so we must NOT set anchors.center (invalid; would fail load).
+    exclusiveZone: 0
+    width: 900
+    height: 600
+
+    onVisibleChanged: {
+      if (visible) {
+        root.scanWallpapers()
+        // Grab keyboard focus so ESC is caught by the hive's Keys handler
+        // (run after the window finishes mapping).
+        Qt.callLater(hive.forceActiveFocus)
+      }
+    }
+
+    // The hive: honeycomb of diamonds, themed by the palette props, panning
+    // via Flickable when it overflows. Apply hides the picker + calls
+    // wallust-apply (the shared apply script).
+    WallpaperHive {
+      id: hive
+      anchors.fill: parent
+      model: wpModel
+      accent: root.barAccent
+      muted: root.barMuted
+      focus: true
+      // ESC closes the picker with no change — runs the same toggle Mod+W
+      // spawns, so the state file and root.pickerOpen stay in sync.
+      Keys.onEscapePressed: Quickshell.execDetached(["wallpaper-picker-toggle"])
+      // Keep keyboard focus on the hive: if selecting a tile steals it, ESC
+      // would stop firing. Re-grab whenever the hive loses focus while open.
+      onActiveFocusChanged: {
+        if (!activeFocus && root.pickerOpen) Qt.callLater(forceActiveFocus)
+      }
+      onApply: function (file) {
+        root.pickerOpen = false
+        Quickshell.execDetached(["wallust-apply", file])
       }
     }
   }

@@ -3,10 +3,7 @@
   pkgs,
   lib,
   ...
-}: let
-  # Built here so the Mod+S bind references a store path, not the session PATH.
-  fuzzel-search = pkgs.writeShellScriptBin "fuzzel-search" (builtins.readFile ../fuzzel/fuzzel-search.sh);
-in {
+}: {
   wayland.windowManager.niri = {
     enable = true;
 
@@ -24,9 +21,35 @@ in {
       # (quickshell-bar) is appended via extraConfig below as a second node.
       spawn-at-startup = "xwayland-satellite";
       layout = {
-        gaps = 12;
+        gaps = 8;
         focus-ring = {
-          width = 3;
+          width = 1;
+        };
+        # Border color (niri window-rule `border` only takes width; the COLOR
+        # lives here in layout.border). Default active/inactive are light —
+        # that's the white frame around windows. Set both to the theme bg so
+        # the frame reads as a dark hairline. NOTE: hardcoded to this
+        # wallpaper's bg; niri reads config only at login so it won't rotate
+        # with wallust (same limitation as colors.kdl).
+        border = {
+          active-color = "#1D1816";
+          inactive-color = "#1D1816";
+        };
+        # Drop shadow for windows: small + tight gradient (Gage). Low softness
+        # (tight, not a big blur), small spread, small offset. NOTE: NO
+        # draw-behind-window — that painted a rectangle behind every window and
+        # swallowed the wallpaper's background layer (broke it 08-29). Shadows
+        # draw around windows only. `on = {}` emits bare `on`; `offset._props`
+        # emits `offset x=0 y=6` (offset takes args, not a block).
+        shadow = {
+          on = {};
+          softness = 10;
+          spread = 2;
+          color = "#000000c0";
+          offset._props = {
+            x = 0;
+            y = 2;
+          };
         };
       };
       binds = {
@@ -38,16 +61,15 @@ in {
         "Mod+D" = {
           spawn = ["fuzzel"];
         };
-        "Mod+S" = {
-          spawn = ["${fuzzel-search}/bin/fuzzel-search"];
-        };
         "Mod+T" = {
-          spawn = ["alacritty"];
+          spawn = ["kitty"];
         };
         "Mod+P".screenshot = {};
-        # Wallust wallpaper/theme switcher (fuzzel menu; see modules/wallust).
+        # Phase 6: wallpaper/theme switcher. Mod+W now opens the QuickShell
+        # diamond picker (wallpaper-picker-toggle); wallust-switch remains as the
+        # text-menu fallback (see modules/wallust).
         "Mod+W" = {
-          spawn = ["wallust-switch"];
+          spawn = ["wallpaper-picker-toggle"];
         };
 
         # Audio
@@ -156,7 +178,11 @@ in {
             {match = {};}
             {draw-border-with-background = false;}
             {clip-to-geometry = true;}
-            {geometry-corner-radius = 10.0;}
+            {geometry-corner-radius = 0;}
+            # Window border: niri's window-rule `border` only accepts `width`
+            # (a `color` key here is INVALID — broke the build). The border is
+            # drawn in the focus-ring's active-color, so the white frame is
+            # fixed by setting active-color dark (see layout.focus-ring below).
             {border = {width = 2;};}
           ];
         }
@@ -165,7 +191,7 @@ in {
           window-rule._children = [
             {match = {};}
             {exclude._props = {app-id = "zen";};}
-            {opacity = 0.93;}
+            {opacity = 0.85;}
           ];
         }
       ];
@@ -176,8 +202,41 @@ in {
     # home-manager KDL generator drops a bare `{"spawn-at-startup" = …}` _children
     # entry; raw extraConfig nodes are preserved verbatim. Window-rules above stay
     # in _children (they render fine); only the bare spawn node was skipped.
+    #
+    # Layer-rule drop shadows for fuzzel ("launcher") and the QuickShell bar
+    # ("quickshell-bar" namespace, set in shell.qml). These live here as RAW KDL
+    # because the free-form converter inlines layer-rule shadow props onto one
+    # line (rejected by niri). Same small/tight shadow as windows: no
+    # draw-behind-window, low softness, small spread/offset.
     extraConfig = ''
       spawn-at-startup "quickshell-bar"
+
+      layer-rule {
+        match namespace="^launcher$"
+        shadow {
+          on
+          softness 10
+          spread 2
+          offset x=0 y=2
+          color "#000000c0"
+        }
+      }
+
+      layer-rule {
+        match namespace="^quickshell-bar$"
+        shadow {
+          on
+          softness 10
+          spread 2
+          offset x=0 y=2
+          color "#000000c0"
+        }
+      }
+
+      // Phase 6: the wallpaper picker's shadow is per-DIAMOND (in QML,
+      // WallpaperHive DropShadow), NOT a window-level layer-rule — a window
+      // shadow would cast a big box around the transparent picker surface
+      // (Gage, 08-29). Only the bar keeps its layer-rule shadow.
     '';
   };
 }

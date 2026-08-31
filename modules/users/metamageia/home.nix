@@ -6,7 +6,7 @@
   ...
 }: {
   imports = [
-    ../../alacritty
+    ../../kitty
     ../../discord
     ../../zen
     ../../awww

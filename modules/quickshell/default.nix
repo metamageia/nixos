@@ -2,6 +2,7 @@
 , pkgs
 , lib
 , inputs
+, userValues
 , ...
 }:
 # QuickShell status bar for niri, replacing waybar (removed in Phase 3).
@@ -34,6 +35,27 @@ let
   # wallust-generated palette (JSON) the bar watches for live theme crossfades.
   # Must match modules/wallust default.nix [templates].quickshell target exactly.
   palettePath = "${config.xdg.configHome}/quickshell/wallust-palette.json";
+
+  # Phase 6 — the diamond wallpaper picker. State file the Mod+W toggle script
+  # flips open/closed; the bar watches it via FileView and show()/hide()s the
+  # picker window. Git-tracked wallpapers dir (same source the wallust switcher
+  # uses) so the picker can enumerate and thumbnail them at runtime.
+  pickerStatePath = "${config.xdg.configHome}/quickshell/picker-state";
+  wallpapersDir = userValues.wallpapersDir;
+
+  # Phase 6 — toggles the picker open/closed by flipping picker-state. Mod+W
+  # spawns this (replaces wallust-switch as the primary picker entry).
+  wallpaper-picker-toggle = pkgs.writeShellScriptBin "wallpaper-picker-toggle" ''
+    #!${pkgs.bash}/bin/bash
+    set -euo pipefail
+    STATE="${pickerStatePath}"
+    mkdir -p "$(dirname "$STATE")"
+    if [ -f "$STATE" ] && [ "$(cat "$STATE")" = "open" ]; then
+      echo closed > "$STATE"
+    else
+      echo open > "$STATE"
+    fi
+  '';
 
   # Wallust-ready palette. Phase 2b will animate these (ColorAnimation/Behavior);
   # for now they are static central bindings the QML reads via `Colors`. Keeping
@@ -68,6 +90,7 @@ let
       export QML2_IMPORT_PATH="${inputs.qml-niri.packages.${pkgs.stdenv.hostPlatform.system}.default}/lib/qt-6/qml:${pkgs.qt6.qt5compat}/lib/qt-6/qml:$QML2_IMPORT_PATH"
     fi
     export QUICKSHELL_WALLUST_PALETTE="${palettePath}"
+    export QUICKSHELL_WALLPAPERS_DIR="${wallpapersDir}"
     exec ${pkgs.quickshell}/bin/quickshell --config "${barConfig}"
   '';
 in
@@ -79,11 +102,23 @@ in
   home.packages = with pkgs; [
     quickshell
     qsWrapper
+    wallpaper-picker-toggle
     inputs.qml-niri.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 
   # ---- ship the bar QML into ~/.config/quickshell/bar so it's user-editable & live ----
   # (Phase 2b can patch these files at runtime without a rebuild, matching how
-  #  wallust owns waybar/fuzzel/alacritty files.)
+  #  wallust owns waybar/fuzzel/kitty files.)
   home.file.".config/quickshell/bar".source = barConfig;
+
+  # Seed the picker state file to "closed" so the bar starts with the picker
+  # hidden. MUST be a real writable file, NOT a home-manager store symlink —
+  # home.file with `.text` creates a read-only /nix/store symlink, so the
+  # wallpaper-picker-toggle script's `echo open >` would fail with "Read-only
+  # file system" and the picker would never open (hit live 08-29). Create it via
+  # an activation script so it's a plain writable file on disk.
+  home.activation.createPickerState = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+    mkdir -p "$HOME/.config/quickshell"
+    echo "closed" > "$HOME/.config/quickshell/picker-state"
+  '';
 }
