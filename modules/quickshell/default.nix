@@ -45,15 +45,24 @@ let
 
   # Phase 6 — toggles the picker open/closed by flipping picker-state. Mod+W
   # spawns this (replaces wallust-switch as the primary picker entry).
+  #
+  # ATOMIC WRITE (fixed 08-31): the state file is watched by a FileView via
+  # inotify. A plain `echo open > "$STATE"` truncates then writes; the FileView's
+  # onFileChanged fires on the truncate and reload() reads the file in the gap
+  # between truncate and write, getting an empty file -> pickerOpen=false, and no
+  # second change event fires for the completed write. Result: Mod+W sometimes
+  # needs several presses. Fix: write to a temp then `mv` over (a rename is
+  # atomic) so inotify sees either the old or the new complete content, never a
+  # truncated file.
   wallpaper-picker-toggle = pkgs.writeShellScriptBin "wallpaper-picker-toggle" ''
     #!${pkgs.bash}/bin/bash
     set -euo pipefail
     STATE="${pickerStatePath}"
     mkdir -p "$(dirname "$STATE")"
     if [ -f "$STATE" ] && [ "$(cat "$STATE")" = "open" ]; then
-      echo closed > "$STATE"
+      echo closed > "$STATE.tmp" && mv "$STATE.tmp" "$STATE"
     else
-      echo open > "$STATE"
+      echo open > "$STATE.tmp" && mv "$STATE.tmp" "$STATE"
     fi
   '';
 
