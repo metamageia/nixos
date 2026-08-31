@@ -13,7 +13,7 @@
     qt5.qtwayland
     brightnessctl
     wev
-    kdePackages.dolphin
+    yazi
     xwayland
     xwayland-satellite
   ];
