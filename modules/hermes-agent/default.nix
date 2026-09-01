@@ -232,11 +232,6 @@ in {
       # failures surface directly.
       fallback_providers = [];
 
-      # Memory provider: Mnemosyne graph memory (SQLite, Nous embeddings).
-      # Re-enabled 2026-08-27. The mnemosyne plugin provides the provider
-      # and loads from the same register() call as the webhook plugin.
-      memory.provider = "mnemosyne";
-
       # Main model is text-only; route image analysis (vision_analyze /
       # browser_vision) to a vision-capable portal model via the aux slot.
       auxiliary.vision = {
@@ -306,14 +301,11 @@ in {
       # (job_id: ...) / ----- / To stop or manage this job..." header/footer.
       cron.wrap_response = false;
 
-      # ── Daimon council: webhook face + memory ----------------------------
+      # ── Daimon council: webhook face --------------------------------------
       # The webhook-face Discord platform lives in its own plugin
-      # (daimon-webhook-plugin); mnemosyne (the graph memory provider) is
-      # enabled via memory.provider above. Both plugin and provider load
-      # from the same register() call. Forma alone runs built-in memory.
+      # (daimon-webhook-plugin). Forma alone runs built-in memory.
       plugins.enabled = [
         "daimon-webhook-plugin"
-        "mnemosyne"
         # Ponytail (lazy senior dev) — enabled for the top-level profile;
         # Gage's operating bible (08-31). Per-profile configs (profiles/*/
         # config.yaml) are standalone files, NOT managed by this module —
