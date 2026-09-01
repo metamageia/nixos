@@ -506,7 +506,7 @@ in {
         property color bg: "{{background}}"
         property color fg: "{{foreground}}"
         property color accent: "{{color5}}"
-        property color selection: "{{color4}}"
+        property color selection: "{{color5}}"
         property color selectionFg: "{{background}}"
         property color sidebarBg: "{{color0}}"
         property color border: "{{color8}}"
