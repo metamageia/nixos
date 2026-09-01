@@ -14,7 +14,7 @@
     qt5.qtwayland
     brightnessctl
     wev
-    inputs.dolphin-clone.packages.${pkgs.system}.default
+    inputs.pyre.packages.${pkgs.system}.default
     xwayland
     xwayland-satellite
   ];

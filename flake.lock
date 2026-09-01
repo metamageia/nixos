@@ -234,23 +234,6 @@
         "type": "github"
       }
     },
-    "dolphin-clone": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1788220961,
-        "narHash": "sha256-1w14VKYK6Upb72Q1N8XGk55s6MYmKfuiHL4z8NSqHt0=",
-        "path": "/home/metamageia/Development/dolphin-clone",
-        "type": "path"
-      },
-      "original": {
-        "path": "/home/metamageia/Development/dolphin-clone",
-        "type": "path"
-      }
-    },
     "fenix": {
       "inputs": {
         "nixpkgs": [
@@ -1121,6 +1104,23 @@
         "type": "github"
       }
     },
+    "pyre": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788224316,
+        "narHash": "sha256-RO90/bQsDLaIXz4g2ItgeSvVwZVNEiLaNgmGNXq2lWQ=",
+        "path": "/home/metamageia/Development/pyre",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/metamageia/Development/pyre",
+        "type": "path"
+      }
+    },
     "qml-niri": {
       "inputs": {
         "flake-parts": "flake-parts_3",
@@ -1173,11 +1173,11 @@
         "claude-code": "claude-code",
         "comin": "comin",
         "compose2nix": "compose2nix",
-        "dolphin-clone": "dolphin-clone",
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager",
         "nix-on-droid": "nix-on-droid",
         "nixpkgs": "nixpkgs_7",
+        "pyre": "pyre",
         "qml-niri": "qml-niri",
         "sops-nix": "sops-nix",
         "stylix": "stylix",
