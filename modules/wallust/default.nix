@@ -806,4 +806,46 @@ in {
   # daemon here — two daemons fight over the same socket and the switcher's
   # `awww img` then targets the wrong one. The switcher below just calls `awww
   # img` against the systemd-managed daemon.
+
+  # ---- Hermes desktop: apply the wallust skin at LAUNCH, not just live ----
+  # The desktop seeds the backend skin at connect with apply:false
+  # (apps/desktop/src/themes/backend-sync.ts, gateway.ready handler) so a fresh
+  # connect never stomps a persisted theme, and the gateway's skin watcher seeds
+  # its baseline at boot (server.py `_ensure_skin_watcher` → `_note_skin_broadcast`).
+  # Net: at launch NOTHING broadcasts skin.changed, so the desktop opens on its
+  # default (nous) theme. Live reload works because wallust-apply rewrites the
+  # skin file (mtime + name), which the watcher DOES broadcast and the desktop
+  # paints (it applies any skin.changed while not yet applied). This service
+  # nudges the same file's mtime a few seconds after the desktop process appears,
+  # so the watcher broadcasts exactly once per launch and the desktop paints.
+  # Once applied, repeat identical skin.changed events no-op (name unchanged), so
+  # there's no flicker. Pattern `share/hermes-desktop` matches the live Electron
+  # process (exec'd wrapper) without matching this watcher's own store path.
+  systemd.user.services.hermes-desktop-skin-boot = {
+    Unit = {
+      Description = "Apply wallust skin to the Hermes desktop at launch";
+      After = ["graphical-session.target"];
+      PartOf = ["graphical-session.target"];
+    };
+    Service = {
+      ExecStart = toString (pkgs.writeShellScript "hermes-desktop-skin-boot" ''
+        SKIN=/var/lib/hermes/.hermes/skins/wallust.yaml
+        last=""
+        while true; do
+          pid=$("${pkgs.procps}/bin/pgrep" -f 'share/hermes-desktop' | head -n1 || true)
+          if [ -n "$pid" ] && [ "$pid" != "$last" ]; then
+            last="$pid"
+            # Desktop (re)launched: nudge the skin a few times to cover Electron
+            # boot + gateway connect latency; the first post-connect touch paints.
+            for d in 2 4 4; do sleep "$d"; touch "$SKIN"; done
+          fi
+          sleep 2
+        done
+      '');
+      Restart = "on-failure";
+    };
+    Install = {
+      WantedBy = ["graphical-session.target"];
+    };
+  };
 }
