@@ -221,8 +221,10 @@ in {
       agent.api_max_retries = 10;
 
       model = {
-        # Top-level profile runs DeepSeek v4 Flash (0731) as of 08-25.
-        default = "deepseek/deepseek-v4-flash-0731";
+        # Top-level profile runs DeepSeek v4 Flash (latest alias, ~1.3M ctx)
+        # as of 09-01. The 0731 snapshot is pinned to a 163k window by the
+        # provider; the latest alias resolves to a 1M+ context.
+        default = "~deepseek/deepseek-v4-flash-latest";
         provider = "nous";
         base_url = "https://inference-api.nousresearch.com/v1";
       };
