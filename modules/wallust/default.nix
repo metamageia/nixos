@@ -504,14 +504,14 @@ in {
     QtObject {
         id: theme
         property color bg: "{{background}}"
-        property color fg: "{{foreground}}"
+        property color fg: "{{color5}}"
         property color accent: "{{color5}}"
         property color selection: "{{color5}}"
         property color selectionFg: "{{background}}"
-        property color sidebarBg: "{{color0}}"
+        property color sidebarBg: "{{background}}"
         property color border: "{{color8}}"
-        property color hover: "{{color0}}"
-        property color statusBg: "{{color0}}"
+        property color hover: "{{background}}"
+        property color statusBg: "{{background}}"
         property color color0: "{{color0}}"
         property color color1: "{{color1}}"
         property color color2: "{{color2}}"
