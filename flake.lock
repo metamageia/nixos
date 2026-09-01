@@ -234,6 +234,23 @@
         "type": "github"
       }
     },
+    "dolphin-clone": {
+      "inputs": {
+        "nixpkgs": [
+          "nixpkgs"
+        ]
+      },
+      "locked": {
+        "lastModified": 1788220961,
+        "narHash": "sha256-1w14VKYK6Upb72Q1N8XGk55s6MYmKfuiHL4z8NSqHt0=",
+        "path": "/home/metamageia/Development/dolphin-clone",
+        "type": "path"
+      },
+      "original": {
+        "path": "/home/metamageia/Development/dolphin-clone",
+        "type": "path"
+      }
+    },
     "fenix": {
       "inputs": {
         "nixpkgs": [
@@ -1156,6 +1173,7 @@
         "claude-code": "claude-code",
         "comin": "comin",
         "compose2nix": "compose2nix",
+        "dolphin-clone": "dolphin-clone",
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager",
         "nix-on-droid": "nix-on-droid",

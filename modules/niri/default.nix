@@ -1,6 +1,7 @@
 {
   pkgs,
   config,
+  inputs,
   ...
 }: {
   # nixpkgs' nixos/modules/programs/wayland/niri.nix provides `programs.niri`
@@ -13,7 +14,7 @@
     qt5.qtwayland
     brightnessctl
     wev
-    kdePackages.dolphin
+    inputs.dolphin-clone.packages.${pkgs.system}.default
     xwayland
     xwayland-satellite
   ];

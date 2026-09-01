@@ -45,6 +45,10 @@
     # modules/quickshell adds to QML2_IMPORT_PATH so `import Niri` resolves.
     qml-niri.url = "github:imiric/qml-niri";
     qml-niri.inputs.nixpkgs.follows = "nixpkgs";
+
+    # dolphin-clone: near-1:1 Dolphin file manager in PySide6+QML (local repo).
+    dolphin-clone.url = "path:/home/metamageia/Development/dolphin-clone";
+    dolphin-clone.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
