@@ -41,6 +41,10 @@ let
   # picker window. Git-tracked wallpapers dir (same source the wallust switcher
   # uses) so the picker can enumerate and thumbnail them at runtime.
   pickerStatePath = "${config.xdg.configHome}/quickshell/picker-state";
+  # Phase 7 — the keybind/hotkey popup's toggle state file (same watch-and-flip
+  # pattern as picker-state;the shell.qml FileView flips root.hotkeysOpen). Mod+Shift+/
+  # spawns keybind-popup-toggle (replacing niri's unstyleable show-hotkey-overlay).
+  hotkeysStatePath = "${config.xdg.configHome}/quickshell/hotkeys-state";
   wallpapersDir = userValues.wallpapersDir;
 
   # Phase 6 — toggles the picker open/closed by flipping picker-state. Mod+W
@@ -58,6 +62,21 @@ let
     #!${pkgs.bash}/bin/bash
     set -euo pipefail
     STATE="${pickerStatePath}"
+    mkdir -p "$(dirname "$STATE")"
+    if [ -f "$STATE" ] && [ "$(cat "$STATE")" = "open" ]; then
+      echo closed > "$STATE.tmp" && mv "$STATE.tmp" "$STATE"
+    else
+      echo open > "$STATE.tmp" && mv "$STATE.tmp" "$STATE"
+    fi
+  '';
+
+  # Phase 7 — toggles the keybind/hotkey popup (same atomic write→FileView watch
+  # pattern as wallpaper-picker-toggle, so Mod+Shift+/ shows/hides our themed popup
+  # (replacing niri's unstyleable show-hotkey-overlay which had no styling options).
+  keybind-popup-toggle = pkgs.writeShellScriptBin "keybind-popup-toggle" ''
+    #!${pkgs.bash}/bin/bash
+    set -euo pipefail
+    STATE="${hotkeysStatePath}"
     mkdir -p "$(dirname "$STATE")"
     if [ -f "$STATE" ] && [ "$(cat "$STATE")" = "open" ]; then
       echo closed > "$STATE.tmp" && mv "$STATE.tmp" "$STATE"
@@ -112,6 +131,7 @@ in
     quickshell
     qsWrapper
     wallpaper-picker-toggle
+    keybind-popup-toggle
     inputs.qml-niri.packages.${pkgs.stdenv.hostPlatform.system}.default
   ];
 
@@ -129,5 +149,6 @@ in
   home.activation.createPickerState = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
     mkdir -p "$HOME/.config/quickshell"
     echo "closed" > "$HOME/.config/quickshell/picker-state"
+    echo "closed" > "$HOME/.config/quickshell/hotkeys-state"
   '';
 }

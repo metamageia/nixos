@@ -55,7 +55,12 @@
       binds = {
         # Niri
         "Mod+Shift+E".quit = {};
-        "Mod+Shift+Slash".show-hotkey-overlay = {};
+        # Phase 7: Mod+Shift+/ now spawns our themed keybind popup
+        # (quickshell-hotkeys), seeded from wallust palette) INSTEAD of niri's
+        # unstyleable show-hotkey-overlay (no styling options, not a layer surface).
+        "Mod+Shift+Slash" = {
+          spawn = ["keybind-popup-toggle"];
+        };
 
         # Hotkeys
         "Mod+D" = {
@@ -224,6 +229,21 @@
 
       layer-rule {
         match namespace="^quickshell-bar$"
+        shadow {
+          on
+          softness 10
+          spread 2
+          offset x=0 y=2
+          color "#000000c0"
+        }
+      }
+
+      // Phase 7: the keybind/hotkey popup's shadow, same tight drop shadow as
+      // the bar/fuzzel (namespace quickshell-hotkeys, set in shell.qml). A window
+      // shadow draws around the window box =the popup panel fits tight to content.
+
+      layer-rule {
+        match namespace="^quickshell-hotkeys$"
         shadow {
           on
           softness 10

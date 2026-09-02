@@ -82,6 +82,13 @@ ShellRoot {
   readonly property string wallpapersDir: Quickshell.env("QUICKSHELL_WALLPAPERS_DIR") || ""
   property bool pickerOpen: false
   property string lastWallpaperPath: ""
+  // Phase 7 — the keybind popup's toggle state file (written by keybind-popup-toggle,
+  // watched below;flips hotkeysOpen). Same XDG-config dir as picker-state.
+
+  readonly property string hotkeysStatePath: (Quickshell.env("XDG_CONFIG_HOME") || "").length > 0
+    ? Quickshell.env("XDG_CONFIG_HOME") + "/quickshell/hotkeys-state"
+    : Quickshell.env("HOME") + "/.config/quickshell/hotkeys-state"
+  property bool hotkeysOpen: false
 
   // Phase 6 — the wallpaper list model for the hive. Filled by the scan Process.
   ListModel { id: wpModel }
@@ -94,6 +101,18 @@ ShellRoot {
     onFileChanged: pickerStateView.reload()
     onLoaded: {
       root.pickerOpen = (text().trim() === "open")
+    }
+  }
+
+  // Phase 7 — watch the keybind popup state file;flip root.hotkeysOpen on change.
+
+  FileView {
+ id: hotkeysStateView
+    path: root.hotkeysStatePath
+    watchChanges: true
+    onFileChanged: hotkeysStateView.reload()
+    onLoaded: {
+      root.hotkeysOpen = (text().trim() === "open")
     }
   }
 
@@ -534,6 +553,177 @@ ShellRoot {
       }
     }
   }
+
+  // Phase 7 — keybind/hotkey popup (replaces niri's unstyleable show-hotkey-overlay:
+  // Mod+Shift+/ is now bound to keybind-popup-toggle toggling the state file above.
+
+  // A second centered layer-shell window in the SAME QuickShell process as the bar, so
+  // it inherits the palette FileView + root.barXxx crossfade for free (styles itself
+  // to the active theme, no hex literals). The keybind list mirrors
+  // modules/niri/home.nix `binds` (keep in sync when bindings change). Drop shadow
+  // comes from the niri layer-rule (namespace quickshell-hotkeys, same params as the bar).
+  //
+  // The window is transparent: only the solid panel paints, tinted to the bar bg
+  // at the bar's opacity, flush/radius-full-width-consistent with the bar (no radius).
+  PanelWindow {
+    id: hotkeys
+    visible: root.hotkeysOpen
+    color: "transparent"
+    // focusable so ESC closes it (like the wallpaper picker).
+    focusable: true
+    WlrLayershell.namespace: "quickshell-hotkeys"
+    // No anchors — a layer-shell surface with no anchors is centered on the output,
+    // and the panel fits tight to the window so the shadow (niri layer-rule in
+    // modules/niri/home.nix) draws around the panel.
+    exclusiveZone: 0
+    width: 540
+    height: 620
+
+    onVisibleChanged: if (visible) Qt.callLater(hotkeysPanel.forceActiveFocus)
+
+    Rectangle {
+      id: hotkeysPanel
+      anchors.fill: parent
+      color: root.barBg
+      opacity: 0.93
+      radius: 0
+      // ESC closes the popup via the same toggle Mod+Shift+/ spawns, so the state
+      // file and root.hotkeysOpen stay in sync.
+      Keys.onEscapePressed: Quickshell.execDetached(["keybind-popup-toggle"])
+      onActiveFocusChanged: {
+        // Keep keyboard focus here — if anything steals it, ESC stops firing.
+        if (!activeFocus && root.hotkeysOpen) Qt.callLater(hotkeysPanel.forceActiveFocus)
+      }
+
+      // Scrollable list (34+ bindings exceed the window height; the Flickable pans).
+      Flickable {
+        id: kbFlick
+        anchors.fill: parent
+        contentWidth: width
+        contentHeight: kbCol.height + 32
+        clip: true
+
+        // A QtQuick `Column` POSITIONER (not ColumnLayout) because a positioner
+        // correctly lays out Repeater's delegate items vertically; a ColumnLayout
+        // does not manage Repeater children. Each delegate row sets its own width.
+        Column {
+          id: kbCol
+          x: 16
+          y: 16
+          width: kbFlick.width - 32
+          spacing: 6
+
+          // Header row: gold title + keyboard glyph + close hint.
+          RowLayout {
+            width: kbCol.width
+            spacing: 8
+            ThemeIcon {
+              source: "keybind.svg"
+              tint: root.barGold
+              size: 14
+            }
+            Text {
+              text: "KEYBINDS"
+              color: root.barGold
+              font.family: root.uiFont
+              font.pixelSize: 13
+              font.bold: true
+              Layout.fillWidth: true
+            }
+            Text {
+              text: "Mod+Shift+/ to close"
+              color: root.barMuted
+              font.family: root.uiFont
+              font.pixelSize: 11
+            }
+          }
+
+          // List model of the niri keybindings (mirror of modules/niri/home.nix binds).
+          ListModel {
+            id: kbModel
+            // ---- Windows / Workspaces ----
+            ListElement { key: "Mod+Shift+E";             desc: "Quit" }
+            ListElement { key: "Mod+Q";                   desc: "Close window" }
+            ListElement { key: "Mod+D";                   desc: "Launcher (fuzzel)" }
+            ListElement { key: "Mod+T";                   desc: "Terminal (kitty)" }
+            ListElement { key: "Mod+P";                   desc: "Screenshot" }
+            ListElement { key: "Mod+W";                   desc: "Wallpaper picker" }
+            ListElement { key: "Mod+Left/Right";          desc: "Focus column" }
+            ListElement { key: "Mod+Up/Down";             desc: "Focus window" }
+            ListElement { key: "Mod+H/L";                 desc: "Focus column (vim)" }
+            ListElement { key: "Mod+K/J";                 desc: "Focus window (vim)" }
+            ListElement { key: "Mod+Ctrl+Arrows";         desc: "Move window/column" }
+            ListElement { key: "Mod+Ctrl+HJKL";           desc: "Move (vim)" }
+            ListElement { key: "Mod+Home/End";            desc: "Focus first/last column" }
+            ListElement { key: "Mod+Ctrl+Home/End";       desc: "Move column to edges" }
+            ListElement { key: "Mod+Shift+Arrows";        desc: "Focus monitor" }
+            ListElement { key: "Mod+Shift+Ctrl+Arrows";   desc: "Move column to monitor" }
+            ListElement { key: "Mod+PgUp/PgDn";           desc: "Focus workspace" }
+            ListElement { key: "Mod+U/I";                 desc: "Focus workspace (vim)" }
+            ListElement { key: "Mod+Ctrl+PgUp/PgDn";      desc: "Move column to workspace" }
+            ListElement { key: "Mod+Ctrl+U/I";            desc: "Move column to workspace (vim)" }
+            ListElement { key: "Mod+Shift+PgUp/PgDn";     desc: "Move workspace" }
+            ListElement { key: "Mod+Shift+U/I";           desc: "Move workspace (vim)" }
+            ListElement { key: "Mod+1..9";                desc: "Focus workspace by number" }
+            // ---- Columns ----
+            ListElement { key: "Mod+[ / ]";               desc: "Consume/expel window" }
+            ListElement { key: "Mod+, / .";               desc: "Consume/expel into/from column" }
+            ListElement { key: "Mod+R";                   desc: "Switch preset column width" }
+            ListElement { key: "Mod+Shift+R";             desc: "Switch preset window height" }
+            ListElement { key: "Mod+Ctrl+R";              desc: "Reset window height" }
+            ListElement { key: "Mod+F";                   desc: "Maximize column" }
+            ListElement { key: "Mod+Shift+F";             desc: "Fullscreen window" }
+            ListElement { key: "Mod+Ctrl+F";              desc: "Expand column to width" }
+            ListElement { key: "Mod+C";                   desc: "Center column" }
+            // ---- Audio ----
+            ListElement { key: "XF86AudioRaiseVol";       desc: "Volume up" }
+            ListElement { key: "XF86AudioLowerVol";       desc: "Volume down" }
+          }
+
+          Repeater {
+            model: kbModel
+            delegate: RowLayout {
+              width: kbCol.width
+              spacing: 8
+              Text {
+                text: model.key
+                color: root.barAccent
+                font.family: root.uiFont
+                font.pixelSize: 12
+                font.bold: true
+                Layout.preferredWidth: 200
+                elide: Text.ElideRight
+              }
+              Text {
+                text: model.desc
+                color: root.barFg
+                font.family: root.uiFont
+                font.pixelSize: 12
+                Layout.fillWidth: true
+                elide: Text.ElideRight
+              }
+            }
+          }
+
+          // Footer divider + hint.
+          Rectangle {
+            width: kbCol.width
+            height: 1
+            color: root.barMuted
+            opacity: 0.4
+          }
+          Text {
+            width: kbCol.width
+            text: "Hotkey popup seeded from the wallust palette, matching the bar"
+            color: root.barMuted
+            font.family: root.uiFont
+            font.pixelSize: 10
+          }
+        }
+      }
+    }
+  }
+
 
   // Mirror themeRevision locally so the handler fires where it's declared.
   onThemeRevisionChanged: {
