@@ -124,34 +124,23 @@ Item {
           // DEBUG: log each tile's assigned position at instantiation.
           Component.onCompleted: console.log("tile DEBUG: idx", index, "x=", x, "y=", y)
 
-        // Shadow source — a duplicate of the tile's rotated-square geometry
-        // (same transform as the crop), filled solid dark, placed BEHIND the
-        // tile so the crop paints over its center. DropShadow samples it; the
-        // effect drops the source's own transform (samples it as an unrotated
-        // full-cell square), so we apply the diamond transform (rotation 45,
-        // scale 1/√2) to the DropShadow's OUTPUT to turn that square shadow
-        // into a diamond one.
-        Rectangle {
-          id: shadowSource
-          anchors.centerIn: parent
-          width: parent.width
-          height: parent.height
-          rotation: 45
-          scale: hive.invSqrt2
-          color: "#000000"
-        }
+        // Diamond drop shadow, per tile (task t_329954bf re-added). Shadow
+        // the CROP directly (source: crop) so the shadow follows the image's
+        // diamond alpha — NOT a solid-black shadowSrc rectangle behind the tile
+        // (085771f), which showed through the gap when the image was inset and
+        // was removed in 578aa18. The crop's rotated+scaled clip already yields
+        // diamond alpha, so the DropShadow needs no output transform of its own.
         DropShadow {
+          id: tileShadow
           anchors.fill: parent
-          rotation: 45
-          scale: hive.invSqrt2
-          source: shadowSource
-          radius: 8
-          samples: 17
-          color: "#a6000000"
-          horizontalOffset: 0
-          verticalOffset: 4
-          spread: 0.26
+          source: crop
+          radius: 6
+          samples: 13
+          color: "#c0000000"      // 75% black, matching the niri window shadow
+          horizontalOffset: 2
+          verticalOffset: 3
           transparentBorder: true
+          spread: 0
         }
 
         // Diamond crop — restored from 1977c3e: rotated+scaled `clip:true`
