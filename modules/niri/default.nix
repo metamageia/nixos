@@ -14,7 +14,7 @@
     qt5.qtwayland
     brightnessctl
     wev
-    inputs.pyre.packages.${pkgs.system}.default
+    inputs.infernixos.packages.${pkgs.system}.pyre
     xwayland
     xwayland-satellite
   ];

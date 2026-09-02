@@ -46,9 +46,10 @@
     qml-niri.url = "github:imiric/qml-niri";
     qml-niri.inputs.nixpkgs.follows = "nixpkgs";
 
-    # pyre: near-1:1 Dolphin file manager in PySide6+QML (local repo).
-    pyre.url = "path:/home/metamageia/Development/pyre";
-    pyre.inputs.nixpkgs.follows = "nixpkgs";
+    # infernixos: HermetixOS distro repo — source of the pyre package only
+    # (we pull its `packages.pyre`, never its modules).
+    infernixos.url = "path:/home/metamageia/Development/infernixos";
+    infernixos.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
