@@ -718,9 +718,13 @@ in {
       color: {{foreground}} !important;
     }
 
-    /* Tab backgrounds: inactive vs active (accent) */
+    /* Tab backgrounds: inactive vs active (accent). Inactive tabs use the
+       muted "surface" tone ({color8}, the sage secondary slot) instead of the
+       near-{background} {color0}, which disappeared into the chrome (flat) — the
+       rice's established secondary-surface tone (same slot as fuzzel's prompt/
+       counter + the bar's muted key). */
     #tabbrowser-tabs .tabbrowser-tab .tab-background {
-      background-color: {{color0}} !important;
+      background-color: {{color8}} !important;
     }
     #tabbrowser-tabs .tabbrowser-tab[selected] .tab-background {
       background-color: {{color5}} !important;
@@ -736,10 +740,33 @@ in {
     #urlbar-background,
     #urlbar,
     .urlbar-input-container {
-      background-color: {{color0}} !important;
+      background-color: {{color8}} !important;
       color: {{foreground}} !important;
       color-scheme: dark !important;
       background-image: none !important;
+    }
+
+    /* SEARCH-DIALOG GHOST FIX: the floating/breakout (and Zen "floating urlbar")
+       search/urlbar "dialog" draws its own translucent grey rounded rectangle —
+       Zen's `#urlbar[breakout-extend] .urlbar-background` sets
+       `background-color: var(--zen-urlbar-background-transparent/base)` + a big
+       acrylic backdrop-filter + a light outline, all `!important`, which BEATS our
+       plain `#urlbar-background` rule (higher specificity), So while the search
+       dialog is open ours loses and Zen's translucent grey box shows. When the dialog
+       collapses, that translucent surface lingers/as a ghost. Override it element-
+       directly with ≥ specificity (our sheet loads after the builtin, so equal-
+       specificity `!important` wins) — force the same muted surface tone, clear
+       the acrylic/box-shadow/outline so nothing translucent/shadowed lingers. */
+    #urlbar[breakout-extend] .urlbar-background,
+    #urlbar[zen-floating-urlbar="true"] .urlbar-background,
+    #urlbar[breakout] .urlbar-background {
+      --zen-urlbar-background-base: {{color8}} !important;
+      --zen-urlbar-background-transparent: {{color8}} !important;
+      background-color: {{color8}} !important;
+      background-image: none !important;
+      box-shadow: none !important;
+      backdrop-filter: none !important;
+      outline: none !important;
     }
 
     /* Sidebar webpanels backdrop */
