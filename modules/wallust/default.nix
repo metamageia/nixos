@@ -736,7 +736,13 @@ in {
     /* URL bar: background + text. The floating/breakout urlbar's inner
        `.urlbar-input-container` resolves its own light scheme (computed dump
        color-scheme:light, 62px) — same reveal-surface mechanism as the
-       toolbar. Cover it and force dark element-directly. */
+       toolbar. Cover it and force dark element-directly.
+       NOTE (09-02): the bar FLOATING ON STARTUP is NOT a CSS problem — it is
+       Zen's "Floating URL bar" feature auto-opening at launch, driven by the
+       `zen.urlbar.open-on-startup` pref (set false in modules/zen/default.nix)
+       plus `zen.urlbar.behavior`/`replace-newtab`. No CSS can stop that
+       auto-open; the pref is the fix. These element rules only theme the bar's
+       appearance when it IS shown (color8 surface, dark). */
     #urlbar-background,
     #urlbar,
     .urlbar-input-container {

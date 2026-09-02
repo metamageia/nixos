@@ -59,6 +59,19 @@
           # set it, since Gage wants the chrome transparent but the page opaque.)
           # Verified 08-30 against the official Transparent Zen mod + Linux guides.
           "zen.widget.linux.transparency" = true;
+          # Prevent the search/urlbar from auto-opening (floating) on STARTUP.
+          # Root cause (verified 09-02 against the pinned Zen 1.21.10b store source,
+          # NOT CSS): on startup with an empty tab, ZenSpaceManager.mjs reads
+          # `zen.urlbar.open-on-startup` (default true) + `zen.urlbar.replace-newtab`
+          # (default true) and calls openTab()/openLocation(), which auto-opens the
+          # URL bar; UrlbarInput.mjs then sets `zen-floating-urlbar="true"` when
+          # `zen.urlbar.behavior` is "floating-on-type" (default) and the open was not
+          # from a mousedown — so the bar floats centered at launch. No CSS can
+          # prevent that auto-open; only this pref can. false routes startup to
+          # `gBrowser.selectedBrowser.focus()` instead, so the bar stays hidden until
+          # Gage actually opens search (Ctrl+L / click / new tab) — where the
+          # element-level zen.tmpl rules already theme it (color8 surface, dark).
+          "zen.urlbar.open-on-startup" = false;
         };
 
         # sine.enable with EMPTY mods installs ONLY the loader (chrome/utils +
