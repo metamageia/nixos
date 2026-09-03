@@ -50,6 +50,11 @@
     # (we pull its `packages.pyre`, never its modules).
     infernixos.url = "path:/home/metamageia/Development/infernixos";
     infernixos.inputs.nixpkgs.follows = "nixpkgs";
+
+    # daw: bespoke Rust/egui DAW (Live 12 arrangement clone). Source for the
+    # `daw` package built in modules/musicproduction (rustPlatform build).
+    daw.url = "path:/home/metamageia/Development/daw";
+    daw.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
