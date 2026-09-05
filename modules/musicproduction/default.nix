@@ -11,46 +11,47 @@
   # ~/Development/daw repo (flake input `daw`). Matches its devShell's
   # runtime env: LV2_PATH is already set globally to /run/current-system/sw/lib/lv2
   # (system plugins incl. mda/x42), so only GM_SOUNDFONT needs wrapping here.
-  daw = pkgs.rustPlatform.buildRustPackage {
-    pname = "daw";
-    version = "0.1.0";
-    src = inputs.daw;
-    cargoLock.lockFile = "${inputs.daw}/Cargo.lock";
-
-    nativeBuildInputs = with pkgs; [pkg-config makeWrapper];
-    buildInputs = with pkgs; [
-      wayland
-      libxkbcommon
-      libGL
-      alsa-lib
-      lilv
-      lv2
-      serd
-      sord
-      sratom
-    ];
-
-    postInstall = ''
-      wrapProgram $out/bin/daw \
-        --set GM_SOUNDFONT "${pkgs.soundfont-fluid}/share/soundfonts/FluidR3_GM2-2.sf2"
-      mkdir -p $out/share/applications
-      cat > $out/share/applications/daw.desktop <<EOF
-[Desktop Entry]
-Type=Application
-Name=DAW
-Comment=Bespoke Live 12 arrangement-view clone
-Exec=daw
-Terminal=false
-Categories=AudioVideo;Audio;
-EOF
-    '';
-
-    meta = with lib; {
-      description = "Bespoke single-window DAW cloning Ableton Live 12 arrangement view";
-      license = licenses.mit;
-      platforms = ["x86_64-linux"];
-    };
-  };
+  # DISABLED: path input missing on setseke; re-enable input in flake.nix + this block.
+  # daw = pkgs.rustPlatform.buildRustPackage {
+  #   pname = "daw";
+  #   version = "0.1.0";
+  #   src = inputs.daw;
+  #   cargoLock.lockFile = "${inputs.daw}/Cargo.lock";
+  #
+  #   nativeBuildInputs = with pkgs; [pkg-config makeWrapper];
+  #   buildInputs = with pkgs; [
+  #     wayland
+  #     libxkbcommon
+  #     libGL
+  #     alsa-lib
+  #     lilv
+  #     lv2
+  #     serd
+  #     sord
+  #     sratom
+  #   ];
+  #
+  #   postInstall = ''
+  #     wrapProgram $out/bin/daw \
+  #       --set GM_SOUNDFONT "${pkgs.soundfont-fluid}/share/soundfonts/FluidR3_GM2-2.sf2"
+  #     mkdir -p $out/share/applications
+  #     cat > $out/share/applications/daw.desktop <<EOF
+  # [Desktop Entry]
+  # Type=Application
+  # Name=DAW
+  # Comment=Bespoke Live 12 arrangement-view clone
+  # Exec=daw
+  # Terminal=false
+  # Categories=AudioVideo;Audio;
+  # EOF
+  #   '';
+  #
+  #   meta = with lib; {
+  #     description = "Bespoke single-window DAW cloning Ableton Live 12 arrangement view";
+  #     license = licenses.mit;
+  #     platforms = ["x86_64-linux"];
+  #   };
+  # };
 
   soundthread = pkgs.stdenv.mkDerivation rec {
     pname = "soundthread";
@@ -180,7 +181,7 @@ in {
   environment.systemPackages = with pkgs; [
     # Daw
     reaper
-    daw
+    # daw  # disabled: path input missing on setseke
     # ardour
     #lmms
 

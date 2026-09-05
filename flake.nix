@@ -54,8 +54,10 @@
 
     # daw: bespoke Rust/egui DAW (Live 12 arrangement clone). Source for the
     # `daw` package built in modules/musicproduction (rustPlatform build).
-    daw.url = "path:/home/metamageia/Development/daw";
-    daw.inputs.nixpkgs.follows = "nixpkgs";
+    # path input lives in this repo — the repo isn't cloned on every host
+    # (setseke has no ~/Development/daw), so the input must follow the flake.
+    # daw.url = "path:/home/metamageia/Development/daw";
+    # daw.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {

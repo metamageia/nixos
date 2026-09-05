@@ -234,23 +234,6 @@
         "type": "github"
       }
     },
-    "daw": {
-      "inputs": {
-        "nixpkgs": [
-          "nixpkgs"
-        ]
-      },
-      "locked": {
-        "lastModified": 1788429826,
-        "narHash": "sha256-Cjxe95uu8XQyR0Vu4E4CQQVqJRxEDsXhDw4bZkGPe5s=",
-        "path": "/home/metamageia/Development/daw",
-        "type": "path"
-      },
-      "original": {
-        "path": "/home/metamageia/Development/daw",
-        "type": "path"
-      }
-    },
     "fenix": {
       "inputs": {
         "nixpkgs": [
@@ -1550,7 +1533,6 @@
         "claude-code": "claude-code",
         "comin": "comin",
         "compose2nix": "compose2nix",
-        "daw": "daw",
         "hermes-agent": "hermes-agent",
         "home-manager": "home-manager_2",
         "infernixos": "infernixos",
