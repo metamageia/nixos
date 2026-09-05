@@ -31,6 +31,10 @@
   # enumerate and automount /dev/sr0; without it Dolphin shows no drive.
   services.udisks2.enable = true;
 
+  environment.systemPackages = [
+    inputs.infernixos.packages.${pkgs.stdenv.hostPlatform.system}.pyre
+  ];
+
   # Direct LAN path to auriga when co-located; lighthouse covers it otherwise.
   services.nebula.networks.mesh.staticHostMap."192.168.100.3" = ["192.168.12.191:4242"];
   # Mark the LAN directly reachable so nebula prefers it over the NAT path.
