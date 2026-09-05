@@ -95,11 +95,14 @@
     # name field to the wallpaper basename: the gateway re-resolves, the
     # desktop sees a real name change, and repaints. No flash; display.skin
     # stays `wallust`. wallust won't create the skins dir, so mkdir it.
-    mkdir -p /var/lib/hermes/.hermes/skins
-    base="$(basename "$wp")"
-    skin_name="$(echo "''${base%.*}" | tr '[:upper:] ' '[:lower:]-' | tr -cd 'a-z0-9-')"
-    skin_name="''${skin_name:-wallust}"
-    sed -i "s/^name:.*/name: $skin_name/" /var/lib/hermes/.hermes/skins/wallust.yaml
+    # Guarded: setseke is a thin client — /var/lib/hermes isn't writable there
+    # and the whole script (set -e) used to die here, before `awww img`.
+    if mkdir -p /var/lib/hermes/.hermes/skins 2>/dev/null && [ -f /var/lib/hermes/.hermes/skins/wallust.yaml ]; then
+      base="$(basename "$wp")"
+      skin_name="$(echo "''${base%.*}" | tr '[:upper:] ' '[:lower:]-' | tr -cd 'a-z0-9-')"
+      skin_name="''${skin_name:-wallust}"
+      sed -i "s/^name:.*/name: $skin_name/" /var/lib/hermes/.hermes/skins/wallust.yaml
+    fi
 
     # Set the live desktop background with a wipe transition (left-to-right).
     # awww-daemon persists from spawn-at-startup; we NEVER pkill it (killing it
