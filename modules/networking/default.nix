@@ -33,10 +33,10 @@
     networkmanager = {
       enable = true;
       wifi.backend = "iwd";
-      # Disable wifi power-save: the broadcom-sta (wl) driver on setseke drops
-      # the link when the NIC enters power-save — the primary cause of the
-      # random disconnects. false turns power-save off outright.
-      wifi.powersave = false;
+      # NOTE: wifi.powersave only affects the wpa_supplicant backend — with
+      # wifi.backend = "iwd" it is a NO-OP (iwd owns power-save). The wl driver
+      # on setseke drops the link when the NIC enters power-save, so disable it
+      # with a udev rule instead (see below).
     };
 
     firewall = {
@@ -53,4 +53,13 @@
       ];
     };
   };
+
+  # Turn off wifi power-save on every wireless NIC. The broadcom-sta (wl)
+  # driver on setseke drops the link when the NIC idles into power-save —
+  # the cause of the inactivity disconnects. The udev rule runs regardless
+  # of which backend (NM/iwd) owns the device, and on every boot/plugin.
+  services.udev.extraRules = ''
+    ACTION=="add", SUBSYSTEM=="net", KERNEL=="wl*", RUN+="${pkgs.iw}/bin/iw dev %k set power_save off"
+    ACTION=="add", SUBSYSTEM=="net", RUN+="/bin/sh -c 'test -e /sys/class/net/%k/wireless && ${pkgs.iw}/bin/iw dev %k set power_save off'"
+  '';
 }
