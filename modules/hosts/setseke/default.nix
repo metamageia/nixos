@@ -30,6 +30,6 @@
   # option), so it goes into systemPackages directly.
   environment.systemPackages = [
     #inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.desktop
-    pkgs.dolphin
+    pkgs.kdePackages.dolphin
   ];
 }
