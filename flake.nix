@@ -34,7 +34,8 @@
 
     # Intentionally not following nixpkgs: the package is built with uv2nix,
     # which resolves Python deps against upstream's locked nixpkgs.
-    hermes-agent.url = "github:NousResearch/hermes-agent";
+    # Pin to PR #102418 (fix hermes_state_holders/_registry py-modules); unmergeable-on-main yet. Drop pin when fix lands on main.
+    hermes-agent.url = "github:NousResearch/hermes-agent/ad8f12f45b7e97cbac37f686724048837b14169b";
 
     aagl.url = "github:ezKEa/aagl-gtk-on-nix";
     aagl.inputs.nixpkgs.follows = "nixpkgs";

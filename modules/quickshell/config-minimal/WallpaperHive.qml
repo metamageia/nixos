@@ -124,25 +124,6 @@ Item {
           // DEBUG: log each tile's assigned position at instantiation.
           Component.onCompleted: console.log("tile DEBUG: idx", index, "x=", x, "y=", y)
 
-        // Diamond drop shadow, per tile (task t_329954bf re-added). Shadow
-        // the CROP directly (source: crop) so the shadow follows the image's
-        // diamond alpha — NOT a solid-black shadowSrc rectangle behind the tile
-        // (085771f), which showed through the gap when the image was inset and
-        // was removed in 578aa18. The crop's rotated+scaled clip already yields
-        // diamond alpha, so the DropShadow needs no output transform of its own.
-        DropShadow {
-          id: tileShadow
-          anchors.fill: parent
-          source: crop
-          radius: 6
-          samples: 13
-          color: "#c0000000"      // 75% black, matching the niri window shadow
-          horizontalOffset: 2
-          verticalOffset: 3
-          transparentBorder: true
-          spread: 0
-        }
-
         // Diamond crop — restored from 1977c3e: rotated+scaled `clip:true`
         // container (no OpacityMask — that painted a white diamond).
         Item {

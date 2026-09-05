@@ -110,45 +110,11 @@ in {
       mode = "0440";
       path = "/var/lib/hermes/.hermes/tripo3d.key";
     };
-    # Daimon webhook tokens (daimon-webhook-plugin, secret:<name> refs).
-    # Decrypt to /run/secrets/<name>; the plugin falls back to
-    # $HERMES_HOME/secrets/ until the switch lands.
-    # aisling webhook secret (re-enabled 2026-08-12 from
-    # archive/aisling-profile-20260812.tar.gz).
-    "daimon-aisling-webhook" = {
-      sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
-      owner = "metamageia";
-      group = "hermes";
-      mode = "0440";
-    };
-    "daimon-chrysarch-webhook" = {
-      sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
-      owner = "metamageia";
-      group = "hermes";
-      mode = "0440";
-    };
-    "daimon-forma-webhook" = {
-      sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
-      owner = "metamageia";
-      group = "hermes";
-      mode = "0440";
-    };
-    "daimon-rubedo-webhook" = {
-      sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
-      owner = "metamageia";
-      group = "hermes";
-      mode = "0440";
-    };
-    "daimon-kyunesnare-webhook" = {
-      sopsFile = "${userValues.secretsDir}/daimons.secrets.yaml";
-      owner = "metamageia";
-      group = "hermes";
-      mode = "0440";
-    };
   };
 
   sops.templates."hermes.env".content = ''
     DISCORD_BOT_TOKEN=${config.sops.placeholder."hermes-discord"}
+    DISCORD_ALLOWED_USERS=663086185920331777
   '';
 
   # Run as the login user so the agent can reach /home/metamageia, which is
@@ -181,9 +147,6 @@ in {
   # Hear-only room policy for the discord-daimons plugin (env-driven).
   # Webhook posts there are heard but not answered unless they address the
   # room's agent by name. Preserve the pre-restructure room-log location.
-  systemd.services.hermes-agent.environment.DISCORD_WEBHOOK_HEAR_ONLY_ROOMS = "1533330299008843866";
-  systemd.services.hermes-agent.environment.DISCORD_WEBHOOK_AGENT_NAMES = "dante";
-  systemd.services.hermes-agent.environment.DISCORD_WEBHOOK_ROOM_LOG_PATH = "/var/lib/hermes/.hermes/council/room_log.jsonl";
 
   # Restored: deleted with the old environment block in the daimon-plugin
   # restructure. Without the allowlist the gateway defaults to deny and
@@ -221,10 +184,11 @@ in {
       agent.api_max_retries = 10;
 
       model = {
-        # Top-level profile runs DeepSeek v4 Flash (latest alias, ~1.3M ctx)
-        # as of 09-01. The 0731 snapshot is pinned to a 163k window by the
-        # provider; the latest alias resolves to a 1M+ context.
-        default = "~deepseek/deepseek-v4-flash-latest";
+        # Orchestrator runs GLM-5.3-Flash (natively multimodal, 1M ctx) so the
+        # brain that verifies worker artifacts can SEE them in its main
+        # reasoning loop — no separate aux vision model needed. Rolled in with
+        # the 09-04 vision-pipeline upgrade (was DeepSeek v4 Flash text-only).
+        default = "~z-ai/glm-flash-latest";
         provider = "nous";
         base_url = "https://inference-api.nousresearch.com/v1";
       };
@@ -234,12 +198,9 @@ in {
       # failures surface directly.
       fallback_providers = [];
 
-      # Main model is text-only; route image analysis (vision_analyze /
-      # browser_vision) to a vision-capable portal model via the aux slot.
-      auxiliary.vision = {
-        provider = "nous";
-        model = "google/gemini-3-flash-preview";
-      };
+      # No auxiliary.vision slot: the main model (GLM-5.3-Flash) is natively
+      # multimodal, so vision_analyze / browser_vision use it directly. The
+      # old gemini-3-flash-preview aux slot was retired with the 09-04 upgrade.
       web = {
         backend = "firecrawl";
         use_gateway = true;
@@ -290,11 +251,10 @@ in {
       };
       approvals.destructive_slash_confirm = false;
 
-      # Subagent delegation model: Tencent Hy3 (295B MoE) for delegated
-      # workers. Free via Nous Portal (tencent/hy3:free) for a two-week
-      # window starting 08-27; re-assess when the window closes. The main
-      # model stays deepseek-v4-flash-0731.
-      delegation.model = "tencent/hy3:free";
+      # Subagent delegation model: DeepSeek v4 Flash (latest alias). Was
+      # tencent/hy3:free (free Portal window) — all hy3 refs retired 09-04,
+      # code-capable workers standardize on DeepSeek v4 Flash.
+      delegation.model = "~deepseek/deepseek-v4-flash-latest";
       # Flat delegation: orchestrator children cannot spawn their own
       # workers (1 = main → leaf only). Chosen 08-27 to cap spend.
       delegation.max_spawn_depth = 1;
@@ -303,11 +263,12 @@ in {
       # (job_id: ...) / ----- / To stop or manage this job..." header/footer.
       cron.wrap_response = false;
 
-      # ── Daimon council: webhook face --------------------------------------
-      # The webhook-face Discord platform lives in its own plugin
-      # (daimon-webhook-plugin). Forma alone runs built-in memory.
+      # ── Discord webhook faces (discord-webhook-bots plugin) ---------------
+      # /invite-bot + /uninvite-bot manage bot channel bindings via the
+      # plugin registry; no per-channel config lives here. Forma alone runs
+      # built-in memory.
       plugins.enabled = [
-        "daimon-webhook-plugin"
+        "discord-webhook-bots"
         # Ponytail (lazy senior dev) — enabled for the top-level profile;
         # Gage's operating bible (08-31). Per-profile configs (profiles/*/
         # config.yaml) are standalone files, NOT managed by this module —
@@ -316,85 +277,14 @@ in {
       ];
 
       # Multi-profile multiplexing: let a single gateway route specific
-      # channels to named profiles, so each daimon reasons with her own
-      # SOUL/memory/skills rather than the default profile's.
+      # channels to named profiles. The webhook-bots registry routes the
+      # channels it manages; profile_routes below covers the rest.
       gateway.multiplex_profiles = true;
 
-      # Route #aisling, #chrysarch, #forma, #kyunesnare, #rubedo (guild
-      # The Arcanum) to their daimon profiles.
-      # See gateway/profile_routing.py for matching
-      # (most-specific wins).
+      # Profile routing for channels NOT managed by the discord-webhook-bots
+      # plugin (its /invite-bot registry handles bot channels). See
+      # gateway/profile_routing.py for matching (most-specific wins).
       gateway.profile_routes = [
-        {
-          name = "aisling-channel";
-          platform = "discord";
-          guild_id = "1345013449272459366";
-          chat_id = "1537265129475809340";
-          profile = "daimon_aisling";
-        }
-        {
-          name = "chrysarch-channel";
-          platform = "discord";
-          guild_id = "1345013449272459366";
-          chat_id = "1533492889496322108";
-          profile = "daimon_chrysarch";
-        }
-        {
-          name = "forma-channel";
-          platform = "discord";
-          guild_id = "1345013449272459366";
-          chat_id = "1533919537903439872";
-          profile = "daimon_forma";
-        }
-        {
-          name = "forma-project-1";
-          platform = "discord";
-          guild_id = "1345013449272459366";
-          chat_id = "1540017080437317673";
-          profile = "daimon_forma";
-        }
-        {
-          name = "forma-project-2";
-          platform = "discord";
-          guild_id = "1345013449272459366";
-          chat_id = "1540017139975721161";
-          profile = "daimon_forma";
-        }
-        {
-          name = "forma-project-3";
-          platform = "discord";
-          guild_id = "1345013449272459366";
-          chat_id = "1540017200532820038";
-          profile = "daimon_forma";
-        }
-        {
-          name = "kyunesnare-channel";
-          platform = "discord";
-          guild_id = "1345013449272459366";
-          chat_id = "1535998391568306186";
-          profile = "daimon_kyunesnare";
-        }
-        {
-          name = "rubedo-channel";
-          platform = "discord";
-          guild_id = "1345013449272459366";
-          chat_id = "1537265194739433482";
-          profile = "daimon_rubedo";
-        }
-        {
-          name = "dante-channel";
-          platform = "discord";
-          guild_id = "1345013449272459366";
-          chat_id = "1540348781311299644";
-          profile = "daimon_dante";
-        }
-        {
-          name = "dragonfall-channel";
-          platform = "discord";
-          guild_id = "1345013449272459366";
-          chat_id = "1538282405985652860";
-          profile = "daimon_dante";
-        }
         # Project channels (per-project dev workspaces, routed to the `dev` worker).
         # Added 2026-08-21: Gage contains dev projects one-per-channel.
         {
