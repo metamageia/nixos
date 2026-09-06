@@ -5,6 +5,7 @@
   ...
 }: {
   imports = [
+    ./hardware-configuration.nix
     ../../nebula/node.nix
 
 
