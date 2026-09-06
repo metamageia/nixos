@@ -56,6 +56,7 @@
     nix-on-droid,
     affinity-nix,
     claude-code,
+    infernixos,
     ...
   } @ inputs: let
     system = "x86_64-linux";

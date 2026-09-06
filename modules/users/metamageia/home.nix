@@ -25,6 +25,9 @@
 
   };
 
+
+  infernixos.desktop.theming.wallpaper.extraDirs = [ ../../../wallpapers ];
+
   home.username = "metamageia";
   home.homeDirectory = "/home/metamageia";
   home.enableNixpkgsReleaseCheck = false;

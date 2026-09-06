@@ -803,8 +803,8 @@
         "zen-browser": "zen-browser"
       },
       "locked": {
-        "lastModified": 1788626199,
-        "narHash": "sha256-EkpRVbtYRXFfXkrJjDGaPb34oV3/mVXmJZ4q4ex6Mk8=",
+        "lastModified": 1788663782,
+        "narHash": "sha256-r52Lk7mfC2gQZ9aVtdtkDyIh1R6uFzoLgO0klSwcB1A=",
         "path": "/home/metamageia/Development/infernixos",
         "type": "path"
       },

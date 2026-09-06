@@ -11,19 +11,18 @@
     ../../nebula/node.nix
     ../../jellyfin
 
-    ../../hermes-agent
+    #../../hermes-agent
 
     # Users
     ../../users/metamageia
 
-    infernixos.nixosModules.infernixos
-    home-manager.nixosModules.home-manager
+    inputs.infernixos.nixosModules.infernixos
 
-    ../nh
-    ../audio
-    ../fonts
-    ../printing
-    ../rclone
+    ../../nh
+    ../../audio
+    ../../fonts
+    ../../printing
+    ../../rclone
 
   ];
 
