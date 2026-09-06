@@ -32,32 +32,16 @@
 
     claude-code.url = "github:sadjow/claude-code-nix";
 
-    # Intentionally not following nixpkgs: the package is built with uv2nix,
-    # which resolves Python deps against upstream's locked nixpkgs.
-    # Pin to PR #102418 (fix hermes_state_holders/_registry py-modules); unmergeable-on-main yet. Drop pin when fix lands on main.
-    hermes-agent.url = "github:NousResearch/hermes-agent/ad8f12f45b7e97cbac37f686724048837b14169b";
+   hermes-agent.url = "github:NousResearch/hermes-agent";
 
     aagl.url = "github:ezKEa/aagl-gtk-on-nix";
     aagl.inputs.nixpkgs.follows = "nixpkgs";
 
-    # qml-niri: QML plugin exposing niri IPC to QuickShell (used by the
-    # QuickShell status bar, modules/quickshell). NOT in nixpkgs — flake input.
-    # Its default package installs the plugin to $out/lib/qt-6/qml/Niri/, which
-    # modules/quickshell adds to QML2_IMPORT_PATH so `import Niri` resolves.
     qml-niri.url = "github:imiric/qml-niri";
     qml-niri.inputs.nixpkgs.follows = "nixpkgs";
 
-    # infernixos: HermetixOS distro repo — source of the pyre package only
-    # (we pull its `packages.pyre`, never its modules).
     infernixos.url = "path:/home/metamageia/Development/infernixos";
     infernixos.inputs.nixpkgs.follows = "nixpkgs";
-
-    # daw: bespoke Rust/egui DAW (Live 12 arrangement clone). Source for the
-    # `daw` package built in modules/musicproduction (rustPlatform build).
-    # path input lives in this repo — the repo isn't cloned on every host
-    # (setseke has no ~/Development/daw), so the input must follow the flake.
-    # daw.url = "path:/home/metamageia/Development/daw";
-    # daw.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
