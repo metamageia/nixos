@@ -803,14 +803,17 @@
         "zen-browser": "zen-browser"
       },
       "locked": {
-        "lastModified": 1788663782,
-        "narHash": "sha256-r52Lk7mfC2gQZ9aVtdtkDyIh1R6uFzoLgO0klSwcB1A=",
-        "path": "/home/metamageia/Development/infernixos",
-        "type": "path"
+        "lastModified": 1788704203,
+        "narHash": "sha256-YaZJF0UzH7pBu8oY+M+QVdm0+Xym+K3JPZQfEGu5e/g=",
+        "owner": "metamageia",
+        "repo": "infernixos",
+        "rev": "a0157142105217e603f611ec1ecd4b14e64e7c6a",
+        "type": "github"
       },
       "original": {
-        "path": "/home/metamageia/Development/infernixos",
-        "type": "path"
+        "owner": "metamageia",
+        "repo": "infernixos",
+        "type": "github"
       }
     },
     "nix-formatter-pack": {

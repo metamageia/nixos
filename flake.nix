@@ -40,7 +40,7 @@
     qml-niri.url = "github:imiric/qml-niri";
     qml-niri.inputs.nixpkgs.follows = "nixpkgs";
 
-    infernixos.url = "path:/home/metamageia/Development/infernixos";
+    infernixos.url = "github:metamageia/infernixos";
     infernixos.inputs.nixpkgs.follows = "nixpkgs";
   };
 
@@ -65,23 +65,14 @@
     pkgs = import inputs.nixpkgs {
       inherit system;
       config.allowUnfree = true;
-      # setseke's hardware-configuration.nix enables the Broadcom STA wifi driver
-      # (boot.kernelModules = [ "wl" ]), which nixpkgs marks insecure (CVE-2019-9501/
-      # 9502). The nixpkgs instance is created here (externally), so the permit must
-      # live on this import, not in a host module (a module nixpkgs.config throws the
-      # "externally created instance" assertion). The version string embeds the kernel
-      # (…-6.18.41); keep it in lockstep with the pinned nixpkgs/kernel.
       config.permittedInsecurePackages = [
         "broadcom-sta-6.30.223.271-63-6.18.41"
       ];
     };
 
     userValues = {
-      # Git-tracked wallpaper set; read-only store path at build time, used by the
-      # wallust switcher at runtime (modules/wallust). Add a wallpaper => commit + rebuild.
       wallpapersDir = ./wallpapers;
       repoUrl = "https://github.com/metamageia/nixos.git";
-      # DNS name for the lighthouse; its A record in Route 53 owns the public IP.
       publicHost = "arcanum.gagelara.com";
       sopsFile = ./secrets/homelab.secrets.yaml;
       secretsDir = "${self}/secrets";
