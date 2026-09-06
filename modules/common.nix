@@ -15,7 +15,7 @@
     wget
     unzip
     unrar
-    claude-code
+    git
   ];
 
   nix.optimise.automatic = true;

@@ -7,36 +7,37 @@
   imports = [
     ./hardware-configuration.nix
 
-    ../../desktop-presets/niri
-
     ../../nvidia
-    #../../k3s/agent.nix
     ../../nebula/node.nix
     ../../jellyfin
-    ../../servarr
-    ../../n8n
+
     ../../hermes-agent
-    ../../inference
 
     # Users
     ../../users/metamageia
 
-    #../../aagl
+    infernixos.nixosModules.infernixos
+    home-manager.nixosModules.home-manager
+
+    ../nh
+    ../audio
+    ../fonts
+    ../printing
+    ../rclone
 
   ];
 
   hardware.graphics.enable32Bit = true;
-
-  # Removable media (optical drive) — udisks2 is what the desktop uses to
-  # enumerate and automount /dev/sr0; without it Dolphin shows no drive.
   services.udisks2.enable = true;
 
   environment.systemPackages = [
-    inputs.infernixos.packages.${pkgs.stdenv.hostPlatform.system}.pyre
+    #inputs.infernixos.packages.${pkgs.stdenv.hostPlatform.system}.pyre
   ];
 
-  # Direct LAN path to auriga when co-located; lighthouse covers it otherwise.
+  infernixos.system.hermesUser = "metamageia";
+  infernixos.desktop.enable = true;
+  infernixos.desktop.hermesClientUsers = [ "metamageia" ];
+
   services.nebula.networks.mesh.staticHostMap."192.168.100.3" = ["192.168.12.191:4242"];
-  # Mark the LAN directly reachable so nebula prefers it over the NAT path.
   services.nebula.networks.mesh.settings.local_range = ["192.168.12.0/24"];
 }
