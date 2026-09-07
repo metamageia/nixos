@@ -2,6 +2,8 @@
   inputs,
   pkgs,
   config,
+  lib,
+  nebulaIP,
   ...
 }: {
   imports = [
@@ -28,6 +30,12 @@
 
   hardware.graphics.enable32Bit = true;
   services.udisks2.enable = true;
+
+  # Expose saiadha's hermes backend on the nebula mesh so setseke's desktop
+  # can reach it. infernixos binds to 127.0.0.1 by default (a plain value),
+  # so override with mkForce. Binding a non-loopback address engages the
+  # dashboard auth gate — the loopback session token does not satisfy it.
+  services.hermes-agent.backend.host = lib.mkForce nebulaIP;
 
   environment.systemPackages = [
     #inputs.infernixos.packages.${pkgs.stdenv.hostPlatform.system}.pyre

@@ -803,11 +803,11 @@
         "zen-browser": "zen-browser"
       },
       "locked": {
-        "lastModified": 1788704203,
-        "narHash": "sha256-YaZJF0UzH7pBu8oY+M+QVdm0+Xym+K3JPZQfEGu5e/g=",
+        "lastModified": 1788730845,
+        "narHash": "sha256-JbI/aRa8APFsBzwK5MpiaDQqMRZ/qza+vjYwc3bGtzo=",
         "owner": "metamageia",
         "repo": "infernixos",
-        "rev": "a0157142105217e603f611ec1ecd4b14e64e7c6a",
+        "rev": "bfc8d3b7f0b78b6db266587eaa4275718b20d4e9",
         "type": "github"
       },
       "original": {

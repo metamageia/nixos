@@ -3,6 +3,7 @@
   pkgs,
   inputs,
   userValues,
+  hostName,
   ...
 }: {
   imports = [
@@ -13,6 +14,7 @@
     extraSpecialArgs = {
       inherit inputs;
       inherit userValues;
+      inherit hostName;
     };
     users = {metamageia = import ./home.nix;};
   };
