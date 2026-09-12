@@ -156,6 +156,11 @@ in {
   systemd.services.hermes-agent.environment.DISCORD_ALLOWED_USERS = "663086185920331777";
   systemd.services.hermes-agent.environment.HERMES_HOME_MODE = "2770";
 
+  # Ponytail (enabled in plugins.enabled above) defaults to 'full'; its
+  # documented knob is the PONYTAIL_DEFAULT_MODE env var, which wins over
+  # ~/.config/ponytail/config.json. ultra = YAGNI extremist.
+  systemd.services.hermes-agent.environment.PONYTAIL_DEFAULT_MODE = "ultra";
+
   services.hermes-agent = {
     enable = true;
     package = inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.minimal;
