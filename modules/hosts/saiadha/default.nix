@@ -82,6 +82,16 @@
     PONYTAIL_DEFAULT_MODE = "ultra";
   };
 
+  # Cron restart-safe dispatch is dead without this. The gateway probes
+  # `systemd-run --user --scope` availability by exec'ing a hardcoded
+  # /bin/true; NixOS ships only /bin/sh, so the probe ALWAYS fails and every
+  # cron fire aborts with "cannot create restart-safe systemd scope for
+  # gateway child" (all GTD jobs have been failing this way since 09-04).
+  # Upstream fixed the probe portably in 7a7ead8 ("use portable /bin/sh probe
+  # for systemd-run scope availability"); drop this line once the hermes-agent
+  # pin in infernixos/flake.nix moves past that commit.
+  systemd.tmpfiles.rules = [ "L+ /bin/true - - - - ${pkgs.coreutils}/bin/true" ];
+
   services.nebula.networks.mesh.staticHostMap."192.168.100.3" = ["192.168.12.191:4242"];
   services.nebula.networks.mesh.settings.local_range = ["192.168.12.0/24"];
 }
