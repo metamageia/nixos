@@ -87,6 +87,11 @@
     platform_toolsets = {
       discord = [ "hermes-discord" "video" "video_gen" "computer_use" ];
       cli = [ "hermes-cli" "video" "video_gen" "computer_use" ];
+      # Desktop sessions are served by hermes-backend.service, a different
+      # platform key from the gateway's "cli"/"discord" — without this entry
+      # the desktop resolves to [hermes-desktop] and computer_use never
+      # registers in a desktop session (verified: resolver output).
+      desktop = [ "hermes-desktop" "computer_use" ];
     };
   };
   infernixos.desktop.enable = true;
@@ -121,6 +126,19 @@
   #    element-index capture/click (its most reliable path) is dead.
   systemd.services.hermes-agent.serviceConfig.PrivateTmp = lib.mkForce false;
   services.gnome.at-spi2-core.enable = true;
+
+  # Desktop sessions are served by hermes-backend.service, not the gateway unit
+  # (verified live: the agent's own shell cgroup is hermes-backend.service), so
+  # cua-driver is spawned as its child and needs the same X access — patching
+  # only hermes-agent above leaves the desktop path with no DISPLAY and a
+  # private /tmp. XDG_RUNTIME_DIR is what AT-SPI resolves the a11y bus against;
+  # without it, element-index capture is dead even with at-spi core enabled.
+  systemd.services.hermes-backend.environment = {
+    XDG_RUNTIME_DIR = "/run/user/1000";
+    DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
+    DISPLAY = ":0";
+  };
+  systemd.services.hermes-backend.serviceConfig.PrivateTmp = lib.mkForce false;
 
   # Cron restart-safe dispatch is dead without this. The gateway probes
   # `systemd-run --user --scope` availability by exec'ing a hardcoded
