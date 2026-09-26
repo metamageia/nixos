@@ -125,6 +125,7 @@
   #    there is no accessibility tree: computer_use still screenshots but
   #    element-index capture/click (its most reliable path) is dead.
   systemd.services.hermes-agent.serviceConfig.PrivateTmp = lib.mkForce false;
+  systemd.services.hermes-agent.serviceConfig.ProtectSystem = lib.mkForce false;
   services.gnome.at-spi2-core.enable = true;
 
   # Desktop sessions are served by hermes-backend.service, not the gateway unit
@@ -139,6 +140,7 @@
     DISPLAY = ":0";
   };
   systemd.services.hermes-backend.serviceConfig.PrivateTmp = lib.mkForce false;
+  systemd.services.hermes-backend.serviceConfig.ProtectSystem = lib.mkForce false;
 
   # Cron restart-safe dispatch is dead without this. The gateway probes
   # `systemd-run --user --scope` availability by exec'ing a hardcoded
