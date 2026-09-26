@@ -49,6 +49,9 @@ in {
   # Local media library + download paths. Created at boot via tmpfiles with
   # correct ownership so the *arr containers (PUID/PGID 1000/100) can write.
   systemd.tmpfiles.rules = [
+    # Mount point itself (rootfs dir; shadowed by the pool's own root inode
+    # once /srv mounts — the post-mount oneshot below re-does it there).
+    "d /srv 2775 ${owner} ${group} - -"
     "d /srv/media 0755 ${owner} ${group} - -"
     "d /srv/media/Movies 0775 ${owner} ${group} - -"
     "d /srv/media/TV 0775 ${owner} ${group} - -"
@@ -133,6 +136,16 @@ in {
       # root:root by docker before this ran; fix ownership so PUID/PGID 1000/100
       # can write. Idempotent.
       chown -R ${owner}:${group} /srv/servarr
+
+      # /srv root: metamageia-owned, setgid + default ACLs so ANY writer
+      # (metamageia, a container on PUID/PGID 1000/100, or root) leaves new
+      # files group-writable by `users` instead of root:root 0644.
+      chown ${owner}:${group} /srv
+      find /srv -maxdepth 3 -type d \
+        -exec chmod 2775 {} + \
+        -exec ${pkgs.acl}/bin/setfacl -m d:u::rwx,d:g::rwx,d:o::rx -m u::rwx,g::rwx,o::rx {} +
+      # Existing files: make them group-writable too (no default ACL retrofits).
+      find /srv -maxdepth 4 -type f -exec chmod g+rw {} +
     '';
   };
 
