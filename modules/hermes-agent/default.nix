@@ -6,9 +6,6 @@
   userValues,
   ...
 }: let
-  # misaki's espeak fallback (used for out-of-dictionary words) imports
-  # espeakng_loader, which is not in nixpkgs. It only exists to locate the
-  # shared library and phoneme data, so point it at the real package.
   espeakngLoader = pkgs.writeTextFile {
     name = "espeakng-loader-shim";
     destination = "/espeakng_loader/__init__.py";
@@ -25,9 +22,6 @@
     '';
   };
 
-  # kokoro-onnx runs the same Kokoro-82M weights on onnxruntime instead of
-  # torch, which keeps the CPU inference path (real-time for short utterances)
-  # while dropping the entire uncached CUDA/torch/spacy build closure.
   kokoro-onnx = pkgs.python3.pkgs.buildPythonPackage rec {
     pname = "kokoro-onnx";
     version = "0.5.0";
@@ -41,9 +35,6 @@
 
     build-system = [pkgs.python3.pkgs.hatchling];
 
-    # Upstream pins the phonemizer-fork and espeakng-loader wheels, neither in
-    # nixpkgs. Stock phonemizer 3.3 is import-compatible (same module, espeak
-    # default backend), and espeakng_loader is supplied by the shim above.
     pythonRemoveDeps = ["phonemizer-fork" "espeakng-loader"];
     dependencies = with pkgs.python3.pkgs; [onnxruntime numpy phonemizer];
   };
@@ -76,7 +67,6 @@ in {
     inputs.hermes-agent.nixosModules.default
   ];
 
-  # createUser = false below stops the upstream module declaring this.
   users.groups.hermes = {};
   users.users.metamageia.extraGroups = ["hermes"];
 
@@ -89,10 +79,6 @@ in {
     "hermes-discord" = {
       sopsFile = "${userValues.secretsDir}/personal.secrets.yaml";
     };
-    # Google Workspace OAuth client (gmail/calendar/drive/sheets/docs).
-    # sops-nix decrypts the `google-api` key in personal.secrets.yaml and
-    # places it where the google-workspace skill's setup.py reads it
-    # (HERMES_HOME/google_client_secret.json).
     "google-api" = {
       sopsFile = "${userValues.secretsDir}/personal.secrets.yaml";
       owner = "metamageia";
@@ -100,9 +86,6 @@ in {
       mode = "0440";
       path = "/var/lib/hermes/.hermes/google_client_secret.json";
     };
-    # Tripo3D API key (text/image-to-3D service). Decrypt to a stable path
-    # agents read directly; ~/.secrets/tripo3d.key is the interim copy until
-    # this lands via rebuild.
     "tripo3d-api" = {
       sopsFile = "${userValues.secretsDir}/personal.secrets.yaml";
       owner = "metamageia";
@@ -117,48 +100,23 @@ in {
     DISCORD_ALLOWED_USERS=663086185920331777
   '';
 
-  # Run as the login user so the agent can reach /home/metamageia, which is
-  # 0700 and otherwise untraversable by a dedicated service user.
   systemd.services.hermes-agent.serviceConfig.ReadWritePaths = ["/home/metamageia"];
 
-  # The package module hardens the unit with NoNewPrivileges=true, which
-  # blocks sudo in every daimon shell (the setuid bit becomes inert). Clear
-  # it so `nh os switch` works as written; the NOPASSWD rule below scopes
-  # what the agent may run. Tradeoff: a compromised agent gains the user's
-  # sudo rights, not root's blanket authority.
   systemd.services.hermes-agent.serviceConfig.NoNewPrivileges = lib.mkForce false;
-
-  # Upstream pins HOME to stateDir, which makes the agent believe its home is
-  # /var/lib/hermes. HERMES_HOME is set separately, so state still resolves.
   systemd.services.hermes-agent.environment.HOME = lib.mkForce "/home/metamageia";
 
-  # Upstream's unit PATH holds only hermes' own closure, so the agent's shell
-  # tool sees none of the system profile (no nvidia-smi, no sqlite3, ...).
   systemd.services.hermes-agent.path = [
     kokoro-tts
     config.hardware.nvidia.package.bin
     "/run/current-system/sw"
   ];
 
-  # Lets any CUDA consumer the agent starts resolve libcuda.so.1, which ships
-  # with the kernel driver rather than with the CUDA libraries themselves.
   systemd.services.hermes-agent.environment.LD_LIBRARY_PATH = "${config.hardware.nvidia.package}/lib";
 
-  # Hear-only room policy for the discord-daimons plugin (env-driven).
-  # Webhook posts there are heard but not answered unless they address the
-  # room's agent by name. Preserve the pre-restructure room-log location.
-
-  # Restored: deleted with the old environment block in the daimon-plugin
-  # restructure. Without the allowlist the gateway defaults to deny and
-  # rejects every Discord message, Metamageia's included.
   systemd.services.hermes-agent.environment.DISCORD_HOME_CHANNEL = "1532688784796291164";
   systemd.services.hermes-agent.environment.DISCORD_DM_CHANNEL = "1532707219387187351";
   systemd.services.hermes-agent.environment.DISCORD_ALLOWED_USERS = "663086185920331777";
   systemd.services.hermes-agent.environment.HERMES_HOME_MODE = "2770";
-
-  # Ponytail (enabled in plugins.enabled above) defaults to 'full'; its
-  # documented knob is the PONYTAIL_DEFAULT_MODE env var, which wins over
-  # ~/.config/ponytail/config.json. ultra = YAGNI extremist.
   systemd.services.hermes-agent.environment.PONYTAIL_DEFAULT_MODE = "ultra";
 
   services.hermes-agent = {
@@ -169,8 +127,6 @@ in {
     user = "metamageia";
     createUser = false;
 
-    # `minimal` omits discord.py, and hermes' lazy-installer cannot write to
-    # the read-only /nix/store, so the dep must be baked in at build time.
     extraDependencyGroups = ["messaging" "firecrawl"];
 
     # Seeded once; hermes refreshes the OAuth token in place afterward.
@@ -179,33 +135,16 @@ in {
     environmentFiles = [config.sops.templates."hermes.env".path];
 
     settings = {
-      # Overrides the workingDirectory-derived default. Set here rather than via
-      # workingDirectory, whose tmpfiles rule would chmod 2770 / chgrp the home.
       terminal.cwd = "/home/metamageia";
-
-      # DeepSeek fallback machinery removed 08-25 (deepseek-503-retry plugin
-      # disabled + fallback_providers emptied). Default retry ceiling restored:
-      # genuine failures surface immediately instead of retrying forever.
       agent.api_max_retries = 10;
 
       model = {
-        # Orchestrator runs GLM-5.3-Flash (natively multimodal, 1M ctx) so the
-        # brain that verifies worker artifacts can SEE them in its main
-        # reasoning loop — no separate aux vision model needed. Rolled in with
-        # the 09-04 vision-pipeline upgrade (was DeepSeek v4 Flash text-only).
         default = "~z-ai/glm-flash-latest";
         provider = "nous";
         base_url = "https://inference-api.nousresearch.com/v1";
       };
-
-      # Explicitly empty: live config.yaml had a deepseek fallback entry here;
-      # nix deep-merge would keep it unless overridden. No failover wanted —
-      # failures surface directly.
       fallback_providers = [];
 
-      # No auxiliary.vision slot: the main model (GLM-5.3-Flash) is natively
-      # multimodal, so vision_analyze / browser_vision use it directly. The
-      # old gemini-3-flash-preview aux slot was retired with the 09-04 upgrade.
       web = {
         backend = "firecrawl";
         use_gateway = true;
@@ -216,24 +155,11 @@ in {
       };
       display = {
         show_reasoning = false;
-        # Active skin = `wallust`, the file wallust renders to
-        # /var/lib/hermes/.hermes/skins/wallust.yaml on every Mod+W. The
-        # gateway's skin watcher polls (name, mtime) and broadcasts
-        # skin.changed; wallust-apply bumps the name field to the wallpaper
-        # basename so the desktop's name-based apply guard repaints live.
         skin = "wallust";
-        # Per-daimon skin is set in each daimon's own profile config
-        # (dante's skin lives at profiles/dante/config.yaml).
-        # Nous Portal credits notices ("You've used $X of your $Y cap") are
-        # sticky status lines fired at session start; Metamageia finds them
-        # noise. False disables the whole notice pipeline (run_agent.py reads
-        # display.credits_notices, cached per agent process).
         credits_notices = false;
       };
       tts = {
         provider = "kokoro";
-        # Nix settings deep-merge into the live config.yaml, so the previous
-        # gateway-backed setting has to be turned off rather than dropped.
         use_gateway = false;
         providers.kokoro = {
           type = "command";
@@ -248,50 +174,24 @@ in {
         use_gateway = true;
       };
       image_gen.use_gateway = true;
-      # video/video_gen are default-off toolsets; name them explicitly next to
-      # the platform composite so the expansion keeps the default set.
       platform_toolsets = {
         cli = ["hermes-cli" "video" "video_gen"];
         discord = ["hermes-discord" "video" "video_gen"];
       };
       approvals.destructive_slash_confirm = false;
-
-      # Subagent delegation model: DeepSeek v4 Flash (latest alias). Was
-      # tencent/hy3:free (free Portal window) — all hy3 refs retired 09-04,
-      # code-capable workers standardize on DeepSeek v4 Flash.
       delegation.model = "~deepseek/deepseek-v4-flash-latest";
-      # Flat delegation: orchestrator children cannot spawn their own
-      # workers (1 = main → leaf only). Chosen 08-27 to cap spend.
       delegation.max_spawn_depth = 1;
 
-      # Deliver cron output cleanly without the "Cronjob Response: <name>
-      # (job_id: ...) / ----- / To stop or manage this job..." header/footer.
       cron.wrap_response = false;
 
-      # ── Discord webhook faces (discord-webhook-bots plugin) ---------------
-      # /invite-bot + /uninvite-bot manage bot channel bindings via the
-      # plugin registry; no per-channel config lives here. Forma alone runs
-      # built-in memory.
       plugins.enabled = [
         "discord-webhook-bots"
-        # Ponytail (lazy senior dev) — enabled for the top-level profile;
-        # Gage's operating bible (08-31). Per-profile configs (profiles/*/
-        # config.yaml) are standalone files, NOT managed by this module —
-        # they carry their own plugins.enabled. Daimon personas are excluded.
         "ponytail"
       ];
 
-      # Multi-profile multiplexing: let a single gateway route specific
-      # channels to named profiles. The webhook-bots registry routes the
-      # channels it manages; profile_routes below covers the rest.
       gateway.multiplex_profiles = true;
 
-      # Profile routing for channels NOT managed by the discord-webhook-bots
-      # plugin (its /invite-bot registry handles bot channels). See
-      # gateway/profile_routing.py for matching (most-specific wins).
       gateway.profile_routes = [
-        # Project channels (per-project dev workspaces, routed to the `dev` worker).
-        # Added 2026-08-21: Gage contains dev projects one-per-channel.
         {
           name = "prosopon-project-channel";
           platform = "discord";
@@ -315,27 +215,10 @@ in {
           profile = "dev";
         }
       ];
-
-      # Global mention-free (Metamageia, 08-25): the bot responds in every
-      # channel its role can see without an @mention. The Discord category
-      # role now does the boundary work the per-channel list used to, so the
-      # free_response allowlist is gone — create a channel, the bot is already
-      # there, no config edit, no restart.
       discord.require_mention = false;
-      # Reply inline in the channel, never spawn a thread (Metamageia, 08-25;
-      # he dislikes threads). This restores the behavior the free_response
-      # list used to provide, now globally.
       discord.auto_thread = false;
-
-      # Council-room conduct for #convocatory was dante's voice; it moved to
-      # dante's profile with the daimon migration (2026-08-21). The default
-      # agent monitors #convocatory as a plain channel until a moderator
-      # prompt is reassigned.
     };
 
-    # Robinhood Agentic Trading — remote HTTP MCP server, OAuth 2.1 PKCE.
-    # Declared here (not freeform settings) so it survives nixos-rebuild switch.
-    # Authenticate after the switch with: hermes mcp login robinhood-trading
     mcpServers = {
       robinhood-trading = {
         url = "https://agent.robinhood.com/mcp/trading";
@@ -343,13 +226,6 @@ in {
       };
     };
   };
-
-  # Hermes desktop app (Electron GUI) for this pinned hermes-agent rev
-  # (03fa32c…). At this pin it is exposed ONLY as a flake package —
-  # inputs.hermes-agent.packages.<system>.desktop — with no services/programs
-  # option. It is distinct from the CLI that services.hermes-agent.addToSystemPackages
-  # installs, so we add it to the system environment directly to get
-  # `hermes-desktop` and its .desktop entry / icon.
   environment.systemPackages = [
     inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.desktop
   ];

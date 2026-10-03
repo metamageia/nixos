@@ -1,49 +1,3 @@
-# Wallust dynamic theming — self-contained home-manager module.
-#
-# WHAT IT DOES
-#   - Installs `wallust` (v3.5.x) and `awww` (the animated Wayland wallpaper
-#     daemon; niri has NO native wallpaper-image support). awww gives smooth
-#     fade/wipe/grow transitions between wallpapers — no screen flash.
-#   - Ships ~/.config/wallust/wallust.toml + its `templates/` dir. wallust reads
-#     colors from a chosen wallpaper and renders templates for fuzzel,
-#     kitty, and niri.
-#   - Ships `wallust-switch`: a fuzzel-dmenu launcher that lists wallpapers from
-#     the repo wallpapers dir, applies the chosen one with `wallust run ...`, and
-#     sets it as the live desktop background with `awww img --transition-type fade`.
-#
-# VERIFIED EMPIRICALLY (nix shell nixpkgs#wallust, run against the warframe wp):
-#   CLI:  wallust run --config-dir <DIR> <IMAGE>      # image is a POSITIONAL arg
-#   Resolving placeholders: color0..color15, background, foreground, cursor, alpha
-#   (alpha defaults to 100).  `accent` and `wallpaper` DO NOT resolve (empty) — so
-#   templates use {{background}}/{{colorN}}, never {{accent}}/{{wallpaper}}.
-#   Templates live in a `templates/` subdir of the config dir; `target` is the
-#   absolute runtime path wallust writes.
-#
-# CONFIG-OWNERSHIP STRATEGY (wallust owns colors; HM keeps structure)
-#   - fuzzel: HM writes fuzzel.ini ONLY when settings != {} (it is empty here), so no
-#     conflict — wallust writes ~/.config/fuzzel/fuzzel.ini directly. HM still provides
-#     the fuzzel package + deps (jq/wl-clipboard/xdg-utils/coreutils) via modules/fuzzel.
-#   - kitty: HM writes kitty.conf ONLY when settings != {} (empty), so wallust
-#     writes ~/.config/kitty/kitty.conf directly (picked up on next launch).
-#   - niri: the nixpkgs home-manager `wayland.windowManager.niri` module writes
-#     ~/.config/niri/config.kdl from `settings` via the NAMED entry
-#     `xdg.configFile."niri/config.kdl"`. niri 26.04 DOES support `include`
-#     directives, so we append `include optional=true "colors.kdl"` (colors.kdl
-#     is wallust-generated from niri.tmpl) by using the module's own
-#     `extraConfig` hook — NOT a fresh xdg.configFile target (that collides).
-#     All binds/window-rules/gaps survive via `settings`; the include is added
-#     at the END of the generated config. Enabled (Phase 1b).
-#
-# NIRI RUNTIME NOTE (honest limitation)
-#   niri reads config.kdl only at session (compositor) start; there is no live reload
-#   IPC. So wallust regenerating niri/colors.kdl takes visual effect on niri after the
-#   NEXT login / niri restart — NOT immediately. The switcher therefore does NOT kill
-#   niri (that would end the session). fuzzel/kitty pick up their new files
-#   live (fuzzel/kitty on next launch). `include optional=true`
-#   keeps a missing colors.kdl (pre-first-run) from breaking niri startup.
-#
-# KEYBIND (recommended — add to modules/niri/home.nix `binds`, out of scope here)
-#   "Mod+W".action.spawn = "wallust-switch";
 {
   config,
   pkgs,
@@ -51,18 +5,11 @@
   userValues,
   ...
 }: let
-  # Canonical, git-tracked wallpapers set. Passed from flake.nix userValues
-  # (./wallpapers) and threaded through extraSpecialArgs. It becomes a read-only
-  # store path at build time — fully readable at runtime by the switcher. Adding a
-  # new wallpaper is a one-line commit + rebuild (the Nix way); we deliberately avoid
-  # a hardcoded /home/metamageia path so the module stays hermetic.
+  
   wallpapersDir = userValues.wallpapersDir;
 
   wallustCfgDir = "${config.xdg.configHome}/wallust";
 
-  # Applies a chosen wallpaper: wallust run + awww img + persist last-wallpaper.
-  # Shared by the fuzzel menu (wallust-switch) and the QuickShell diamond picker
-  # (Phase 6). Takes the wallpaper path as $1.
   wallust-apply = pkgs.writeShellScriptBin "wallust-apply" ''
     #!${pkgs.bash}/bin/bash
     set -euo pipefail
@@ -72,31 +19,14 @@
     [ -n "$wp" ] || exit 0
     [ -f "$wp" ] || { echo "wallust-apply: not a file: $wp" >&2; exit 1; }
 
-    # Ensure the Obsidian snippets dir exists (wallust does NOT create parent
-    # dirs of a template target). Recoloring the vault is wallust's job via the
-    # obsidian.tmpl snippet; Obsidian live-reloads snippets.
     mkdir -p "/home/metamageia/Sync/Obsidian/.obsidian/snippets"
 
-    # Ensure the Zen chrome dir exists too — the zen.tmpl target lives at
-    # <profile>/chrome/userChrome.css, which wallust won't create for us.
     mkdir -p "${config.xdg.configHome}/zen/e06yfgug.Default Profile/chrome"
 
-    # Ensure the Pyre config dir exists — wallust doesn't create parent dirs of a
-    # template target, and theme.py reads Theme.qml from here at launch.
     mkdir -p "${config.xdg.configHome}/pyre"
 
-    # Re-theme: apply palette + render all templates (fuzzel/kitty).
     ${pkgs.wallust}/bin/wallust run --config-dir "$CONFIG_DIR" "$wp"
 
-    # Hermes desktop live-retheme: the gateway's skin watcher polls
-    # (active skin name, skins/<name>.yaml mtime) and broadcasts skin.changed
-    # on any move, but the desktop's apply guard (backend-sync.ts) is NAME-
-    # based — a same-name in-place recolor won't repaint. So bump the skin's
-    # name field to the wallpaper basename: the gateway re-resolves, the
-    # desktop sees a real name change, and repaints. No flash; display.skin
-    # stays `wallust`. wallust won't create the skins dir, so mkdir it.
-    # Guarded: setseke is a thin client — /var/lib/hermes isn't writable there
-    # and the whole script (set -e) used to die here, before `awww img`.
     if mkdir -p /var/lib/hermes/.hermes/skins 2>/dev/null && [ -f /var/lib/hermes/.hermes/skins/wallust.yaml ]; then
       base="$(basename "$wp")"
       skin_name="$(echo "''${base%.*}" | tr '[:upper:] ' '[:lower:]-' | tr -cd 'a-z0-9-')"
@@ -104,22 +34,15 @@
       sed -i "s/^name:.*/name: $skin_name/" /var/lib/hermes/.hermes/skins/wallust.yaml
     fi
 
-    # Set the live desktop background with a wipe transition (left-to-right).
-    # awww-daemon persists from spawn-at-startup; we NEVER pkill it (killing it
-    # would drop the background / break the socket). If awww img fails, surface
-    # the error.
     export WAYLAND_DISPLAY="wayland-1"
     ${pkgs.awww}/bin/awww img "$wp" --transition-type wipe --transition-angle 45 --transition-duration 0.8
 
-    # Persist the choice so a rebuild/login restores it (read by awww-wallpaper
-    # systemd service) instead of resetting to the hardcoded default.
     echo "$wp" > "${wallustCfgDir}/last-wallpaper"
 
     ${pkgs.libnotify}/bin/notify-send "wallust" "Themed from $(basename "$wp")" 2>/dev/null || true
   '';
 
-  # fuzzel-dmenu launcher: pick wallpaper -> wallust-apply. Kept as the text-menu
-  # fallback; the QuickShell diamond picker (Phase 6) calls wallust-apply directly.
+
   wallust-switch = pkgs.writeShellScriptBin "wallust-switch" ''
     #!${pkgs.bash}/bin/bash
     set -euo pipefail
@@ -136,83 +59,27 @@
     exec ${wallust-apply}/bin/wallust-apply "$WP_DIR/$choice"
   '';
 in {
-  # ---- packages ----
-  # awww-daemon is provided by modules/awww (systemd user services `awww` +
-  # `awww-wallpaper`). We do NOT add awww here or spawn our own daemon — the
-  # switcher below calls the systemd-managed daemon.
   home.packages = with pkgs; [
-    wallust # v3.5.x dynamic theming engine
-    libnotify # notify-send from the switcher
-    wallust-apply # shared apply logic (fuzzel menu + QuickShell picker)
-    wallust-switch # fuzzel launcher defined above
+    wallust
+    libnotify
+    wallust-apply 
+    wallust-switch
   ];
 
-  # ---- wallust config + templates (wallust owns these files) ----
   home.file.".config/wallust/wallust.toml".text = ''
-    # Wallust v3 config. Generated by home-manager (modules/wallust).
-    # Wallpapers source: ${wallpapersDir}
-    #
-    # Templates render with {{color0}}..{{color15}}, {{background}}, {{foreground}},
-    # {{cursor}}, {{alpha}}. (Verified: accent/wallpaper do NOT resolve.)
-
+ 
     [templates]
     fuzzel = { template = "fuzzel.tmpl", target = "${config.xdg.configHome}/fuzzel/fuzzel.ini" }
     kitty = { template = "kitty.tmpl", target = "${config.xdg.configHome}/kitty/kitty.conf" }
     niri = { template = "niri.tmpl", target = "${config.xdg.configHome}/niri/colors.kdl" }
-    # QuickShell bar palette (Phase 2b): a tiny JSON the running bar watches and
-    # crossfades via ColorAnimation/Behavior. Lives next to the bar config dir so
-    # the path always exists; wallust owns it, HM never writes it.
     quickshell = { template = "quickshell.tmpl", target = "${config.xdg.configHome}/quickshell/wallust-palette.json" }
-    # Obsidian (default theme): a CSS snippet in the vault that recolors the app
-    # to the wallpaper palette. Obsidian live-reloads snippets, so Mod+W recolors
-    # the vault too (no animation — instant color swap). wallust owns the file.
     obsidian = { template = "obsidian.tmpl", target = "/home/metamageia/Sync/Obsidian/.obsidian/snippets/wallust.css" }
-    # Zen Browser: recolors the browser chrome to the wallpaper palette via
-    # userChrome.css. Gecko loads this at BROWSER STARTUP (no live reload — the
-    # wallpaper-picker watcher is step 3). wallust owns the file (the zen module's
-    # userChrome option is deliberately left empty so there's no conflict). The
-    # profile dir hash (e06yfgug) is stable; NOTE if it ever rotates, update here.
     zen = { template = "zen.tmpl", target = "${config.xdg.configHome}/zen/e06yfgug.Default Profile/chrome/userChrome.css" }
-    # Discord (via Vesktop): wallust writes Vencord's QUICK CSS file, which is
-    # ALWAYS applied (settings useQuickCss=true) and HOT-RELOADS on write
-    # (verified from Vencord src/main/ipcMain.ts: a debounced FSWatcher posts
-    # QUICK_CSS_UPDATE on change). So the theme updates LIVE on Mod+W — no
-    # restart, no enabledThemes toggle. Path = <userData>/settings/quickCss.css
-    # = ~/.config/vesktop/settings/quickCss.css. wallust owns the file.
     discord = { template = "discord.tmpl", target = "${config.xdg.configHome}/vesktop/settings/quickCss.css" }
-    # Vesktop's OWN settings store (~/.config/vesktop/settings.json) — distinct
-    # from the Vencord quickCss.css target above. splashBackground is the color
-    # the main window paints while Discord boots (before the page paints), so
-    # setting it to {{background}} kills the white flash (Gage 08-30): the window
-    # opens dark and fades into the loaded theme instead of Electron's white
-    # default. splashTheming defaults true, so this color is the one used
-    # (src/main/mainWindow.ts: `splashTheming ? splashBackground : ...`).
-    # enableSplashScreen:false lives here too (no splash window). Vesktop
-    # rewrites this file at runtime; wallust re-renders it on every Mod+W.
     vesktop-settings = { template = "vesktop-settings.tmpl", target = "${config.xdg.configHome}/vesktop/settings.json" }
-        # Hermes desktop (Electron GUI): a skin YAML in the gateway's skins dir.
-    # The gateway's skin watcher polls (active skin name, skins/<name>.yaml
-    # mtime) and broadcasts skin.changed on any move; the desktop repaints on a
-    # NAME change (backend-sync.ts guard is name-based). wallust-apply bumps the
-    # name field to the wallpaper basename after each render, so Mod+W live-
-    # rethemes the desktop with no flash. display.skin is set to `wallust` in
-    # modules/hermes-agent. wallust owns the file.
     hermes = { template = "hermes.tmpl", target = "/var/lib/hermes/.hermes/skins/wallust.yaml" }
-    # Pyre (PySide6+QML file manager): renders a QtObject Theme.qml that theme.py
-    # reads at launch. wallust owns the file; the ~/.config/pyre target dir is
-    # mkdir'd in wallust-apply (wallust doesn't create parent dirs). Takes effect
-    # on next pyre launch / Mod+W.
     pyre = { template = "pyre.tmpl", target = "${config.xdg.configHome}/pyre/Theme.qml" }
   '';
-
-  # fuzzel launcher theme — mirrors the QuickShell bar's wallust palette
-  # (keys bg/fg/accent/gold/muted/urgent/green/blue) so the launcher and the
-  # bar share ONE cohesive look. Re-themed live on every Mod+W (wallust owns
-  # ~/.config/fuzzel/fuzzel.ini; HM writes it ONLY when settings != {}).
-  # Crossfade approach: the bar fades old->new on palette change; fuzzel is a
-  # transient overlay so it picks up the new palette instantly on next launch —
-  # no separate animation needed, but the palette *keys* match so the look is
-  # continuous with the bar's staged crossfade.
   home.file.".config/wallust/templates/fuzzel.tmpl".text = ''
     [main]
     # Smooth UI sans to match the bar (Inter). use-bold lets the selected

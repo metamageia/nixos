@@ -40,20 +40,11 @@
     fsType = "ext4";
     options = [ "nofail" "x-systemd.device-timeout=30" ];
   };
-  # ext4 has no uid=/gid= mount option, so ownership is applied to the tree.
-  # (Shares the tmpfiles list with the /bin/true shim below.)
   systemd.tmpfiles.rules = [
     "d /srv 2775 1000 100 - -"
     "L+ /bin/true - - - - ${pkgs.coreutils}/bin/true"
   ];
 
-  # Discord gateway creds. The 09-06 migration handed hermes to infernixos,
-  # which only provisions the API-server key via environmentFiles; the old
-  # dotfiles hermes-agent module (commented out below) was the sole carrier
-  # of DISCORD_BOT_TOKEN. Upstream regenerates $HERMES_HOME/.env from
-  # environmentFiles on every activation, so the stale token in .env was
-  # wiped on the first post-migration rebuild and the bot died. Restore the
-  # Discord env as an environmentFiles entry so it survives regeneration.
   sops.secrets."hermes-discord" = {
     sopsFile = "${userValues.secretsDir}/personal.secrets.yaml";
   };
@@ -68,16 +59,13 @@
   ];
 
   environment.systemPackages = [
-    #inputs.infernixos.packages.${pkgs.stdenv.hostPlatform.system}.pyre
     pkgs.godot
     pkgs.blender
     pkgs.steam
+    inputs.alejandra.defaultPackage.${pkgs.stdenv.hostPlatform.system}
   ];
 
   infernixos.system.hermesUser = "metamageia";
-  # Mnemosyne memory provider for the top-level (default) profile. infernixos
-  # deep-merges hermesSettings into services.hermes-agent.settings. Plugin must
-  # also be enabled for the in-session hooks. Bank: $HERMES_HOME/memory/hermes-default.db.
   infernixos.system.hermesSettings = {
     plugins.enabled = [ "discord-webhook-bots"  ];
     platform_toolsets = {
@@ -94,7 +82,6 @@
     DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
     DISPLAY = ":0";
   };
-
 
   systemd.services.hermes-agent.serviceConfig.PrivateTmp = lib.mkForce false;
   systemd.services.hermes-agent.serviceConfig.ProtectSystem = lib.mkForce false;

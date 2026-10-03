@@ -1,11 +1,3 @@
-# cua-driver — upstream prebuilt Rust binary (GitHub releases only; not in
-# nixpkgs, and cua.ai doesn't resolve from this box). The release tarball is a
-# generic-linux dynamically linked binary, so autoPatchelfHook + the three
-# missing X libs is what makes it runnable on NixOS (verified: `cua-driver
-# --version` -> 0.28.2, "0 dependencies could not be satisfied").
-#
-# Bump: change `version`, then `nix store prefetch-file --hash-type sha256
-# <the new tarball url>` for the hash.
 { pkgs, ... }:
 let
   version = "0.28.2";
@@ -29,7 +21,5 @@ let
     '';
   });
 in {
-  # On PATH for the hermes-agent service too (its unit PATH includes
-  # /run/current-system/sw/bin), so no HERMES_CUA_DRIVER_CMD override needed.
   environment.systemPackages = [ cua-driver ];
 }

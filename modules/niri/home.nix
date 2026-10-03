@@ -12,35 +12,16 @@
       environment = {
         DISPLAY = ":0";
       };
-      # nixpkgs home-manager's `wayland.windowManager.niri.settings` is free-form
-      # KDL; a Nix *list* renders as KDL list syntax (`spawn-at-startup { - … }`)
-      # which niri 26.04 rejects. niri 26.04 wants a bare command arg instead.
-      # QuickShell bar (modules/quickshell) — replaces waybar (Phase 3).
-      # spawn-at-startup is a singular bare-command arg in nixpkgs niri 26.04
-      # (a Nix *list* renders as rejected KDL list syntax). The second spawn
-      # (quickshell-bar) is appended via extraConfig below as a second node.
       spawn-at-startup = "xwayland-satellite";
       layout = {
         gaps = 8;
         focus-ring = {
           width = 1;
         };
-        # Border color (niri window-rule `border` only takes width; the COLOR
-        # lives here in layout.border). Default active/inactive are light —
-        # that's the white frame around windows. Set both to the theme bg so
-        # the frame reads as a dark hairline. NOTE: hardcoded to this
-        # wallpaper's bg; niri reads config only at login so it won't rotate
-        # with wallust (same limitation as colors.kdl).
         border = {
           active-color = "#1D1816";
           inactive-color = "#1D1816";
         };
-        # Drop shadow for windows: small + tight gradient (Gage). Low softness
-        # (tight, not a big blur), small spread, small offset. NOTE: NO
-        # draw-behind-window — that painted a rectangle behind every window and
-        # swallowed the wallpaper's background layer (broke it 08-29). Shadows
-        # draw around windows only. `on = {}` emits bare `on`; `offset._props`
-        # emits `offset x=0 y=6` (offset takes args, not a block).
         shadow = {
           on = {};
           softness = 10;
@@ -53,7 +34,6 @@
         };
       };
       binds = {
-        # Niri
         "Mod+Shift+E".quit = {};
         # Phase 7: Mod+Shift+/ now spawns our themed keybind popup
         # (quickshell-hotkeys), seeded from wallust palette) INSTEAD of niri's

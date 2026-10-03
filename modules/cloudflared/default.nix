@@ -5,9 +5,6 @@
   hostName,
   ...
 }: {
-  # From the wiki: To get credentialsFile (e.g. tunnel-ID.json) do:
-  # cloudflared tunnel login <the-token-you-see-in-dashboard>
-  # cloudflared tunnel create ConvenientTunnelName
 
   sops.secrets = {
     "saiadha-tunnel" = {
