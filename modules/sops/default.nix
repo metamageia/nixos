@@ -20,7 +20,7 @@
   # Mirror the system key into the user config so manual `sops` works.
   systemd.services.sops-user-key = {
     description = "Mirror sops age key to user config";
-    wantedBy = [ "multi-user.target" ];
+    wantedBy = ["multi-user.target"];
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;

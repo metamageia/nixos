@@ -70,13 +70,13 @@
       libxkbcommon
       alsa-lib
       pulseaudio
-       libX11
-       libXcursor
-       libXi
-       libXrandr
-       libXrender
-       libXext
-       libXfixes
+      libX11
+      libXcursor
+      libXi
+      libXrandr
+      libXrender
+      libXext
+      libXfixes
       fontconfig
       freetype
       dbus
@@ -90,13 +90,13 @@
       alsa-lib
       pulseaudio
       pipewire
-       libX11
-       libXcursor
-       libXi
-       libXrandr
-       libXrender
-       libXext
-       libXfixes
+      libX11
+      libXcursor
+      libXi
+      libXrandr
+      libXrender
+      libXext
+      libXfixes
       wayland
       libdecor
       dbus
@@ -105,28 +105,28 @@
     ];
 
     installPhase = ''
-      runHook preInstall
+            runHook preInstall
 
-      mkdir -p $out/share/soundthread $out/bin
+            mkdir -p $out/share/soundthread $out/bin
 
-      install -m755 SoundThread.x86_64 $out/share/soundthread/SoundThread.x86_64
-      tar xzf cdprogs_linux.tar.gz -C $out/share/soundthread/
+            install -m755 SoundThread.x86_64 $out/share/soundthread/SoundThread.x86_64
+            tar xzf cdprogs_linux.tar.gz -C $out/share/soundthread/
 
-      makeWrapper $out/share/soundthread/SoundThread.x86_64 $out/bin/SoundThread \
-        --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath runtimeLibs}"
+            makeWrapper $out/share/soundthread/SoundThread.x86_64 $out/bin/SoundThread \
+              --prefix LD_LIBRARY_PATH : "${lib.makeLibraryPath runtimeLibs}"
 
-      mkdir -p $out/share/applications
-      cat > $out/share/applications/soundthread.desktop <<EOF
-[Desktop Entry]
-Type=Application
-Name=SoundThread
-Comment=GUI for the Composers Desktop Project sound manipulation suite
-Exec=SoundThread
-Terminal=false
-Categories=AudioVideo;Audio;
-EOF
+            mkdir -p $out/share/applications
+            cat > $out/share/applications/soundthread.desktop <<EOF
+      [Desktop Entry]
+      Type=Application
+      Name=SoundThread
+      Comment=GUI for the Composers Desktop Project sound manipulation suite
+      Exec=SoundThread
+      Terminal=false
+      Categories=AudioVideo;Audio;
+      EOF
 
-      runHook postInstall
+            runHook postInstall
     '';
 
     meta = with lib; {
@@ -194,7 +194,7 @@ in {
     mda_lv2
     x42-plugins
     carla
-     soundfont-generaluser-gs
+    soundfont-generaluser-gs
     infamousPlugins
     talentedhack
     lsp-plugins

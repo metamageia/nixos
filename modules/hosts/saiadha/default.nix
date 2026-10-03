@@ -14,8 +14,6 @@
     ../../nebula/node.nix
     ../../jellyfin
 
-    #../../hermes-agent
-
     # Users
     ../../users/metamageia
 
@@ -26,19 +24,15 @@
     ../../fonts
     ../../printing
     ../../rclone
-    ../../cua-driver
-
   ];
 
   hardware.graphics.enable32Bit = true;
   services.udisks2.enable = true;
 
-  # Second harddrive (7.3 TB media pool, ext4, /dev/sda1) mounted at /srv with
-  # metamageia (1000:100) ownership. nofail: media, not boot-critical.
   fileSystems."/srv" = {
     device = "/dev/disk/by-uuid/8fd464fb-a385-4c8a-88d8-f25344c5942a";
     fsType = "ext4";
-    options = [ "nofail" "x-systemd.device-timeout=30" ];
+    options = ["nofail" "x-systemd.device-timeout=30"];
   };
   systemd.tmpfiles.rules = [
     "d /srv 2775 1000 100 - -"
@@ -65,36 +59,30 @@
     inputs.alejandra.defaultPackage.${pkgs.stdenv.hostPlatform.system}
   ];
 
-  infernixos.system.hermesUser = "metamageia";
-  infernixos.system.hermesSettings = {
-    plugins.enabled = [ "discord-webhook-bots"  ];
-    platform_toolsets = {
-      discord = [ "hermes-discord" "video" "video_gen" "computer_use" ];
-      cli = [ "hermes-cli" "video" "video_gen" "computer_use" ];
-      desktop = [ "hermes-desktop" "computer_use" ];
-    };
-  };
-  infernixos.desktop.enable = true;
-  infernixos.desktop.hermesClientUsers = [ "metamageia" ];
-
-  systemd.services.hermes-agent.environment = {
-    XDG_RUNTIME_DIR = "/run/user/1000";
-    DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
-    DISPLAY = ":0";
-  };
-
-  systemd.services.hermes-agent.serviceConfig.PrivateTmp = lib.mkForce false;
-  systemd.services.hermes-agent.serviceConfig.ProtectSystem = lib.mkForce false;
-  services.gnome.at-spi2-core.enable = true;
-
   systemd.services.hermes-backend.environment = {
     XDG_RUNTIME_DIR = "/run/user/1000";
     DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
     DISPLAY = ":0";
   };
-  systemd.services.hermes-backend.serviceConfig.PrivateTmp = lib.mkForce false;
-  systemd.services.hermes-backend.serviceConfig.ProtectSystem = lib.mkForce false;
 
+  # Nebula Settings
   services.nebula.networks.mesh.staticHostMap."192.168.100.3" = ["192.168.12.191:4242"];
   services.nebula.networks.mesh.settings.local_range = ["192.168.12.0/24"];
+
+  # Infernixos Settings
+  infernixos.system = {
+    hermesUser = "metamageia";
+    hermesSettings = {
+      plugins.enabled = ["discord-webhook-bots"];
+      platform_toolsets = {
+        discord = ["hermes-discord" "video" "video_gen" "computer_use"];
+        cli = ["hermes-cli" "video" "video_gen" "computer_use"];
+        desktop = ["hermes-desktop" "computer_use"];
+      };
+    };
+  };
+  infernixos.desktop = {
+    enable = true;
+    hermesClientUsers = ["metamageia"];
+  };
 }

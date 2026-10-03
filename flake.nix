@@ -7,35 +7,13 @@
     home-manager.url = "github:nix-community/home-manager";
     home-manager.inputs.nixpkgs.follows = "nixpkgs";
 
-    comin.url = "github:nlewo/comin";
-    comin.inputs.nixpkgs.follows = "nixpkgs";
-
     sops-nix.url = "github:Mic92/sops-nix";
     sops-nix.inputs.nixpkgs.follows = "nixpkgs";
-
-    stylix.url = "github:danth/stylix";
-    stylix.inputs.nixpkgs.follows = "nixpkgs";
-
-    zen-browser.url = "github:0xc000022070/zen-browser-flake";
-    zen-browser.inputs.nixpkgs.follows = "nixpkgs";
 
     alejandra.url = "github:kamadorueda/alejandra/4.0.0";
     alejandra.inputs.nixpkgs.follows = "nixpkgs";
 
-    compose2nix.url = "github:aksiksi/compose2nix";
-    compose2nix.inputs.nixpkgs.follows = "nixpkgs";
-
-    nix-on-droid.url = "github:nix-community/nix-on-droid/release-24.05";
-    nix-on-droid.inputs.nixpkgs.follows = "nixpkgs";
-
-    affinity-nix.url = "github:mrshmllow/affinity-nix";
-
-    claude-code.url = "github:sadjow/claude-code-nix";
-
-   hermes-agent.url = "github:NousResearch/hermes-agent";
-
-    aagl.url = "github:ezKEa/aagl-gtk-on-nix";
-    aagl.inputs.nixpkgs.follows = "nixpkgs";
+    hermes-agent.url = "github:NousResearch/hermes-agent";
 
     qml-niri.url = "github:imiric/qml-niri";
     qml-niri.inputs.nixpkgs.follows = "nixpkgs";
@@ -47,15 +25,9 @@
   outputs = {
     self,
     nixpkgs,
-    stylix,
-    comin,
     home-manager,
     sops-nix,
     alejandra,
-    compose2nix,
-    nix-on-droid,
-    affinity-nix,
-    claude-code,
     infernixos,
     ...
   } @ inputs: let
@@ -120,7 +92,6 @@
           ./modules/hosts/setseke
           ./modules/common.nix
         ];
-
       };
       beacon = nixpkgs.lib.nixosSystem {
         inherit system;
@@ -138,24 +109,10 @@
         ];
       };
     };
-    nixOnDroidConfigurations = {
-      phone = nix-on-droid.lib.nixOnDroidConfiguration {
-        pkgs = import nixpkgs {system = "aarch64-linux";};
-        specialArgs = {
-          hostName = "phone";
-          inherit inputs;
-          inherit userValues;
-          nebulaIP = "192.168.100.4";
-        };
-        modules = [./modules/hosts/phone];
-      };
-    };
     devShells.${system}.default = pkgs.mkShell {
       inherit system;
       buildInputs = [
-        pkgs.terraform
         pkgs.doctl
-        pkgs.kustomize
         pkgs.openssl
         pkgs.age
         pkgs.sops

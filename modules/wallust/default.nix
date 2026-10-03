@@ -5,7 +5,6 @@
   userValues,
   ...
 }: let
-  
   wallpapersDir = userValues.wallpapersDir;
 
   wallustCfgDir = "${config.xdg.configHome}/wallust";
@@ -42,7 +41,6 @@
     ${pkgs.libnotify}/bin/notify-send "wallust" "Themed from $(basename "$wp")" 2>/dev/null || true
   '';
 
-
   wallust-switch = pkgs.writeShellScriptBin "wallust-switch" ''
     #!${pkgs.bash}/bin/bash
     set -euo pipefail
@@ -62,12 +60,12 @@ in {
   home.packages = with pkgs; [
     wallust
     libnotify
-    wallust-apply 
+    wallust-apply
     wallust-switch
   ];
 
   home.file.".config/wallust/wallust.toml".text = ''
- 
+
     [templates]
     fuzzel = { template = "fuzzel.tmpl", target = "${config.xdg.configHome}/fuzzel/fuzzel.ini" }
     kitty = { template = "kitty.tmpl", target = "${config.xdg.configHome}/kitty/kitty.conf" }

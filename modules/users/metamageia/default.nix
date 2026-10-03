@@ -36,11 +36,10 @@
   };
 
   programs.git = {
-      enable = true;
-      config.user = {
-        name  = "Metamageia";
-        email = "metamageia@gmail.com";
-      };
+    enable = true;
+    config.user = {
+      name = "Metamageia";
+      email = "metamageia@gmail.com";
     };
-
+  };
 }

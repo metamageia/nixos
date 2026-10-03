@@ -25,26 +25,25 @@
   saiadhaGateway = "http://192.168.100.2:9119";
   saiadhaTokenPath = "/var/lib/hermes/.hermes/remote-gateway-session-token";
 
-  hermesDesktopRemote =
-    (inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.desktop)
+  hermesDesktopRemote = (inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.desktop)
     .override {
-      extraEnv = {
-        HERMES_HOME = "/var/lib/hermes/.hermes";
-        HERMES_MANAGED = "nixos";
-        HERMES_DESKTOP_REMOTE_URL = saiadhaGateway;
-      };
-      extraRun = [
-        ''
-          if [ -r ${saiadhaTokenPath} ]; then
-            HERMES_DESKTOP_REMOTE_TOKEN="$(tr -d '\r\n' < ${saiadhaTokenPath})"
-            export HERMES_DESKTOP_REMOTE_TOKEN
-          else
-            echo "hermes-desktop: cannot read ${saiadhaTokenPath} (saiadha session token)." >&2
-            echo "hermes-desktop: HERMES_DESKTOP_REMOTE_URL is set but the saiadha token is missing." >&2
-          fi
-        ''
-      ];
+    extraEnv = {
+      HERMES_HOME = "/var/lib/hermes/.hermes";
+      HERMES_MANAGED = "nixos";
+      HERMES_DESKTOP_REMOTE_URL = saiadhaGateway;
     };
+    extraRun = [
+      ''
+        if [ -r ${saiadhaTokenPath} ]; then
+          HERMES_DESKTOP_REMOTE_TOKEN="$(tr -d '\r\n' < ${saiadhaTokenPath})"
+          export HERMES_DESKTOP_REMOTE_TOKEN
+        else
+          echo "hermes-desktop: cannot read ${saiadhaTokenPath} (saiadha session token)." >&2
+          echo "hermes-desktop: HERMES_DESKTOP_REMOTE_URL is set but the saiadha token is missing." >&2
+        fi
+      ''
+    ];
+  };
 in {
   imports = [
     inputs.infernixos.homeManagerModules.infernixos
@@ -54,7 +53,7 @@ in {
     {
       programs.bash.enable = true;
 
-      infernixos.desktop.theming.wallpaper.extraDirs = [ ../../../wallpapers ];
+      infernixos.desktop.theming.wallpaper.extraDirs = [../../../wallpapers];
 
       home.username = "metamageia";
       home.homeDirectory = "/home/metamageia";

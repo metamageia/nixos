@@ -1,18 +1,15 @@
-{ config
-, pkgs
-, lib
-, inputs
-, userValues
-, ...
-}:
-
-let
- 
+{
+  config,
+  pkgs,
+  lib,
+  inputs,
+  userValues,
+  ...
+}: let
   barSrc = ./config-minimal;
 
   palettePath = "${config.xdg.configHome}/quickshell/wallust-palette.json";
 
- 
   pickerStatePath = "${config.xdg.configHome}/quickshell/picker-state";
   hotkeysStatePath = "${config.xdg.configHome}/quickshell/hotkeys-state";
   wallpapersDir = userValues.wallpapersDir;
@@ -65,8 +62,7 @@ let
     export QUICKSHELL_WALLPAPERS_DIR="${wallpapersDir}"
     exec ${pkgs.quickshell}/bin/quickshell --config "${barConfig}"
   '';
-in
-{
+in {
   home.packages = with pkgs; [
     quickshell
     qsWrapper
@@ -77,7 +73,7 @@ in
 
   home.file.".config/quickshell/bar".source = barConfig;
 
-  home.activation.createPickerState = lib.hm.dag.entryAfter [ "writeBoundary" ] ''
+  home.activation.createPickerState = lib.hm.dag.entryAfter ["writeBoundary"] ''
     mkdir -p "$HOME/.config/quickshell"
     echo "closed" > "$HOME/.config/quickshell/picker-state"
     echo "closed" > "$HOME/.config/quickshell/hotkeys-state"

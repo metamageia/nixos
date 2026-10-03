@@ -8,7 +8,6 @@
     ./hardware-configuration.nix
     ../../nebula/node.nix
 
-
     # Users
     ../../users/metamageia
 
@@ -19,17 +18,17 @@
     ../../fonts
   ];
 
-  system.stateVersion = "23.11"; 
+  system.stateVersion = "23.11";
 
-  hardware.bluetooth.enable = true; 
-  hardware.bluetooth.powerOnBoot = true; 
+  hardware.bluetooth.enable = true;
+  hardware.bluetooth.powerOnBoot = true;
 
-  boot.loader.systemd-boot.enable = true; 
-  boot.loader.efi.efiSysMountPoint = "/boot"; 
+  boot.loader.systemd-boot.enable = true;
+  boot.loader.efi.efiSysMountPoint = "/boot";
 
   infernixos.system.hermesUser = "metamageia";
   infernixos.desktop.enable = true;
-  infernixos.desktop.hermesClientUsers = [ "metamageia" ];
+  infernixos.desktop.hermesClientUsers = ["metamageia"];
 
   environment.systemPackages = [
     #inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.desktop
