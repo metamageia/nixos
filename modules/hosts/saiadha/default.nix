@@ -57,6 +57,7 @@
     pkgs.blender
     pkgs.steam
     inputs.alejandra.defaultPackage.${pkgs.stdenv.hostPlatform.system}
+    pkgs.omp
   ];
 
   systemd.services.hermes-backend.environment = {

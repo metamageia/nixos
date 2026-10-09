@@ -16,6 +16,7 @@
     unzip
     unrar
     git
+    git-lfs
   ];
 
   nix.optimise.automatic = true;
