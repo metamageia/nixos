@@ -18,6 +18,9 @@
     qml-niri.url = "github:imiric/qml-niri";
     qml-niri.inputs.nixpkgs.follows = "nixpkgs";
 
+    zen-browser.url = "github:0xc000022070/zen-browser-flake";
+    zen-browser.inputs.nixpkgs.follows = "nixpkgs";
+
     infernixos.url = "github:metamageia/infernixos";
     infernixos.inputs.nixpkgs.follows = "nixpkgs";
   };

@@ -4,6 +4,11 @@
   lib,
   ...
 }: {
+  theming.wallust.templates.niri = {
+    source = ./wallust.tmpl;
+    target = "${config.xdg.configHome}/niri/colors.kdl";
+  };
+
   wayland.windowManager.niri = {
     enable = true;
 
@@ -35,14 +40,10 @@
       };
       binds = {
         "Mod+Shift+E".quit = {};
-        # Phase 7: Mod+Shift+/ now spawns our themed keybind popup
-        # (quickshell-hotkeys), seeded from wallust palette) INSTEAD of niri's
-        # unstyleable show-hotkey-overlay (no styling options, not a layer surface).
         "Mod+Shift+Slash" = {
           spawn = ["keybind-popup-toggle"];
         };
 
-        # Hotkeys
         "Mod+D" = {
           spawn = ["fuzzel"];
         };
@@ -50,14 +51,10 @@
           spawn = ["kitty"];
         };
         "Mod+P".screenshot = {};
-        # Phase 6: wallpaper/theme switcher. Mod+W now opens the QuickShell
-        # diamond picker (wallpaper-picker-toggle); wallust-switch remains as the
-        # text-menu fallback (see modules/wallust).
         "Mod+W" = {
           spawn = ["wallpaper-picker-toggle"];
         };
 
-        # Audio
         "XF86AudioRaiseVolume" = {
           spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1+"];
         };
@@ -65,7 +62,6 @@
           spawn = ["wpctl" "set-volume" "@DEFAULT_AUDIO_SINK@" "0.1-"];
         };
 
-        # Windows and Workspaces
         "Mod+Q".close-window = {};
 
         "Mod+Left".focus-column-left = {};
@@ -148,30 +144,16 @@
         "Mod+Ctrl+F".expand-column-to-available-width = {};
         "Mod+C".center-column = {};
       };
-      # NOTE: niri 26.04 uses singular `match` / `exclude` (not the plural
-      # `matches` / `excludes` that niri-flake's typed `settings` accepted), and
-      # `geometry-corner-radius` takes a single uniform radius in 26.04 (the old
-      # per-corner nested form is rejected). The nixpkgs home-manager
-      # `wayland.windowManager.niri.settings` is free-form KDL; a Nix *list*
-      # renders as KDL list syntax (`window-rules { - … }`) which niri rejects,
-      # so window-rules are emitted via `settings._children` as top-level
-      # `window-rule {…}` nodes.
       _children = [
-        # Geometry Rules (apply to all windows)
         {
           window-rule._children = [
             {match = {};}
             {draw-border-with-background = false;}
             {clip-to-geometry = true;}
             {geometry-corner-radius = 0;}
-            # Window border: niri's window-rule `border` only accepts `width`
-            # (a `color` key here is INVALID — broke the build). The border is
-            # drawn in the focus-ring's active-color, so the white frame is
-            # fixed by setting active-color dark (see layout.focus-ring below).
             {border = {width = 2;};}
           ];
         }
-        # Opacity Rules (all windows except zen)
         {
           window-rule._children = [
             {match = {};}
@@ -182,17 +164,6 @@
       ];
     };
 
-    # Spawn the QuickShell bar at session start (replaces waybar, Phase 3).
-    # Emitted via extraConfig (not settings._children) because the nixpkgs
-    # home-manager KDL generator drops a bare `{"spawn-at-startup" = …}` _children
-    # entry; raw extraConfig nodes are preserved verbatim. Window-rules above stay
-    # in _children (they render fine); only the bare spawn node was skipped.
-    #
-    # Layer-rule drop shadows for fuzzel ("launcher") and the QuickShell bar
-    # ("quickshell-bar" namespace, set in shell.qml). These live here as RAW KDL
-    # because the free-form converter inlines layer-rule shadow props onto one
-    # line (rejected by niri). Same small/tight shadow as windows: no
-    # draw-behind-window, low softness, small spread/offset.
     extraConfig = ''
       spawn-at-startup "quickshell-bar"
 
@@ -218,10 +189,6 @@
         }
       }
 
-      // Phase 7: the keybind/hotkey popup's shadow, same tight drop shadow as
-      // the bar/fuzzel (namespace quickshell-hotkeys, set in shell.qml). A window
-      // shadow draws around the window box =the popup panel fits tight to content.
-
       layer-rule {
         match namespace="^quickshell-hotkeys$"
         shadow {
@@ -233,10 +200,7 @@
         }
       }
 
-      // Phase 6: the wallpaper picker's shadow is per-DIAMOND (in QML,
-      // WallpaperHive DropShadow), NOT a window-level layer-rule — a window
-      // shadow would cast a big box around the transparent picker surface
-      // (Gage, 08-29). Only the bar keeps its layer-rule shadow.
+      include optional=true "colors.kdl"
     '';
   };
 }

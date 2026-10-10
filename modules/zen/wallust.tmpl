@@ -1,0 +1,189 @@
+:root {
+  color-scheme: dark !important;
+  --toolbar-color-scheme: dark !important;
+  --zen-border-radius: 0px !important;
+  --zen-primary-color: {{color5}} !important;
+  --zen-primary: {{color5}} !important;
+  --zen-colors-secondary: {{color0}} !important;
+  --zen-colors-tertiary: {{color0}} !important;
+  --zen-main-browser-background: {{background}} !important;
+  --zen-main-browser-background-toolbar: {{background}} !important;
+  --zen-themed-toolbar-bg: {{background}} !important;
+}
+
+* {
+  color-scheme: dark !important;
+  --toolbar-color-scheme: dark !important;
+}
+
+#tabbrowser-tabpanels browser,
+#tabbrowser-tabpanels browser#content {
+  background-color: transparent !important;
+}
+
+#tabbrowser-tabpanels,
+#tabbrowser-tabpanels deck,
+#tabbrowser-tabpanels .browserStack,
+#tabbrowser-tabpanels .browserSidebarContainer {
+  background-color: transparent !important;
+}
+
+#zen-main-app-wrapper,
+#zen-toolbar-background,
+#sidebar-container,
+#sidebar-launcher-splitter {
+  background-color: {{background}} !important;
+}
+
+#zen-toolbar-background {
+  --zen-main-browser-background-toolbar: {{background}} !important;
+}
+
+#navigator-toolbox {
+  outline: none !important;
+  background-image: none !important;
+}
+#zen-toolbar-background,
+#zen-main-app-wrapper {
+  background-image: none !important;
+}
+
+#zen-appcontent-navbar-wrapper,
+#zen-appcontent-navbar-container,
+#zen-appcontent-navbar-container .titlebar-buttonbox-container,
+#zen-appcontent-navbar-container .titlebar-buttonbox {
+  background-color: transparent !important;
+  background-image: none !important;
+  color-scheme: dark !important;
+  color: {{foreground}} !important;
+}
+
+#zen-appcontent-wrapper {
+  background-color: color-mix(in srgb, {{background}} 90%, transparent) !important;
+  background-image: none !important;
+  color-scheme: dark !important;
+  color: {{foreground}} !important;
+}
+#zen-tabbox-wrapper {
+  background-color: transparent !important;
+  background-image: none !important;
+  color-scheme: dark !important;
+  color: {{foreground}} !important;
+}
+
+#zen-sidebar-splitter {
+  background-color: {{background}} !important;
+  border-color: transparent !important;
+  color: {{foreground}} !important;
+  border-radius: 0 !important;
+  opacity: 1 !important;
+}
+
+#main-window,
+body {
+  color: {{foreground}} !important;
+}
+
+#navigator-toolbox,
+#TabsToolbar,
+#tabbrowser-tabs,
+#tabbrowser-arrowscrollbox,
+#nav-bar,
+#PersonalToolbar {
+  background-color: {{background}} !important;
+  color: {{foreground}} !important;
+}
+
+#tabbrowser-tabs .tabbrowser-tab .tab-background {
+  background-color: {{color8}} !important;
+}
+#tabbrowser-tabs .tabbrowser-tab[selected] .tab-background {
+  background-color: {{color5}} !important;
+}
+#tabbrowser-tabs .tab-content {
+  color: {{foreground}} !important;
+}
+
+#urlbar-background,
+#urlbar,
+.urlbar-input-container {
+  background-color: {{color8}} !important;
+  color: {{foreground}} !important;
+  color-scheme: dark !important;
+  background-image: none !important;
+}
+
+#urlbar[breakout-extend] .urlbar-background,
+#urlbar[zen-floating-urlbar="true"] .urlbar-background,
+#urlbar[breakout] .urlbar-background {
+  --zen-urlbar-background-base: {{color8}} !important;
+  --zen-urlbar-background-transparent: {{color8}} !important;
+  background-color: {{color8}} !important;
+  background-image: none !important;
+  box-shadow: none !important;
+  backdrop-filter: none !important;
+  outline: none !important;
+}
+
+#sidebar,
+#sidebar-box {
+  background-color: {{background}} !important;
+  color: {{foreground}} !important;
+}
+
+body,
+#zen-main-app-wrapper,
+#zen-browser-background,
+#main-window,
+#tabbrowser-tabpanels .browserSidebarContainer,
+#tabbrowser-tabpanels deck,
+#tabbrowser-tabpanels .browserStack,
+#tabbrowser-tabpanels .browserSidebarContainer .browserStack {
+  border-radius: 0 !important;
+}
+#sidebar-box,
+#sidebar {
+  border-radius: 0 !important;
+}
+
+#sidebar-box #titlebar,
+#sidebar-box .sidebar-header,
+#sidebar-box #zen-sidebar-top-buttons,
+#zen-sidebar-top-buttons,
+#sidebar-box #zen-sidebar-bottom-buttons,
+#zen-sidebar-bottom-buttons {
+  background-color: {{background}} !important;
+  background-image: none !important;
+  border: none !important;
+  color-scheme: dark !important;
+  color: {{foreground}} !important;
+}
+
+#navigator-toolbox:not([animate='true']) #titlebar::before {
+  outline: 0px !important;
+}
+
+#navigator-toolbox toolbarbutton {
+  color: {{foreground}} !important;
+}
+
+#main-window,
+body,
+#zen-browser-background,
+#zen-main-app-wrapper,
+#zen-toolbar-background,
+#sidebar-container,
+#sidebar-launcher-splitter {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+#navigator-toolbox,
+#TabsToolbar,
+#tabbrowser-tabs,
+#nav-bar,
+#PersonalToolbar,
+#sidebar,
+#sidebar-box {
+  opacity: 0.85 !important;
+}
+

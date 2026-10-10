@@ -46,14 +46,21 @@
   };
 in {
   imports = [
-    inputs.infernixos.homeManagerModules.infernixos
+    ../../wallust
+    ../../awww
+    ../../niri/home.nix
+    ../../quickshell
+    ../../kitty
+    ../../fuzzel
+    ../../vesktop
+    ../../zen
+    ../../obsidian
+    ../../hermes-agent/home.nix
   ];
 
   config = lib.mkMerge [
     {
       programs.bash.enable = true;
-
-      infernixos.desktop.theming.wallpaper.extraDirs = [../../../wallpapers];
 
       home.username = "metamageia";
       home.homeDirectory = "/home/metamageia";
@@ -61,7 +68,6 @@ in {
       home.stateVersion = "23.11";
 
       home.packages = with pkgs; [
-        obsidian
         vscode
         qbittorrent
       ];
@@ -74,7 +80,7 @@ in {
     # setseke's Hermes Desktop attaches to saiadha's gateway; every other host
     # (saiadha included) keeps infernixos's default local-loopback backend.
     (lib.mkIf (hostName == "setseke") {
-      infernixos.desktop.apps.hermesDesktop.package = hermesDesktopRemote;
+      home.packages = [hermesDesktopRemote];
     })
   ];
 }

@@ -1,8 +1,6 @@
 {
   config,
   pkgs,
-  inputs,
-  userValues,
   ...
 }: let
   wallustStateFile = "${config.xdg.configHome}/wallust/last-wallpaper";

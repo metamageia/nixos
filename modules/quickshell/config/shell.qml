@@ -1,54 +1,1163 @@
 import QtQuick
 import QtQuick.Layouts
+import Qt5Compat.GraphicalEffects
 import Quickshell
+import Quickshell.Io
 import Quickshell.Wayland
 import Niri
-import "./modules/bar/"
 
-// Entry point for the QuickShell bar.
-//   - `colors` (colors.qml, sibling) centralises the palette so Phase 2b can add
-//     ColorAnimation/Behavior without touching any widget.
-//   - `niri` (qml-niri plugin, import Niri) is the niri IPC bridge.
-// The bar is a single PanelWindow; niri is single-output-first but the pattern
-// scales to Variants{ Quickshell.screens } later if multi-monitor is wanted.
 ShellRoot {
   id: root
 
-  // The palette type is `Colors` (capital, from Colors.qml). Its instance id is
-  // `colors` — a ShellRoot child, so like `niri` below it is reachable by bare
-  // name (`colors.<x>`) from every component in this config, including the Bar
-  // widgets in modules/bar/ (confirmed pattern: reference quickshell-niri's Bar
-  // accesses `niri.focusedWindow` the same way). Earlier failures came from the
-  // type being lowercase `colors` colliding with the id.
-  Colors { id: colors }
+  ExtensionLoader {
+    shellRoot: root
+  }
 
-  // Watch the wallust-generated palette file and re-apply colours on change.
-  // Lives here (not inside Colors.qml) because ShellRoot holds child objects
-  // cleanly; Colors.qml stays pure data. `onLoaded`/`onFileChanged` fire when
-  // wallust rewrites the file (Mod+W), triggering the crossfade Behaviours.
+  HermesClient {
+    id: hermes
+    contextProvider: function () { return niriBridge.contextLine() }
+    captureProvider: function (onDone) { return niriBridge.captureWindow(onDone) }
+  }
+  NiriBridge {
+    id: niriBridge
+  }
+
+  property bool agentsOpen: false
+  property bool chatOpen: false
+  property bool sessionsOpen: false
+
+  readonly property string palettePath: (Quickshell.env("QUICKSHELL_WALLUST_PALETTE") || "").length > 0
+    ? Quickshell.env("QUICKSHELL_WALLUST_PALETTE")
+    : ((Quickshell.env("XDG_CONFIG_HOME") || "").length > 0
+        ? Quickshell.env("XDG_CONFIG_HOME") + "/quickshell/wallust-palette.json"
+        : Quickshell.env("HOME") + "/.config/quickshell/wallust-palette.json")
+
+  readonly property string uiFont: "Inter"
+
+  readonly property string iconDir: Quickshell.shellRoot + "/icons"
+
+  readonly property string pickerStatePath: (Quickshell.env("XDG_CONFIG_HOME") || "").length > 0
+    ? Quickshell.env("XDG_CONFIG_HOME") + "/quickshell/picker-state"
+    : Quickshell.env("HOME") + "/.config/quickshell/picker-state"
+
+  readonly property var wallpapersDirs: {
+    const multi = Quickshell.env("QUICKSHELL_WALLPAPER_DIRS")
+    if (multi !== undefined && multi.length > 0) return multi.split(":").filter(d => d.length > 0)
+    const single = Quickshell.env("QUICKSHELL_WALLPAPERS_DIR")
+    return single && single.length > 0 ? [single] : []
+  }
+  readonly property string wallpapersDir: wallpapersDirs.length > 0 ? wallpapersDirs[0] : ""
+  property bool pickerOpen: false
+  property string lastWallpaperPath: ""
+
+  readonly property string hotkeysStatePath: (Quickshell.env("XDG_CONFIG_HOME") || "").length > 0
+    ? Quickshell.env("XDG_CONFIG_HOME") + "/quickshell/hotkeys-state"
+    : Quickshell.env("HOME") + "/.config/quickshell/hotkeys-state"
+  property bool hotkeysOpen: false
+
+  ListModel { id: wpModel }
+
   FileView {
-    id: paletteFile
-    path: colors.palettePath
+    id: pickerStateView
+    path: root.pickerStatePath
     watchChanges: true
-    onFileChanged: this.reload()
+    onFileChanged: pickerStateView.reload()
     onLoaded: {
-      var text = this.text()
-      try { colors.applyPalette(JSON.parse(text)) }
-      catch (e) { /* corrupt/unparseable — keep current colours */ }
+      root.pickerOpen = (text().trim() === "open")
     }
   }
+
+  FileView {
+ id: hotkeysStateView
+    path: root.hotkeysStatePath
+    watchChanges: true
+    onFileChanged: hotkeysStateView.reload()
+    onLoaded: {
+      root.hotkeysOpen = (text().trim() === "open")
+    }
+  }
+
+  FileView {
+    id: lastWallpaperView
+    path: (Quickshell.env("XDG_CONFIG_HOME") || "").length > 0
+      ? Quickshell.env("XDG_CONFIG_HOME") + "/wallust/last-wallpaper"
+      : Quickshell.env("HOME") + "/.config/wallust/last-wallpaper"
+    watchChanges: true
+    onFileChanged: lastWallpaperView.reload()
+    onLoaded: root.lastWallpaperPath = text().trim()
+  }
+
+  function scanWallpapers() {
+    if (root.wallpapersDirs.length === 0) return
+    scanProc.running = true
+  }
+  Process {
+    id: scanProc
+
+    command: ["/bin/sh", "-c",
+      `for d in \$(echo "\$DIRS" | tr ':' ' '); do
+  [ -d "\$d" ] || continue
+  find "\$d" -maxdepth 1 -type f \\( -iname '*.jpg' -o -iname '*.jpeg' -o -iname '*.png' -o -iname '*.webp' \\) -print
+done | awk -F/ '{ print \$NF "\\t" \$0 }' | sort | cut -f2-`,
+      "sh"]
+    environment: ({ DIRS: root.wallpapersDirs.join(":") })
+    running: false
+    stdout: StdioCollector {
+      onStreamFinished: {
+        wpModel.clear()
+        const files = this.text.split("\n").filter(function (n) { return n.trim().length > 0 })
+        console.log("picker DEBUG: scan returned", files.length, "files; first:", files[0])
+        for (const file of files) {
+          const name = file.substring(file.lastIndexOf("/") + 1)
+          wpModel.append({
+            file: file,
+            name: name,
+            isActive: (file === root.lastWallpaperPath)
+          })
+        }
+        console.log("picker DEBUG: wpModel.count =", wpModel.count)
+
+        hive.rebuild()
+      }
+    }
+  }
+
+  property bool volMuted: false
+
+  property string barBg: "#0d0d14"
+  property string barFg: "#e8e6f0"
+  property string barAccent: "#7b68ab"
+  property string barGold: "#d4a017"
+  property string barMuted: "#8b8bab"
+  property string barUrgent: "#ff5555"
+  property string barGreen: "#5e7a5e"
+  property string barBlue: "#6b8e9f"
+
+  property string pendingBg: "#0d0d14"
+  property string pendingFg: "#e8e6f0"
+  property string pendingAccent: "#7b68ab"
+  property string pendingGold: "#d4a017"
+  property string pendingMuted: "#8b8bab"
+  property string pendingUrgent: "#ff5555"
+  property string pendingGreen: "#5e7a5e"
+  property string pendingBlue: "#6b8e9f"
+
+  property bool firstLoad: true
+  
+  property int themeRevision: 0
 
   Niri {
     id: niri
     Component.onCompleted: connect()
-    onConnected: console.info("quickshell: connected to niri")
-    onErrorOccurred: function (error) {
-      console.error("quickshell: niri connection error:", error)
+    onErrorOccurred: function (e) { console.error("qml-niri:", e) }
+  }
+
+  FileView {
+    id: palette
+    path: palettePath
+    watchChanges: true
+    onFileChanged: palette.reload()
+    onLoaded: {
+      try {
+        const p = JSON.parse(text());
+        if (root.firstLoad) {
+          
+          if (p.bg) root.barBg = p.bg;
+          if (p.fg) root.barFg = p.fg;
+          if (p.accent) root.barAccent = p.accent;
+          if (p.gold) root.barGold = p.gold;
+          if (p.muted) root.barMuted = p.muted;
+          if (p.urgent) root.barUrgent = p.urgent;
+          if (p.green) root.barGreen = p.green;
+          if (p.blue) root.barBlue = p.blue;
+          root.firstLoad = false;
+        } else {
+          
+          root.pendingBg = p.bg || root.barBg;
+          root.pendingFg = p.fg || root.barFg;
+          root.pendingAccent = p.accent || root.barAccent;
+          root.pendingGold = p.gold || root.barGold;
+          root.pendingMuted = p.muted || root.barMuted;
+          root.pendingUrgent = p.urgent || root.barUrgent;
+          root.pendingGreen = p.green || root.barGreen;
+          root.pendingBlue = p.blue || root.barBlue;
+          root.themeRevision++;
+        }
+      } catch (e) {
+        
+      }
     }
   }
 
-  LazyLoader {
-    active: true
-    component: Bar {}
+  component ThemeIcon: Item {
+    property string source
+    property color tint
+    property int size: 14
+    width: size
+    height: size
+
+    Image {
+      id: ic
+      anchors.fill: parent
+      source: "file://" + root.iconDir + "/" + source
+      sourceSize.width: size
+      sourceSize.height: size
+      fillMode: Image.PreserveAspectFit
+      visible: false
+    }
+    ColorOverlay {
+      anchors.fill: ic
+      source: ic
+      color: tint
+    }
+  }
+
+  PanelWindow {
+    id: bar
+
+    WlrLayershell.namespace: "quickshell-bar"
+    anchors {
+      top: true
+      left: true
+      right: true
+    }
+    implicitHeight: 27
+    color: "transparent"
+
+    Rectangle {
+      id: surface
+      anchors.fill: parent
+      color: root.barBg
+      opacity: 0.93
+      radius: 0
+
+      RowLayout {
+        id: left
+        spacing: 6
+        anchors {
+          left: parent.left
+          leftMargin: 8
+          verticalCenter: parent.verticalCenter
+        }
+        Rectangle {
+          id: hermesBtn
+          width: 20
+          height: 20
+          radius: 0
+          color: hermesBtnMa.containsMouse ? root.barAccent : "transparent"
+          Text {
+            anchors.centerIn: parent
+            text: "H"
+            color: hermesBtnMa.containsMouse ? root.barBg : root.barAccent
+            font.family: root.uiFont
+            font.pixelSize: 13
+            font.bold: true
+          }
+          MouseArea {
+            id: hermesBtnMa
+            anchors.fill: parent
+            hoverEnabled: true
+            cursorShape: Qt.PointingHandCursor
+            onClicked: Quickshell.execDetached(["/bin/sh", "-c",
+              "hermes-desktop >/dev/null 2>&1 & sleep 0.3; " +
+              "if ! niri msg windows | grep -qi 'Hermes'; then hermes-desktop; fi"])
+          }
+        }
+        ThemeIcon {
+          source: "workspace.svg"
+          tint: root.barMuted
+          size: 13
+        }
+        Repeater {
+          model: niri.workspaces
+          Rectangle {
+            width: 20
+            height: 20
+            radius: 0
+            color: model.isFocused ? root.barGold
+              : (model.isActive ? root.barAccent : "transparent")
+            border.color: model.isUrgent ? root.barUrgent : "transparent"
+            border.width: model.isUrgent ? 2 : 0
+
+            Text {
+              anchors.centerIn: parent
+
+              text: model.name !== "" ? model.name : model.index
+              color: (model.isFocused || model.isActive) ? root.barBg : root.barMuted
+              font.family: root.uiFont
+              font.pixelSize: 11
+              font.bold: true
+            }
+
+            MouseArea {
+              anchors.fill: parent
+              cursorShape: Qt.PointingHandCursor
+              onClicked: niri.focusWorkspaceById(model.id)
+            }
+          }
+        }
+      }
+
+      RowLayout {
+        id: hud
+        spacing: 8
+        anchors {
+          horizontalCenter: parent.horizontalCenter
+          verticalCenter: parent.verticalCenter
+        }
+
+        Rectangle {
+          implicitWidth: agentsRow.implicitWidth + 14
+          height: 20
+          radius: 10
+          color: hermes.activeAgents > 0 ? root.barGreen : "transparent"
+          border.color: root.barMuted
+          border.width: 1
+          Row {
+            id: agentsRow
+            anchors.centerIn: parent
+            spacing: 5
+            Rectangle {
+              width: 7; height: 7; radius: 4
+              anchors.verticalCenter: parent.verticalCenter
+              color: hermes.activeAgents > 0 ? root.barGreen : root.barMuted
+            }
+            Text {
+              anchors.verticalCenter: parent.verticalCenter
+              text: hermes.connected
+                ? (hermes.activeAgents > 0
+                    ? hermes.activeAgents + (hermes.activeAgents === 1 ? " agent" : " agents")
+                    : "idle")
+                : "gateway off"
+              color: hermes.activeAgents > 0 ? root.barBg : root.barMuted
+              font.family: root.uiFont
+              font.pixelSize: 11
+            }
+          }
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: root.agentsOpen = !root.agentsOpen
+          }
+        }
+
+        Rectangle {
+          implicitWidth: sessionText.implicitWidth + 20
+          height: 20
+          radius: 10
+          color: "transparent"
+          border.color: root.barMuted
+          border.width: 1
+          Text {
+            id: sessionText
+            anchors.centerIn: parent
+            width: Math.min(implicitWidth, 140)
+            text: hermes.currentSessionTitle !== "" ? hermes.currentSessionTitle : "new"
+            color: hermes.currentSessionTitle !== "" ? root.barFg : root.barMuted
+            font.family: root.uiFont
+            font.pixelSize: 11
+            elide: Text.ElideRight
+          }
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: {
+              root.sessionsOpen = !root.sessionsOpen
+              if (root.sessionsOpen) hermes.refreshSessions()
+            }
+          }
+        }
+
+        Rectangle {
+          width: 260
+          height: 20
+          radius: 10
+          color: root.barBg
+          border.color: hudInput.activeFocus ? root.barAccent : root.barMuted
+          border.width: 1
+          TextInput {
+            id: hudInput
+            anchors.fill: parent
+            anchors.leftMargin: 8
+            anchors.rightMargin: 8
+            verticalAlignment: TextInput.AlignVCenter
+            color: root.barFg
+            font.family: root.uiFont
+            font.pixelSize: 11
+            clip: true
+            enabled: hermes.connected && !hermes.busy
+            Keys.onReturnPressed: {
+              hermes.send(text)
+              text = ""
+            }
+            Keys.onEnterPressed: {
+              hermes.send(text)
+              text = ""
+            }
+            Keys.onEscapePressed: focus = false
+          }
+          Text {
+            visible: hudInput.text === "" && !hudInput.activeFocus
+            anchors.fill: parent
+            anchors.leftMargin: 8
+            verticalAlignment: Text.AlignVCenter
+            text: hermes.busy ? "thinking…" : "ask hermes"
+            color: root.barMuted
+            font.family: root.uiFont
+            font.pixelSize: 11
+          }
+        }
+
+        Rectangle {
+          width: 20
+          height: 20
+          radius: 10
+          color: hermes.captureContext ? root.barAccent : "transparent"
+          border.color: hermes.captureContext ? root.barAccent : root.barMuted
+          border.width: 1
+          Text {
+            anchors.centerIn: parent
+            text: "S"
+            color: hermes.captureContext ? root.barBg : root.barMuted
+            font.family: root.uiFont
+            font.pixelSize: 11
+            font.bold: true
+          }
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: {
+              hermes.captureContext = !hermes.captureContext
+              if (hermes.captureContext) niriBridge.refreshFocus()
+            }
+          }
+        }
+
+        Rectangle {
+          width: 20
+          height: 20
+          radius: 10
+          color: root.chatOpen ? root.barAccent : "transparent"
+          border.color: root.chatOpen ? root.barAccent : root.barMuted
+          border.width: 1
+          Text {
+            anchors.centerIn: parent
+            text: "≡"
+            color: root.chatOpen ? root.barBg : root.barMuted
+            font.family: root.uiFont
+            font.pixelSize: 12
+            font.bold: true
+          }
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: {
+              root.chatOpen = !root.chatOpen
+              if (root.chatOpen) hermes.loadMessages(hermes.currentSessionId)
+            }
+          }
+        }
+      }
+
+      RowLayout {
+        id: right
+        spacing: 12
+        property string battText: ""
+        property bool battPresent: battText !== ""
+        anchors {
+          right: parent.right
+          rightMargin: 8
+          verticalCenter: parent.verticalCenter
+        }
+
+        Text {
+          id: rebuild
+          property string rev: ""
+          property string summary: ""
+          property string status: ""
+          property string repo: Quickshell.env("INFERNIXOS_CONFIG_REPO") || ""
+          visible: rev !== "" || status !== ""
+          color: root.barAccent
+          font.family: root.uiFont
+          font.pixelSize: 13
+          text: status !== "" ? status : "rebuild " + rev.slice(0, 7) + "? " + summary
+          Accessible.role: Accessible.Button
+          Accessible.name: "Hermes rebuild request: " + summary + ". Left click approve, middle click view diff, right click dismiss."
+          FileView {
+            id: rebuildRequest
+            path: "/var/lib/hermes/.hermes/rebuild-request"
+            watchChanges: true
+            onFileChanged: reload()
+            onLoaded: {
+              const lines = text().split("\n")
+              const rev = lines[0].trim()
+              rebuild.rev = /^[0-9a-f]{40}$/.test(rev) ? rev : ""
+              rebuild.summary = lines.slice(1).join(" ").trim()
+            }
+            onLoadFailed: { rebuild.rev = ""; rebuild.summary = "" }
+          }
+          Process {
+            id: rebuildProc
+            command: ["systemctl", "start", "infernixos-rebuild@" + rebuild.rev + ".service"]
+            onExited: (code) => { rebuild.status = code === 0 ? "rebuild ok" : "rebuild failed" }
+          }
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            acceptedButtons: Qt.LeftButton | Qt.MiddleButton | Qt.RightButton
+            onClicked: (mouse) => {
+              if (rebuild.status !== "") { rebuild.status = ""; return }
+              if (mouse.button === Qt.MiddleButton) {
+                Quickshell.execDetached(["kitty", "--hold", "git", "-C", rebuild.repo, "show", rebuild.rev])
+                return
+              }
+              if (mouse.button === Qt.LeftButton) {
+                rebuild.status = "rebuilding..."
+                rebuildProc.running = true
+              }
+              Quickshell.execDetached(["rm", "-f", rebuildRequest.path])
+            }
+          }
+        }
+
+        Text {
+          id: wifi
+          color: root.barAccent
+          font.family: root.uiFont
+          font.pixelSize: 13
+          text: "net --"
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: Quickshell.execDetached(["networkmanager_dmenu"])
+          }
+        }
+        ThemeIcon {
+          source: "wifi.svg"
+          tint: root.barAccent
+          size: 14
+          anchors.verticalCenter: parent.verticalCenter
+        }
+        Process {
+          id: wifiProc
+          command: ["nmcli", "-t", "-f", "active,ssid", "dev", "wifi"]
+          running: true
+          stdout: StdioCollector {
+            onStreamFinished: {
+              const lines = this.text.split("\n")
+              let ssid = ""
+              for (const l of lines) {
+                const p = l.split(":")
+                if (p[0] === "yes" && p[1]) { ssid = p[1]; break }
+              }
+              wifi.text = ssid ? ("net " + ssid) : "net off"
+            }
+          }
+        }
+        Timer {
+          interval: 10000
+          running: true
+          repeat: true
+          onTriggered: wifiProc.running = true
+        }
+
+        Process {
+          id: battProc
+          command: ["/bin/sh", "-c",
+            "cap=$(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -1); " +
+            "st=$(cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -1); " +
+            "[ -n \"$cap\" ] && printf '%s%%%s' \"$cap\" \"$([ \"$st\" = Charging ] && echo '+')\" || true"]
+          running: true
+          stdout: StdioCollector {
+            onStreamFinished: right.battText = this.text.trim()
+          }
+        }
+        Timer {
+          interval: 30000
+          running: true
+          repeat: true
+          onTriggered: battProc.running = true
+        }
+        Text {
+          visible: right.battPresent
+          text: right.battText
+          color: root.barAccent
+          font.family: root.uiFont
+          font.pixelSize: 13
+        }
+
+        Text {
+          id: clock
+          text: Qt.formatDateTime(new Date(), "ddd HH:mm")
+          color: root.barAccent
+          font.family: root.uiFont
+          font.pixelSize: 13
+          Timer {
+            interval: 1000
+            running: true
+            repeat: true
+            onTriggered: clock.text = Qt.formatDateTime(new Date(), "ddd HH:mm")
+          }
+        }
+
+        Text {
+          id: vol
+          color: root.volMuted ? root.barUrgent : root.barAccent
+          font.family: root.uiFont
+          font.pixelSize: 13
+          text: "vol --"
+          MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+            onClicked: {
+              Quickshell.execDetached(["wpctl", "set-mute", "@DEFAULT_AUDIO_SINK@", "toggle"])
+              volProc.running = true
+            }
+            onWheel: (wheel) => {
+              const step = wheel.angleDelta.y > 0 ? "5%+" : "5%-"
+              Quickshell.execDetached(["wpctl", "set-volume", "@DEFAULT_AUDIO_SINK@", step])
+              volProc.running = true
+            }
+          }
+        }
+        ThemeIcon {
+          id: volIcon
+          source: "volume.svg"
+          tint: root.volMuted ? root.barUrgent : root.barAccent
+          size: 14
+          anchors.verticalCenter: parent.verticalCenter
+        }
+        Process {
+          id: volProc
+          command: ["wpctl", "get-volume", "@DEFAULT_AUDIO_SINK@"]
+          running: true
+          stdout: StdioCollector {
+            onStreamFinished: {
+              const t = this.text.trim()
+              const m = t.match(/Volume:\s*([\d.]+)/)
+              const muted = /MUTED/.test(t)
+              root.volMuted = muted
+              if (m) {
+                const pct = Math.round(parseFloat(m[1]) * 100)
+                vol.text = (muted ? "MUTE " : "") + pct + "%"
+                volIcon.source = muted ? "volume-muted.svg" : "volume.svg"
+              } else {
+                vol.text = "vol ?"
+              }
+            }
+          }
+        }
+        Timer {
+          interval: 1000
+          running: true
+          repeat: true
+          onTriggered: volProc.running = true
+        }
+      }
+
+      SequentialAnimation on opacity {
+        id: fadeSeq
+        running: false
+        NumberAnimation { to: 0.0; duration: 200; easing.type: Easing.InOutQuad }
+        ScriptAction {
+          script: {
+            root.barBg = root.pendingBg
+            root.barFg = root.pendingFg
+            root.barAccent = root.pendingAccent
+            root.barGold = root.pendingGold
+            root.barMuted = root.pendingMuted
+            root.barUrgent = root.pendingUrgent
+            root.barGreen = root.pendingGreen
+            root.barBlue = root.pendingBlue
+          }
+        }
+        NumberAnimation { to: 0.93; duration: 200; easing.type: Easing.InOutQuad }
+      }
+    }
+  }
+
+  PanelWindow {
+    id: picker
+    visible: root.pickerOpen
+    color: "transparent"
+    
+    focusable: true
+    WlrLayershell.namespace: "quickshell-wallpaper-picker"
+
+    exclusiveZone: 0
+    width: 900
+    height: 600
+
+    onVisibleChanged: {
+      if (visible) {
+        root.scanWallpapers()
+
+        Qt.callLater(hive.forceActiveFocus)
+      }
+    }
+
+    WallpaperHive {
+      id: hive
+      anchors.fill: parent
+      model: wpModel
+      accent: root.barAccent
+      muted: root.barMuted
+      focus: true
+
+      Keys.onEscapePressed: Quickshell.execDetached(["wallpaper-picker-toggle"])
+
+      onActiveFocusChanged: {
+        if (!activeFocus && root.pickerOpen) Qt.callLater(forceActiveFocus)
+      }
+      onApply: function (file) {
+        root.pickerOpen = false
+        Quickshell.execDetached(["wallust-apply", file])
+      }
+    }
+  }
+
+  PanelWindow {
+    id: hotkeys
+    visible: root.hotkeysOpen
+    color: "transparent"
+    
+    focusable: true
+    WlrLayershell.namespace: "quickshell-hotkeys"
+
+    exclusiveZone: 0
+    width: 540
+    height: 620
+
+    onVisibleChanged: if (visible) Qt.callLater(hotkeysPanel.forceActiveFocus)
+
+    Rectangle {
+      id: hotkeysPanel
+      anchors.fill: parent
+      color: root.barBg
+      opacity: 0.93
+      radius: 0
+
+      Keys.onEscapePressed: Quickshell.execDetached(["keybind-popup-toggle"])
+      onActiveFocusChanged: {
+        
+        if (!activeFocus && root.hotkeysOpen) Qt.callLater(hotkeysPanel.forceActiveFocus)
+      }
+
+      Flickable {
+        id: kbFlick
+        anchors.fill: parent
+        contentWidth: width
+        contentHeight: kbCol.height + 32
+        clip: true
+
+        Column {
+          id: kbCol
+          x: 16
+          y: 16
+          width: kbFlick.width - 32
+          spacing: 6
+
+          RowLayout {
+            width: kbCol.width
+            spacing: 8
+            ThemeIcon {
+              source: "keybind.svg"
+              tint: root.barGold
+              size: 14
+            }
+            Text {
+              text: "KEYBINDS"
+              color: root.barGold
+              font.family: root.uiFont
+              font.pixelSize: 13
+              font.bold: true
+              Layout.fillWidth: true
+            }
+            Text {
+              text: "Mod+Shift+/ to close"
+              color: root.barMuted
+              font.family: root.uiFont
+              font.pixelSize: 11
+            }
+          }
+
+          ListModel {
+            id: kbModel
+            
+            ListElement { key: "Mod+Shift+E";             desc: "Quit" }
+            ListElement { key: "Mod+Q";                   desc: "Close window" }
+            ListElement { key: "Mod+D";                   desc: "Launcher (fuzzel)" }
+            ListElement { key: "Mod+T";                   desc: "Terminal (kitty)" }
+            ListElement { key: "Mod+P";                   desc: "Screenshot" }
+            ListElement { key: "Mod+W";                   desc: "Wallpaper picker" }
+            ListElement { key: "Mod+Left/Right";          desc: "Focus column" }
+            ListElement { key: "Mod+Up/Down";             desc: "Focus window" }
+            ListElement { key: "Mod+H/L";                 desc: "Focus column (vim)" }
+            ListElement { key: "Mod+K/J";                 desc: "Focus window (vim)" }
+            ListElement { key: "Mod+Ctrl+Arrows";         desc: "Move window/column" }
+            ListElement { key: "Mod+Ctrl+HJKL";           desc: "Move (vim)" }
+            ListElement { key: "Mod+Home/End";            desc: "Focus first/last column" }
+            ListElement { key: "Mod+Ctrl+Home/End";       desc: "Move column to edges" }
+            ListElement { key: "Mod+Shift+Arrows";        desc: "Focus monitor" }
+            ListElement { key: "Mod+Shift+Ctrl+Arrows";   desc: "Move column to monitor" }
+            ListElement { key: "Mod+PgUp/PgDn";           desc: "Focus workspace" }
+            ListElement { key: "Mod+U/I";                 desc: "Focus workspace (vim)" }
+            ListElement { key: "Mod+Ctrl+PgUp/PgDn";      desc: "Move column to workspace" }
+            ListElement { key: "Mod+Ctrl+U/I";            desc: "Move column to workspace (vim)" }
+            ListElement { key: "Mod+Shift+PgUp/PgDn";     desc: "Move workspace" }
+            ListElement { key: "Mod+Shift+U/I";           desc: "Move workspace (vim)" }
+            ListElement { key: "Mod+1..9";                desc: "Focus workspace by number" }
+            
+            ListElement { key: "Mod+[ / ]";               desc: "Consume/expel window" }
+            ListElement { key: "Mod+, / .";               desc: "Consume/expel into/from column" }
+            ListElement { key: "Mod+R";                   desc: "Switch preset column width" }
+            ListElement { key: "Mod+Shift+R";             desc: "Switch preset window height" }
+            ListElement { key: "Mod+Ctrl+R";              desc: "Reset window height" }
+            ListElement { key: "Mod+F";                   desc: "Maximize column" }
+            ListElement { key: "Mod+Shift+F";             desc: "Fullscreen window" }
+            ListElement { key: "Mod+Ctrl+F";              desc: "Expand column to width" }
+            ListElement { key: "Mod+C";                   desc: "Center column" }
+            
+            ListElement { key: "XF86AudioRaiseVol";       desc: "Volume up" }
+            ListElement { key: "XF86AudioLowerVol";       desc: "Volume down" }
+          }
+
+          Repeater {
+            model: kbModel
+            delegate: RowLayout {
+              width: kbCol.width
+              spacing: 8
+              Text {
+                text: model.key
+                color: root.barAccent
+                font.family: root.uiFont
+                font.pixelSize: 12
+                font.bold: true
+                Layout.preferredWidth: 200
+                elide: Text.ElideRight
+              }
+              Text {
+                text: model.desc
+                color: root.barFg
+                font.family: root.uiFont
+                font.pixelSize: 12
+                Layout.fillWidth: true
+                elide: Text.ElideRight
+              }
+            }
+          }
+
+          Rectangle {
+            width: kbCol.width
+            height: 1
+            color: root.barMuted
+            opacity: 0.4
+          }
+          Text {
+            width: kbCol.width
+            text: "Hotkey popup seeded from the wallust palette, matching the bar"
+            color: root.barMuted
+            font.family: root.uiFont
+            font.pixelSize: 10
+          }
+        }
+      }
+    }
+  }
+
+  PanelWindow {
+    id: agentsPopup
+    visible: root.agentsOpen
+    color: "transparent"
+    focusable: true
+    WlrLayershell.namespace: "quickshell-agents"
+    exclusiveZone: 0
+    width: 420
+    height: 260
+
+    onVisibleChanged: if (visible) Qt.callLater(agentsPanel.forceActiveFocus)
+
+    Rectangle {
+      id: agentsPanel
+      anchors.fill: parent
+      color: root.barBg
+      opacity: 0.93
+      radius: 0
+      Keys.onEscapePressed: root.agentsOpen = false
+      onActiveFocusChanged: {
+        if (!activeFocus && root.agentsOpen) Qt.callLater(forceActiveFocus)
+      }
+
+      Column {
+        x: 16
+        y: 16
+        width: parent.width - 32
+        spacing: 8
+
+        Text {
+          text: "AGENTS"
+          color: root.barGold
+          font.family: root.uiFont
+          font.pixelSize: 13
+          font.bold: true
+        }
+
+        Rectangle { width: parent.width; height: 1; color: root.barMuted; opacity: 0.4 }
+
+        Text {
+          width: parent.width
+          text: !hermes.connected
+            ? "Gateway unreachable (" + hermes.baseUrl + ")"
+            : (hermes.activeAgents > 0
+                ? hermes.activeAgents + " agent(s) active on the gateway."
+                : "No agents currently active.")
+          color: hermes.connected ? root.barFg : root.barUrgent
+          font.family: root.uiFont
+          font.pixelSize: 12
+          wrapMode: Text.WordWrap
+        }
+
+        Rectangle { width: parent.width; height: 1; color: root.barMuted; opacity: 0.4 }
+
+        Text {
+          width: parent.width
+          text: "RECENT SESSIONS"
+          color: root.barMuted
+          font.family: root.uiFont
+          font.pixelSize: 11
+          font.bold: true
+        }
+
+        Repeater {
+          model: hermes.sessions.slice(0, 6)
+          delegate: Text {
+            width: agentsPanel.width - 32
+            text: "• " + modelData.title
+            color: root.barFg
+            font.family: root.uiFont
+            font.pixelSize: 12
+            elide: Text.ElideRight
+          }
+        }
+      }
+
+      MouseArea {
+        anchors.fill: parent
+        onClicked: { }
+      }
+      Component.onCompleted: hermes.refreshSessions()
+      onVisibleChanged: if (visible) hermes.refreshSessions()
+    }
+  }
+
+  PanelWindow {
+    id: sessionsPopup
+    visible: root.sessionsOpen
+    color: "transparent"
+    focusable: true
+    WlrLayershell.namespace: "quickshell-sessions"
+    exclusiveZone: 0
+    width: 420
+    height: 360
+
+    onVisibleChanged: if (visible) Qt.callLater(sessionsPanel.forceActiveFocus)
+
+    Rectangle {
+      id: sessionsPanel
+      anchors.fill: parent
+      color: root.barBg
+      opacity: 0.93
+      radius: 0
+      Keys.onEscapePressed: root.sessionsOpen = false
+      onActiveFocusChanged: {
+        if (!activeFocus && root.sessionsOpen) Qt.callLater(forceActiveFocus)
+      }
+
+      Flickable {
+        anchors.fill: parent
+        contentWidth: width
+        contentHeight: sessCol.height + 32
+        clip: true
+
+        Column {
+          id: sessCol
+          x: 16
+          y: 16
+          width: sessionsPanel.width - 32
+          spacing: 4
+
+          Text {
+            text: "SESSIONS"
+            color: root.barGold
+            font.family: root.uiFont
+            font.pixelSize: 13
+            font.bold: true
+          }
+
+          Rectangle { width: parent.width; height: 1; color: root.barMuted; opacity: 0.4 }
+
+          Rectangle {
+            width: parent.width
+            height: 26
+            color: hermes.currentSessionId === "" ? root.barAccent : "transparent"
+            Text {
+              anchors.verticalCenter: parent.verticalCenter
+              anchors.left: parent.left
+              anchors.leftMargin: 8
+              text: "+ new session"
+              color: hermes.currentSessionId === "" ? root.barBg : root.barFg
+              font.family: root.uiFont
+              font.pixelSize: 12
+            }
+            MouseArea {
+              anchors.fill: parent
+              cursorShape: Qt.PointingHandCursor
+              onClicked: {
+                hermes.newSession()
+                root.sessionsOpen = false
+              }
+            }
+          }
+
+          Repeater {
+            model: hermes.sessions
+            delegate: Rectangle {
+              width: sessCol.width
+              height: 26
+              color: hermes.currentSessionId === modelData.id ? root.barAccent : "transparent"
+              Text {
+                anchors.verticalCenter: parent.verticalCenter
+                anchors.left: parent.left
+                anchors.leftMargin: 8
+                width: parent.width - 60
+                text: (modelData.pinned ? "✦ " : "") + modelData.title
+                color: hermes.currentSessionId === modelData.id ? root.barBg : root.barFg
+                font.family: root.uiFont
+                font.pixelSize: 12
+                elide: Text.ElideRight
+              }
+              MouseArea {
+                anchors.fill: parent
+                cursorShape: Qt.PointingHandCursor
+                onClicked: {
+                  hermes.selectSession(modelData.id, modelData.title)
+                  root.sessionsOpen = false
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }
+
+  PanelWindow {
+    id: chatPopup
+    visible: root.chatOpen
+    color: "transparent"
+    focusable: true
+    WlrLayershell.namespace: "quickshell-chat"
+    exclusiveZone: 0
+    width: 620
+    height: 480
+
+    onVisibleChanged: {
+      if (visible) {
+        hermes.loadMessages(hermes.currentSessionId)
+        Qt.callLater(chatPanel.forceActiveFocus)
+      }
+    }
+
+    Rectangle {
+      id: chatPanel
+      anchors.fill: parent
+      color: root.barBg
+      opacity: 0.93
+      radius: 0
+      Keys.onEscapePressed: root.chatOpen = false
+      onActiveFocusChanged: {
+        if (!activeFocus && root.chatOpen) Qt.callLater(forceActiveFocus)
+      }
+
+      Column {
+        x: 16
+        y: 16
+        width: parent.width - 32
+        spacing: 6
+
+        Text {
+          text: hermes.currentSessionTitle !== "" ? hermes.currentSessionTitle : "no session selected"
+          color: root.barGold
+          font.family: root.uiFont
+          font.pixelSize: 13
+          font.bold: true
+          elide: Text.ElideRight
+          width: parent.width
+        }
+
+        Rectangle { width: parent.width; height: 1; color: root.barMuted; opacity: 0.4 }
+      }
+
+      Flickable {
+        id: chatFlick
+        anchors {
+          top: parent.top
+          topMargin: 48
+          left: parent.left
+          right: parent.right
+          bottom: parent.bottom
+          bottomMargin: 16
+        }
+        anchors.leftMargin: 16
+        anchors.rightMargin: 16
+        contentWidth: width
+        contentHeight: chatCol.height
+        clip: true
+
+        Column {
+          id: chatCol
+          width: chatFlick.width
+          spacing: 10
+
+          Repeater {
+            model: hermes.messages
+            delegate: Column {
+              width: chatFlick.width
+              spacing: 2
+              Text {
+                text: model.role === "user" ? "you" : "hermes"
+                color: model.role === "user" ? root.barMuted : root.barAccent
+                font.family: root.uiFont
+                font.pixelSize: 10
+                font.bold: true
+              }
+              Text {
+                width: chatFlick.width
+                text: model.text
+                color: root.barFg
+                font.family: root.uiFont
+                font.pixelSize: 12
+                wrapMode: Text.WordWrap
+              }
+            }
+          }
+
+          Text {
+            visible: hermes.messages.length === 0
+            text: "No messages yet. Type in the bar to start."
+            color: root.barMuted
+            font.family: root.uiFont
+            font.pixelSize: 12
+          }
+        }
+
+        onContentHeightChanged: contentY = Math.max(0, contentHeight - height)
+      }
+    }
+  }
+
+  onThemeRevisionChanged: {
+    if (root.firstLoad) return
+    fadeSeq.restart()
   }
 }

@@ -6,13 +6,14 @@
   userValues,
   ...
 }: let
-  barSrc = ./config-minimal;
+  barSrc = ./config;
 
   palettePath = "${config.xdg.configHome}/quickshell/wallust-palette.json";
 
   pickerStatePath = "${config.xdg.configHome}/quickshell/picker-state";
   hotkeysStatePath = "${config.xdg.configHome}/quickshell/hotkeys-state";
-  wallpapersDir = userValues.wallpapersDir;
+  wallpapersDirs = [userValues.wallpapersDir];
+
   wallpaper-picker-toggle = pkgs.writeShellScriptBin "wallpaper-picker-toggle" ''
     #!${pkgs.bash}/bin/bash
     set -euo pipefail
@@ -59,10 +60,20 @@
       export QML2_IMPORT_PATH="${inputs.qml-niri.packages.${pkgs.stdenv.hostPlatform.system}.default}/lib/qt-6/qml:${pkgs.qt6.qt5compat}/lib/qt-6/qml:$QML2_IMPORT_PATH"
     fi
     export QUICKSHELL_WALLUST_PALETTE="${palettePath}"
-    export QUICKSHELL_WALLPAPERS_DIR="${wallpapersDir}"
+    export QUICKSHELL_WALLPAPER_DIRS="${lib.concatStringsSep ":" wallpapersDirs}"
+    # Gateway connection — same mechanism hermes desktop uses: a runtime token
+    # file read at launch (never baked into the store). Port matches the
+    # nixosModule default (hermesApiServerPort); HM scope can't read it.
+    export QUICKSHELL_HERMES_API_URL="http://127.0.0.1:8642"
+    export QUICKSHELL_HERMES_API_KEY_PATH="/var/lib/hermes/.hermes/api-server-key"
     exec ${pkgs.quickshell}/bin/quickshell --config "${barConfig}"
   '';
 in {
+  theming.wallust.templates.quickshell = {
+    source = ./wallust.tmpl;
+    target = palettePath;
+  };
+
   home.packages = with pkgs; [
     quickshell
     qsWrapper
