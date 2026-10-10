@@ -21,8 +21,6 @@
     zen-browser.url = "github:0xc000022070/zen-browser-flake";
     zen-browser.inputs.nixpkgs.follows = "nixpkgs";
 
-    infernixos.url = "github:metamageia/infernixos";
-    infernixos.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
@@ -31,7 +29,6 @@
     home-manager,
     sops-nix,
     alejandra,
-    infernixos,
     ...
   } @ inputs: let
     system = "x86_64-linux";

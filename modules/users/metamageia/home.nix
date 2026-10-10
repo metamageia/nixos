@@ -77,8 +77,6 @@ in {
       programs.home-manager.enable = true;
     }
 
-    # setseke's Hermes Desktop attaches to saiadha's gateway; every other host
-    # (saiadha included) keeps infernixos's default local-loopback backend.
     (lib.mkIf (hostName == "setseke") {
       home.packages = [hermesDesktopRemote];
     })

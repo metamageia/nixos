@@ -11,8 +11,6 @@
     # Users
     ../../users/metamageia
 
-    inputs.infernixos.nixosModules.infernixos
-
     ../../nh
     ../../audio
     ../../fonts
@@ -26,12 +24,8 @@
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.efiSysMountPoint = "/boot";
 
-  infernixos.system.hermesUser = "metamageia";
-  infernixos.desktop.enable = true;
-  infernixos.desktop.hermesClientUsers = ["metamageia"];
 
   environment.systemPackages = [
-    #inputs.hermes-agent.packages.${pkgs.stdenv.hostPlatform.system}.desktop
-    #pkgs.kdePackages.dolphin
+    pkgs.kdePackages.dolphin
   ];
 }

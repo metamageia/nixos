@@ -17,8 +17,6 @@
     # Users
     ../../users/metamageia
 
-    inputs.infernixos.nixosModules.infernixos
-
     ../../nh
     ../../audio
     ../../fonts
@@ -70,20 +68,4 @@
   services.nebula.networks.mesh.staticHostMap."192.168.100.3" = ["192.168.12.191:4242"];
   services.nebula.networks.mesh.settings.local_range = ["192.168.12.0/24"];
 
-  # Infernixos Settings
-  infernixos.system = {
-    hermesUser = "metamageia";
-    hermesSettings = {
-      plugins.enabled = ["discord-webhook-bots"];
-      platform_toolsets = {
-        discord = ["hermes-discord" "video" "video_gen" "computer_use"];
-        cli = ["hermes-cli" "video" "video_gen" "computer_use"];
-        desktop = ["hermes-desktop" "computer_use"];
-      };
-    };
-  };
-  infernixos.desktop = {
-    enable = true;
-    hermesClientUsers = ["metamageia"];
-  };
 }
