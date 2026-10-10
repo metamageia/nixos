@@ -42,31 +42,15 @@
   sops.secrets."hermes-discord" = {
     sopsFile = "${userValues.secretsDir}/personal.secrets.yaml";
   };
-  sops.templates."hermes-discord-env".content = ''
-    DISCORD_BOT_TOKEN=${config.sops.placeholder."hermes-discord"}
-    DISCORD_ALLOWED_USERS=663086185920331777
-    DISCORD_HOME_CHANNEL=1532688784796291164
-    DISCORD_DM_CHANNEL=1532707219387187351
-  '';
-  services.hermes-agent.environmentFiles = lib.mkAfter [
-    config.sops.templates."hermes-discord-env".path
-  ];
 
   environment.systemPackages = [
     pkgs.godot
     pkgs.blender
     pkgs.steam
+    pkgs.kdePackages.dolphin
     inputs.alejandra.defaultPackage.${pkgs.stdenv.hostPlatform.system}
-    pkgs.omp
   ];
 
-  systemd.services.hermes-backend.environment = {
-    XDG_RUNTIME_DIR = "/run/user/1000";
-    DBUS_SESSION_BUS_ADDRESS = "unix:path=/run/user/1000/bus";
-    DISPLAY = ":0";
-  };
-
-  # Nebula Settings
   services.nebula.networks.mesh.staticHostMap."192.168.100.3" = ["192.168.12.191:4242"];
   services.nebula.networks.mesh.settings.local_range = ["192.168.12.0/24"];
 }

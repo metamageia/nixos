@@ -10,6 +10,8 @@
     inputs.hermes-agent.nixosModules.default
   ];
 
+  services.hermes-agent = {enable = true;};
+
   users.groups.hermes = {};
   users.users.metamageia.extraGroups = ["hermes"];
 
