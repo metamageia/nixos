@@ -17,6 +17,13 @@
     unrar
     git
     git-lfs
+    curl
+    fd
+    gnupg
+    jq
+    ripgrep
+    tmux
+    wget
   ];
 
   nix.optimise.automatic = true;

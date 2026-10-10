@@ -13,6 +13,8 @@
     ../../nvidia
     ../../nebula/node.nix
     ../../jellyfin
+    ../../niri/default.nix
+    ../../sddm
 
     # Users
     ../../users/metamageia
@@ -67,5 +69,4 @@
   # Nebula Settings
   services.nebula.networks.mesh.staticHostMap."192.168.100.3" = ["192.168.12.191:4242"];
   services.nebula.networks.mesh.settings.local_range = ["192.168.12.0/24"];
-
 }
